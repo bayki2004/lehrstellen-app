@@ -1,0 +1,16 @@
+node_modules/
+.turbo/
+dist/
+build/
+.expo/
+*.local
+.env
+.env.*.local
+*.db
+*.db-journal
+coverage/
+.DS_Store
+ios/
+android/
+uploads/
+*.tsbuildinfo

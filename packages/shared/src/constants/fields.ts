@@ -1,0 +1,48 @@
+export const APPRENTICESHIP_FIELDS = [
+  'Informatik',
+  'Mediamatiker/in',
+  'Kaufmann/Kauffrau (KV)',
+  'Polymechaniker/in',
+  'Elektroinstallateur/in',
+  'Fachmann/Fachfrau Gesundheit',
+  'Medizinische/r Praxisassistent/in',
+  'Automobil-Fachmann/Fachfrau',
+  'Koch/Koechin',
+  'Detailhandelsfachmann/fachfrau',
+  'Maurer/in',
+  'Schreiner/in',
+  'Grafiker/in',
+  'Logistiker/in',
+  'Zeichner/in',
+  'Fachmann/Fachfrau Betreuung',
+  'Laborant/in',
+  'Automatiker/in',
+  'Metallbauer/in',
+  'Gärtner/in',
+] as const;
+
+export type ApprenticeshipField = (typeof APPRENTICESHIP_FIELDS)[number];
+
+/** Maps each field to its dominant RIASEC types for heuristic matching */
+export const FIELD_RIASEC_MAP: Record<string, string[]> = {
+  'Informatik': ['investigative', 'realistic'],
+  'Mediamatiker/in': ['artistic', 'enterprising'],
+  'Kaufmann/Kauffrau (KV)': ['conventional', 'enterprising'],
+  'Polymechaniker/in': ['realistic', 'investigative'],
+  'Elektroinstallateur/in': ['realistic', 'investigative'],
+  'Fachmann/Fachfrau Gesundheit': ['social', 'realistic'],
+  'Medizinische/r Praxisassistent/in': ['social', 'investigative'],
+  'Automobil-Fachmann/Fachfrau': ['realistic', 'investigative'],
+  'Koch/Koechin': ['artistic', 'realistic'],
+  'Detailhandelsfachmann/fachfrau': ['enterprising', 'social'],
+  'Maurer/in': ['realistic', 'conventional'],
+  'Schreiner/in': ['realistic', 'artistic'],
+  'Grafiker/in': ['artistic', 'investigative'],
+  'Logistiker/in': ['conventional', 'realistic'],
+  'Zeichner/in': ['artistic', 'realistic'],
+  'Fachmann/Fachfrau Betreuung': ['social', 'artistic'],
+  'Laborant/in': ['investigative', 'realistic'],
+  'Automatiker/in': ['realistic', 'investigative'],
+  'Metallbauer/in': ['realistic', 'conventional'],
+  'Gärtner/in': ['realistic', 'artistic'],
+};
