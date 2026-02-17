@@ -38,3 +38,16 @@ targets:
         INFOPLIST_KEY_NSCameraUsageDescription: "LehrMatch braucht Zugriff auf deine Kamera für dein Profilfoto."
         INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "LehrMatch braucht Zugriff auf deine Fotos für dein Profilfoto."
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: true
+  LehrMatchTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: LehrMatchTests
+        excludes:
+          - "**/.DS_Store"
+    dependencies:
+      - target: LehrMatch
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: true
+        PRODUCT_BUNDLE_IDENTIFIER: ch.lehrmatch.tests
