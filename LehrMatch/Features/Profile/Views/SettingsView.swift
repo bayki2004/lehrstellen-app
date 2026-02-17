@@ -161,35 +161,42 @@ struct LanguageSettingsView: View {
 }
 
 struct PersonalityResultsView: View {
+    @Environment(AppState.self) private var appState
+
+    private var hollandCodes: HollandCodes {
+        appState.currentStudent?.personalityProfile?.hollandCodes ?? HollandCodes(
+            realistic: 0.7, investigative: 0.4, artistic: 0.6,
+            social: 0.85, enterprising: 0.3, conventional: 0.5
+        )
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: Theme.Spacing.lg) {
-                Image(systemName: "brain.head.profile")
-                    .font(.system(size: 60))
-                    .foregroundStyle(Theme.Colors.primaryFallback.gradient)
-                    .padding(.top, Theme.Spacing.xl)
-
                 Text("Dein Persönlichkeitsprofil")
                     .font(Theme.Typography.title)
+                    .padding(.top, Theme.Spacing.xl)
 
-                Text("Basierend auf deinem Quiz-Ergebnis")
-                    .font(Theme.Typography.callout)
-                    .foregroundStyle(Theme.Colors.textSecondary)
+                Text("Dein Typ: \(hollandCodes.topThreeCodes.joined())")
+                    .font(Theme.Typography.headline)
+                    .foregroundStyle(Theme.Colors.primaryFallback)
 
-                // Placeholder for personality chart
-                VStack(spacing: Theme.Spacing.md) {
-                    personalityBar(label: "Realistisch", value: 0.7, color: .blue)
-                    personalityBar(label: "Forschend", value: 0.4, color: .green)
-                    personalityBar(label: "Künstlerisch", value: 0.6, color: .purple)
-                    personalityBar(label: "Sozial", value: 0.85, color: .orange)
-                    personalityBar(label: "Unternehmerisch", value: 0.3, color: .red)
-                    personalityBar(label: "Konventionell", value: 0.5, color: .gray)
-                }
+                RadarChartView(
+                    values: hollandCodes.asVector,
+                    labels: ["R", "I", "A", "S", "E", "C"]
+                )
+                .frame(height: 250)
                 .padding(.horizontal, Theme.Spacing.lg)
 
-                PrimaryButton(title: "Quiz wiederholen", action: {}, style: .outlined)
-                    .frame(width: 200)
-                    .padding(.top, Theme.Spacing.md)
+                VStack(spacing: Theme.Spacing.md) {
+                    personalityBar(label: "Realistisch", value: hollandCodes.realistic, color: .blue)
+                    personalityBar(label: "Forschend", value: hollandCodes.investigative, color: .green)
+                    personalityBar(label: "Künstlerisch", value: hollandCodes.artistic, color: .purple)
+                    personalityBar(label: "Sozial", value: hollandCodes.social, color: .orange)
+                    personalityBar(label: "Unternehmerisch", value: hollandCodes.enterprising, color: .red)
+                    personalityBar(label: "Konventionell", value: hollandCodes.conventional, color: .gray)
+                }
+                .padding(.horizontal, Theme.Spacing.lg)
             }
             .padding(.bottom, Theme.Spacing.xxl)
         }
@@ -206,7 +213,6 @@ struct PersonalityResultsView: View {
                     .font(Theme.Typography.badge)
                     .foregroundStyle(Theme.Colors.textSecondary)
             }
-
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 4)

@@ -15,6 +15,7 @@ struct StudentProfile: Identifiable, Codable {
     var skills: [String]
     var schnupperlehreExperience: [SchnupperlehreEntry]
     var multicheckScore: Int?
+    var personalityProfile: PersonalityProfile?
 
     var fullName: String { "\(firstName) \(lastName)" }
 
@@ -85,6 +86,7 @@ extension StudentProfile {
                 notes: "Super spannend, tolles Team"
             )
         ],
-        multicheckScore: nil
+        multicheckScore: nil,
+        personalityProfile: nil
     )
 }
