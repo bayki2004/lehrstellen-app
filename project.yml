@@ -1,0 +1,40 @@
+name: LehrMatch
+options:
+  bundleIdPrefix: ch.lehrmatch
+  deploymentTarget:
+    iOS: "26.0"
+  xcodeVersion: "26.0"
+  generateEmptyDirectories: true
+  groupSortPosition: top
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    TARGETED_DEVICE_FAMILY: "1"
+    INFOPLIST_KEY_UILaunchScreen_Generation: true
+    INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
+    INFOPLIST_KEY_CFBundleDisplayName: LehrMatch
+    INFOPLIST_KEY_LSApplicationCategoryType: "public.app-category.education"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    ENABLE_PREVIEWS: true
+    SWIFT_STRICT_CONCURRENCY: targeted
+
+targets:
+  LehrMatch:
+    type: application
+    platform: iOS
+    sources:
+      - path: LehrMatch
+        excludes:
+          - "**/.DS_Store"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: ch.lehrmatch.app
+        GENERATE_INFOPLIST_FILE: true
+        CODE_SIGN_ENTITLEMENTS: LehrMatch/LehrMatch.entitlements
+        INFOPLIST_KEY_NSCameraUsageDescription: "LehrMatch braucht Zugriff auf deine Kamera für dein Profilfoto."
+        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "LehrMatch braucht Zugriff auf deine Fotos für dein Profilfoto."
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: true
