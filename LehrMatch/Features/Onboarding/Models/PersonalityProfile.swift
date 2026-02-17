@@ -86,9 +86,23 @@ struct QuizOption {
     let scores: [QuizDimension: Double]
 }
 
-enum QuizDimension {
+enum QuizDimension: String, CaseIterable, Codable {
+    // RIASEC (Holland Codes)
     case realistic, investigative, artistic, social, enterprising, conventional
+    // Work Values
     case teamwork, independence, creativity, stability
+    case variety, helpingOthers, physicalActivity, technology
+
+    var isRIASEC: Bool {
+        switch self {
+        case .realistic, .investigative, .artistic, .social, .enterprising, .conventional:
+            return true
+        default:
+            return false
+        }
+    }
+
+    var isWorkValue: Bool { !isRIASEC }
 }
 
 // MARK: - Sample Questions
