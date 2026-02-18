@@ -35,10 +35,10 @@ export default function Index() {
 
   // Fully set up - go to main app
   if (user.role === 'COMPANY') {
-    return <Redirect href="/(app)/(company)/dashboard" />;
+    return <Redirect href="/(app)/(company)/listings" />;
   }
 
-  return <Redirect href="/(app)/(student)/feed" />;
+  return <Redirect href="/(app)/(student)/search" />;
 }
 
 const styles = StyleSheet.create({

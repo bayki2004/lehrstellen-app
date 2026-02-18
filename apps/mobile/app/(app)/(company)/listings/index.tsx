@@ -1,107 +1,178 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
-  FlatList,
-  TouchableOpacity,
+  ScrollView,
+  TextInput,
   StyleSheet,
-  ActivityIndicator,
-  RefreshControl,
+  Alert,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import Button from '../../../../components/ui/Button';
 import api from '../../../../services/api';
-import type { ListingDTO } from '@lehrstellen/shared';
+import { APPRENTICESHIP_FIELDS, SWISS_CANTONS } from '@lehrstellen/shared';
 
-export default function CompanyListingsScreen() {
+export default function CreateListingTab() {
   const router = useRouter();
-  const [listings, setListings] = useState<ListingDTO[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [form, setForm] = useState({
+    title: '',
+    description: '',
+    field: '',
+    canton: '',
+    city: '',
+    requirements: '',
+    spotsAvailable: '1',
+    durationYears: '3',
+  });
 
-  const fetchListings = useCallback(async () => {
+  const handleCreate = async () => {
+    if (!form.title || !form.field || !form.canton || !form.city) {
+      Alert.alert('Fehler', 'Bitte füllen Sie alle Pflichtfelder aus.');
+      return;
+    }
+
+    setIsLoading(true);
     try {
-      const res = await api.get<ListingDTO[]>('/listings/my');
-      setListings(res.data);
-    } catch {
-      // silent
+      await api.post('/listings', {
+        ...form,
+        spotsAvailable: parseInt(form.spotsAvailable, 10) || 1,
+        durationYears: parseInt(form.durationYears, 10) || 3,
+        requirements: form.requirements ? form.requirements.split('\n').filter(Boolean) : [],
+      });
+      Alert.alert('Erfolg', 'Lehrstelle wurde erstellt!');
+      setForm({
+        title: '',
+        description: '',
+        field: '',
+        canton: '',
+        city: '',
+        requirements: '',
+        spotsAvailable: '1',
+        durationYears: '3',
+      });
+    } catch (error: any) {
+      Alert.alert('Fehler', error.response?.data?.message || 'Erstellung fehlgeschlagen.');
     } finally {
       setIsLoading(false);
-      setRefreshing(false);
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    fetchListings();
-  }, [fetchListings]);
-
-  const renderListing = ({ item }: { item: ListingDTO }) => (
-    <View style={styles.card}>
-      <View style={styles.cardHeader}>
-        <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
-        <View style={[styles.badge, item.isActive ? styles.activeBadge : styles.inactiveBadge]}>
-          <Text style={[styles.badgeText, item.isActive ? styles.activeText : styles.inactiveText]}>
-            {item.isActive ? 'Aktiv' : 'Inaktiv'}
-          </Text>
-        </View>
-      </View>
-      <Text style={styles.field}>{item.field}</Text>
-      <Text style={styles.location}>{item.canton}, {item.city}</Text>
-      {item.description && (
-        <Text style={styles.description} numberOfLines={2}>{item.description}</Text>
-      )}
-      <View style={styles.cardFooter}>
-        <Text style={styles.spots}>
-          {item.spotsAvailable} {item.spotsAvailable === 1 ? 'Platz' : 'Plätze'} verfügbar
-        </Text>
-      </View>
-    </View>
-  );
-
-  if (isLoading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color="#4A90E2" />
-        </View>
-      </SafeAreaView>
-    );
-  }
+  const update = (key: string, value: string) => setForm((prev) => ({ ...prev, [key]: value }));
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.title}>Lehrstellen</Text>
+        <Text style={styles.title}>Inserieren</Text>
         <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => router.push('/(app)/(company)/listings/create')}
+          style={styles.myListingsButton}
+          onPress={() => router.push('/(app)/(company)/listings/my')}
         >
-          <Text style={styles.addButtonText}>+ Neu</Text>
+          <Text style={styles.myListingsText}>Meine Stellen</Text>
         </TouchableOpacity>
       </View>
 
-      {listings.length === 0 ? (
-        <View style={styles.center}>
-          <Text style={styles.emptyEmoji}>📋</Text>
-          <Text style={styles.emptyTitle}>Keine Lehrstellen</Text>
-          <Text style={styles.emptyText}>
-            Erstellen Sie Ihre erste Lehrstelle, um Bewerbungen zu erhalten.
-          </Text>
-        </View>
-      ) : (
-        <FlatList
-          data={listings}
-          renderItem={renderListing}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={() => {
-              setRefreshing(true);
-              fetchListings();
-            }} tintColor="#4A90E2" />
-          }
+      <ScrollView contentContainerStyle={styles.form} keyboardShouldPersistTaps="handled">
+        <Text style={styles.label}>Titel *</Text>
+        <TextInput
+          style={styles.input}
+          value={form.title}
+          onChangeText={(v) => update('title', v)}
+          placeholder="z.B. Informatiker/in EFZ"
+          placeholderTextColor="#9CA3AF"
         />
-      )}
+
+        <Text style={styles.label}>Berufsfeld *</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
+          {APPRENTICESHIP_FIELDS.map((f) => (
+            <TouchableOpacity
+              key={f}
+              style={[styles.chip, form.field === f && styles.chipSelected]}
+              onPress={() => update('field', f)}
+            >
+              <Text style={[styles.chipText, form.field === f && styles.chipTextSelected]}>
+                {f}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        <Text style={styles.label}>Kanton *</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
+          {SWISS_CANTONS.map((c) => (
+            <TouchableOpacity
+              key={c.code}
+              style={[styles.chip, form.canton === c.code && styles.chipSelected]}
+              onPress={() => update('canton', c.code)}
+            >
+              <Text style={[styles.chipText, form.canton === c.code && styles.chipTextSelected]}>
+                {c.code}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        <Text style={styles.label}>Stadt *</Text>
+        <TextInput
+          style={styles.input}
+          value={form.city}
+          onChangeText={(v) => update('city', v)}
+          placeholder="z.B. Zürich"
+          placeholderTextColor="#9CA3AF"
+        />
+
+        <Text style={styles.label}>Beschreibung</Text>
+        <TextInput
+          style={[styles.input, styles.textArea]}
+          value={form.description}
+          onChangeText={(v) => update('description', v)}
+          placeholder="Was erwartet die Lernenden?"
+          placeholderTextColor="#9CA3AF"
+          multiline
+          numberOfLines={4}
+        />
+
+        <Text style={styles.label}>Anforderungen (eine pro Zeile)</Text>
+        <TextInput
+          style={[styles.input, styles.textArea]}
+          value={form.requirements}
+          onChangeText={(v) => update('requirements', v)}
+          placeholder={'Sekundarschule A\nGute Noten in Mathe'}
+          placeholderTextColor="#9CA3AF"
+          multiline
+          numberOfLines={3}
+        />
+
+        <View style={styles.row}>
+          <View style={styles.halfField}>
+            <Text style={styles.label}>Plätze</Text>
+            <TextInput
+              style={styles.input}
+              value={form.spotsAvailable}
+              onChangeText={(v) => update('spotsAvailable', v)}
+              keyboardType="number-pad"
+            />
+          </View>
+          <View style={styles.halfField}>
+            <Text style={styles.label}>Dauer (Jahre)</Text>
+            <TextInput
+              style={styles.input}
+              value={form.durationYears}
+              onChangeText={(v) => update('durationYears', v)}
+              keyboardType="number-pad"
+            />
+          </View>
+        </View>
+
+        <Button
+          title="Lehrstelle erstellen"
+          onPress={handleCreate}
+          loading={isLoading}
+          style={styles.submitButton}
+        />
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -119,117 +190,79 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '800',
     color: '#1A1A2E',
   },
-  addButton: {
-    backgroundColor: '#4A90E2',
-    paddingHorizontal: 16,
+  myListingsButton: {
+    backgroundColor: '#EBF5FF',
+    paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
   },
-  addButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  list: {
-    paddingHorizontal: 16,
-    paddingBottom: 20,
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  cardTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#1A1A2E',
-    flex: 1,
-    marginRight: 8,
-  },
-  badge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  activeBadge: {
-    backgroundColor: '#E8F5E9',
-  },
-  inactiveBadge: {
-    backgroundColor: '#FFF3E0',
-  },
-  badgeText: {
-    fontSize: 12,
+  myListingsText: {
+    color: '#4A90E2',
+    fontSize: 13,
     fontWeight: '600',
   },
-  activeText: {
-    color: '#4CAF50',
+  form: {
+    padding: 20,
+    paddingBottom: 40,
   },
-  inactiveText: {
-    color: '#FF9800',
-  },
-  field: {
+  label: {
     fontSize: 14,
-    color: '#4A90E2',
-    fontWeight: '500',
-    marginBottom: 2,
-  },
-  location: {
-    fontSize: 13,
-    color: '#9CA3AF',
+    fontWeight: '600',
+    color: '#374151',
     marginBottom: 6,
+    marginTop: 14,
   },
-  description: {
-    fontSize: 14,
-    color: '#6B7280',
-    lineHeight: 20,
-    marginBottom: 8,
+  input: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: '#1A1A2E',
   },
-  cardFooter: {
-    borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
-    paddingTop: 8,
+  textArea: {
+    minHeight: 80,
+    textAlignVertical: 'top',
   },
-  spots: {
+  chipScroll: {
+    flexGrow: 0,
+    marginBottom: 4,
+  },
+  chip: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    marginRight: 8,
+  },
+  chipSelected: {
+    backgroundColor: '#4A90E2',
+    borderColor: '#4A90E2',
+  },
+  chipText: {
     fontSize: 13,
     color: '#6B7280',
     fontWeight: '500',
   },
-  center: {
+  chipTextSelected: {
+    color: '#FFFFFF',
+  },
+  row: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  halfField: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 40,
   },
-  emptyEmoji: {
-    fontSize: 56,
-    marginBottom: 12,
-  },
-  emptyTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#1A1A2E',
-    marginBottom: 8,
-  },
-  emptyText: {
-    fontSize: 15,
-    color: '#6B7280',
-    textAlign: 'center',
-    lineHeight: 22,
+  submitButton: {
+    marginTop: 24,
   },
 });
