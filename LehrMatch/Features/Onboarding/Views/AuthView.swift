@@ -89,7 +89,7 @@ struct AuthView: View {
 
         do {
             if isSignUp {
-                _ = try await appState.authManager.signUp(email: email, password: password)
+                _ = try await appState.authManager.signUp(email: email, password: password, userType: appState.userType ?? .student)
             } else {
                 _ = try await appState.authManager.signIn(email: email, password: password)
             }
@@ -105,7 +105,7 @@ struct AuthView: View {
         defer { isLoading = false }
 
         do {
-            try await appState.authManager.handleAppleSignIn(result: result)
+            try await appState.authManager.handleAppleSignIn(result: result, userType: appState.userType ?? .student)
             appState.isAuthenticated = true
         } catch {
             errorMessage = error.localizedDescription

@@ -43,7 +43,7 @@ struct MatchesListView: View {
                             ForEach(viewModel.newMatches) { match in
                                 newMatchBubble(match)
                                     .onTapGesture {
-                                        router.navigate(to: .chat(matchId: match.id))
+                                        router.navigate(to: .bewerbungDetail(id: match.id))
                                     }
                             }
                         }
@@ -60,7 +60,7 @@ struct MatchesListView: View {
                     ForEach(viewModel.conversations) { match in
                         conversationRow(match)
                             .onTapGesture {
-                                router.navigate(to: .chat(matchId: match.id))
+                                router.navigate(to: .bewerbungDetail(id: match.id))
                             }
                     }
                     .onDelete { indexSet in

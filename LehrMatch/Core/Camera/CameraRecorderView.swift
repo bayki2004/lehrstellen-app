@@ -23,7 +23,7 @@ struct CameraRecorderView: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: CameraRecorderViewController, context: Context) {}
 }
 
-final class CameraRecorderViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
+final class CameraRecorderViewController: UIViewController, @preconcurrency AVCaptureFileOutputRecordingDelegate {
     var maxDuration: TimeInterval = 60
     var onRecordingComplete: ((URL) -> Void)?
     var onCancel: (() -> Void)?

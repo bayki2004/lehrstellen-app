@@ -74,12 +74,19 @@ struct MotivationVideoStepView: View {
                 .multilineTextAlignment(.center)
         }
         .fullScreenCover(isPresented: $showCamera) {
-            CameraRecorderView { videoData in
-                showCamera = false
-                if let data = videoData {
-                    Task { await viewModel.uploadVideo(data: data) }
+            CameraRecorderView(
+                onRecordingComplete: { videoURL in
+                    showCamera = false
+                    Task {
+                        if let data = try? Data(contentsOf: videoURL) {
+                            await viewModel.uploadVideo(data: data)
+                        }
+                    }
+                },
+                onCancel: {
+                    showCamera = false
                 }
-            }
+            )
         }
     }
 

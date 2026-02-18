@@ -30,7 +30,7 @@ final class ChatViewModel {
 
         do {
             messages = try await apiClient.request(
-                endpoint: .messages(matchId: matchId)
+                endpoint: .messages(bewerbungId: matchId)
             )
         } catch {
             // Use sample data for development
@@ -62,7 +62,7 @@ final class ChatViewModel {
 
         do {
             try await apiClient.requestVoid(
-                endpoint: .messages(matchId: matchId),
+                endpoint: .messages(bewerbungId: matchId),
                 method: .post,
                 body: message
             )
