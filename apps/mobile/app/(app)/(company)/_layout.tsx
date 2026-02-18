@@ -23,8 +23,8 @@ export default function CompanyLayout() {
       <Tabs.Screen
         name="listings"
         options={{
-          title: 'Inserieren',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="➕" focused={focused} />,
+          title: 'Stellen',
+          tabBarIcon: ({ focused }) => <TabIcon emoji="📋" focused={focused} />,
         }}
       />
       <Tabs.Screen
@@ -48,7 +48,7 @@ export default function CompanyLayout() {
           tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} />,
         }}
       />
-      {/* Hide dashboard from tab bar (no longer used) */}
+      {/* Hidden */}
       <Tabs.Screen name="dashboard" options={{ href: null }} />
     </Tabs>
   );
