@@ -2,6 +2,7 @@ import Foundation
 
 enum OnboardingStep: Int, CaseIterable {
     case welcome
+    case roleSelection
     case ageVerification
     case parentalConsent
     case registration
@@ -9,5 +10,6 @@ enum OnboardingStep: Int, CaseIterable {
     case personalityQuiz
     case personalityResults
     case interestSelection
+    case profileBuilder
     case ready
 }

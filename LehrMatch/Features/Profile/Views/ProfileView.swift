@@ -33,7 +33,20 @@ struct ProfileView: View {
 
     private var profileHeader: some View {
         VStack(spacing: Theme.Spacing.md) {
-            AvatarView(imageURL: profile.profilePhotoURL, name: profile.fullName, size: 100)
+            // Profile completeness ring
+            ZStack {
+                Circle()
+                    .stroke(Theme.Colors.textTertiary.opacity(0.2), lineWidth: 6)
+                    .frame(width: 112, height: 112)
+
+                Circle()
+                    .trim(from: 0, to: CGFloat(profile.profileCompleteness) / 100.0)
+                    .stroke(Theme.Colors.swipeRight, style: StrokeStyle(lineWidth: 6, lineCap: .round))
+                    .frame(width: 112, height: 112)
+                    .rotationEffect(.degrees(-90))
+
+                AvatarView(imageURL: profile.profilePhotoURL, name: profile.fullName, size: 100)
+            }
 
             Text(profile.fullName)
                 .font(Theme.Typography.title)
@@ -46,9 +59,13 @@ struct ProfileView: View {
                 .font(Theme.Typography.caption)
                 .foregroundStyle(Theme.Colors.textTertiary)
 
+            Text("Profil \(profile.profileCompleteness)% vollständig")
+                .font(Theme.Typography.caption)
+                .foregroundStyle(profile.profileCompleteness >= 80 ? Theme.Colors.swipeRight : .orange)
+
             PrimaryButton(title: "Profil bearbeiten", action: {
-                router.navigate(to: .editProfile)
-            }, style: .outlined)
+                router.navigate(to: .profileBuilder)
+            })
             .frame(width: 200)
         }
         .padding(.top, Theme.Spacing.lg)
@@ -77,6 +94,12 @@ struct ProfileView: View {
 
     private var menuSection: some View {
         VStack(spacing: 0) {
+            menuRow(icon: "doc.text.fill", title: "Bewerbungsprofil", color: Theme.Colors.primaryFallback) {
+                router.navigate(to: .profileBuilder)
+            }
+
+            Divider().padding(.leading, 56)
+
             menuRow(icon: "brain.head.profile", title: "Persönlichkeitsprofil", color: .purple) {
                 router.navigate(to: .personalityResults)
             }
@@ -84,13 +107,7 @@ struct ProfileView: View {
             Divider().padding(.leading, 56)
 
             menuRow(icon: "briefcase", title: "Schnupperlehren", color: .orange) {
-                // Navigate to Schnupperlehre list
-            }
-
-            Divider().padding(.leading, 56)
-
-            menuRow(icon: "star", title: "Meine Skills", color: .blue) {
-                router.navigate(to: .editProfile)
+                router.navigate(to: .profileBuilder)
             }
 
             Divider().padding(.leading, 56)

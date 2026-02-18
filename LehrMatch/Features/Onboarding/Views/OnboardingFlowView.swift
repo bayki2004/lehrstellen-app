@@ -18,7 +18,11 @@ struct OnboardingFlowView: View {
             Group {
                 switch viewModel.currentStep {
                 case .welcome:
-                    WelcomeView(onContinue: { viewModel.advanceTo(.ageVerification) })
+                    WelcomeView(onContinue: { viewModel.advanceTo(.roleSelection) })
+                case .roleSelection:
+                    RoleSelectionView(onSelect: { type in
+                        viewModel.selectRole(type)
+                    })
                 case .ageVerification:
                     AgeVerificationView(viewModel: viewModel)
                 case .parentalConsent:
@@ -46,6 +50,8 @@ struct OnboardingFlowView: View {
                     PersonalityResultsView()
                 case .interestSelection:
                     InterestSelectionView(onComplete: { viewModel.completeOnboarding() })
+                case .profileBuilder:
+                    ProfileBuilderView(onComplete: { viewModel.finishProfileBuilder() })
                 case .ready:
                     ReadyToSwipeView(onStart: {
                         appState.hasCompletedOnboarding = true

@@ -37,6 +37,7 @@ targets:
         CODE_SIGN_ENTITLEMENTS: LehrMatch/LehrMatch.entitlements
         INFOPLIST_KEY_NSCameraUsageDescription: "LehrMatch braucht Zugriff auf deine Kamera für dein Profilfoto."
         INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "LehrMatch braucht Zugriff auf deine Fotos für dein Profilfoto."
+        INFOPLIST_KEY_NSMicrophoneUsageDescription: "LehrMatch braucht Zugriff auf dein Mikrofon für dein Motivationsvideo."
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: true
   LehrMatchTests:
     type: bundle.unit-test

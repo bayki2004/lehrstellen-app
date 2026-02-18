@@ -1,10 +1,25 @@
 import Foundation
 import AuthenticationServices
 
+// MARK: - User Type
+
+enum UserType: String, Codable, CaseIterable {
+    case student
+    case company
+
+    var displayName: String {
+        switch self {
+        case .student: "Schüler/in"
+        case .company: "Unternehmen"
+        }
+    }
+}
+
 @MainActor
 @Observable
 final class AuthManager {
     var currentUserId: UUID?
+    var userType: UserType?
     var isSignedIn: Bool { currentUserId != nil }
     private let apiClient: APIClient
     private let keychainService = KeychainService()
@@ -16,13 +31,15 @@ final class AuthManager {
 
     // MARK: - Email/Password Auth
 
-    func signUp(email: String, password: String) async throws -> AuthResponse {
-        let body = SignUpRequest(email: email, password: password)
+    func signUp(email: String, password: String, userType: UserType) async throws -> AuthResponse {
+        let body = SignUpRequest(email: email, password: password, data: SignUpMetadata(userType: userType.rawValue))
         let response: AuthResponse = try await apiClient.request(
             endpoint: .signUp,
             method: .post,
             body: body
         )
+        self.userType = userType
+        keychainService.saveUserType(userType.rawValue)
         handleAuthResponse(response)
         return response
     }
@@ -34,6 +51,10 @@ final class AuthManager {
             method: .post,
             body: body
         )
+        if let typeString = response.user.userMetadata?.userType {
+            self.userType = UserType(rawValue: typeString)
+            keychainService.saveUserType(typeString)
+        }
         handleAuthResponse(response)
         return response
     }
@@ -41,13 +62,15 @@ final class AuthManager {
     func signOut() async {
         try? await apiClient.requestVoid(endpoint: .signOut, method: .post)
         currentUserId = nil
+        userType = nil
         apiClient.setAuthToken(nil)
         keychainService.deleteToken()
+        keychainService.deleteUserType()
     }
 
     // MARK: - Sign in with Apple
 
-    func handleAppleSignIn(result: Result<ASAuthorization, Error>) async throws {
+    func handleAppleSignIn(result: Result<ASAuthorization, Error>, userType: UserType) async throws {
         guard case .success(let authorization) = result,
               let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
               let identityToken = credential.identityToken,
@@ -55,14 +78,22 @@ final class AuthManager {
             throw AuthError.appleSignInFailed
         }
 
-        // Exchange Apple token with Supabase auth
         let body = AppleSignInRequest(idToken: tokenString)
         let response: AuthResponse = try await apiClient.request(
             endpoint: Endpoint(path: "/auth/v1/token", queryItems: [("grant_type", "id_token")]),
             method: .post,
             body: body
         )
+        self.userType = userType
+        keychainService.saveUserType(userType.rawValue)
         handleAuthResponse(response)
+    }
+
+    /// Demo login for DEBUG builds
+    func demoSignIn(as type: UserType) {
+        currentUserId = UUID()
+        userType = type
+        keychainService.saveUserType(type.rawValue)
     }
 
     // MARK: - Session Management
@@ -76,15 +107,22 @@ final class AuthManager {
     private func restoreSession() {
         guard let token = keychainService.loadToken() else { return }
         apiClient.setAuthToken(token)
-        // TODO: Validate token is still valid via /auth/v1/user
+        if let typeString = keychainService.loadUserType() {
+            userType = UserType(rawValue: typeString)
+        }
     }
 }
 
 // MARK: - Auth Models
 
+struct SignUpMetadata: Encodable {
+    let userType: String
+}
+
 struct SignUpRequest: Encodable {
     let email: String
     let password: String
+    let data: SignUpMetadata
 }
 
 struct SignInRequest: Encodable {
@@ -108,6 +146,11 @@ struct AuthResponse: Decodable {
 struct AuthUser: Decodable {
     let id: UUID
     let email: String?
+    let userMetadata: UserMetadata?
+}
+
+struct UserMetadata: Decodable {
+    let userType: String?
 }
 
 enum AuthError: LocalizedError {

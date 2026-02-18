@@ -20,6 +20,7 @@ struct LehrMatchApp: App {
             .environment(navigationRouter)
             .environment(appState.authManager)
             .environment(appState.apiClient)
+            .environment(appState.storageClient)
         }
     }
 }

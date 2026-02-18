@@ -5,8 +5,7 @@ import SwiftUI
 final class NavigationRouter {
     var selectedTab: AppTab = .discover
     var discoverPath = NavigationPath()
-    var matchesPath = NavigationPath()
-    var videosPath = NavigationPath()
+    var bewerbungenPath = NavigationPath()
     var profilePath = NavigationPath()
     var pendingFilters: FeedFilters?
 
@@ -14,11 +13,9 @@ final class NavigationRouter {
         switch destination {
         case .cardDetail, .filter:
             discoverPath.append(destination)
-        case .matchDetail, .chat:
-            matchesPath.append(destination)
-        case .videoGenerator, .videoPreview:
-            videosPath.append(destination)
-        case .editProfile, .settings, .personalityResults:
+        case .bewerbungDetail:
+            bewerbungenPath.append(destination)
+        case .editProfile, .settings, .personalityResults, .profileBuilder:
             profilePath.append(destination)
         }
     }
@@ -26,24 +23,23 @@ final class NavigationRouter {
     func popCurrent() {
         switch selectedTab {
         case .discover: if !discoverPath.isEmpty { discoverPath.removeLast() }
-        case .matches: if !matchesPath.isEmpty { matchesPath.removeLast() }
-        case .videos: if !videosPath.isEmpty { videosPath.removeLast() }
+        case .bewerbungen: if !bewerbungenPath.isEmpty { bewerbungenPath.removeLast() }
         case .profile: if !profilePath.isEmpty { profilePath.removeLast() }
         }
     }
 }
 
+// MARK: - Student Tabs
+
 enum AppTab: Int, CaseIterable {
     case discover
-    case matches
-    case videos
+    case bewerbungen
     case profile
 
     var title: String {
         switch self {
         case .discover: "Entdecken"
-        case .matches: "Matches"
-        case .videos: "Videos"
+        case .bewerbungen: "Bewerbungen"
         case .profile: "Profil"
         }
     }
@@ -51,21 +47,47 @@ enum AppTab: Int, CaseIterable {
     var icon: String {
         switch self {
         case .discover: "flame.fill"
-        case .matches: "heart.fill"
-        case .videos: "play.rectangle.fill"
+        case .bewerbungen: "doc.text.fill"
         case .profile: "person.fill"
         }
     }
 }
 
+// MARK: - Company Tabs
+
+enum CompanyTab: Int, CaseIterable {
+    case dashboard
+    case listings
+    case bewerbungen
+    case companyProfile
+
+    var title: String {
+        switch self {
+        case .dashboard: "Dashboard"
+        case .listings: "Lehrstellen"
+        case .bewerbungen: "Bewerbungen"
+        case .companyProfile: "Profil"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .dashboard: "chart.bar.fill"
+        case .listings: "briefcase.fill"
+        case .bewerbungen: "tray.full.fill"
+        case .companyProfile: "building.2.fill"
+        }
+    }
+}
+
+// MARK: - Navigation Destinations
+
 enum AppDestination: Hashable {
     case cardDetail(id: UUID)
     case filter
-    case matchDetail(id: UUID)
-    case chat(matchId: UUID)
-    case videoGenerator(matchId: UUID?)
-    case videoPreview(videoId: UUID)
+    case bewerbungDetail(id: UUID)
     case editProfile
     case settings
     case personalityResults
+    case profileBuilder
 }

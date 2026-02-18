@@ -5,8 +5,7 @@ struct DiscoveryFeedView: View {
     @Environment(NavigationRouter.self) private var router
     @State private var viewModel: DiscoveryFeedViewModel?
     @State private var swipeEngine = SwipeEngine()
-    @State private var showMatchCelebration = false
-    @State private var matchedCard: LehrstelleCard?
+    @State private var showBewerbungConfirmation = false
 
     var body: some View {
         ZStack {
@@ -25,11 +24,14 @@ struct DiscoveryFeedView: View {
                 ProgressView()
             }
 
-            // Match celebration overlay
-            if showMatchCelebration, let card = matchedCard {
-                MatchCelebrationView(card: card) {
-                    showMatchCelebration = false
-                    matchedCard = nil
+            // Bewerbung sent confirmation overlay
+            if showBewerbungConfirmation, let bewerbung = viewModel?.lastSentBewerbung {
+                BewerbungSentConfirmationView(
+                    companyName: bewerbung.companyName ?? "Unbekannt",
+                    berufTitle: bewerbung.berufTitle ?? "Lehrstelle"
+                ) {
+                    showBewerbungConfirmation = false
+                    viewModel?.lastSentBewerbung = nil
                 }
                 .transition(.opacity.combined(with: .scale))
             }
@@ -166,15 +168,13 @@ struct DiscoveryFeedView: View {
     private func handleSwipe(card: LehrstelleCard, direction: SwipeDirection) {
         guard let viewModel else { return }
         Task {
-            await viewModel.recordSwipe(card: card, direction: direction)
-        }
+            await viewModel.handleSwipe(card: card, direction: direction)
 
-        // TODO: Check for match from server response
-        // For now, simulate a match occasionally
-        if direction == .right && Bool.random() && Bool.random() {
-            matchedCard = card
-            withAnimation(Theme.Animation.matchCelebration) {
-                showMatchCelebration = true
+            // Show confirmation for right swipes (Bewerbung sent)
+            if (direction == .right || direction == .superLike) && viewModel.lastSentBewerbung != nil {
+                withAnimation(Theme.Animation.matchCelebration) {
+                    showBewerbungConfirmation = true
+                }
             }
         }
     }
@@ -212,13 +212,13 @@ struct DiscoveryFeedView: View {
             Text("Tageslimit erreicht")
                 .font(Theme.Typography.title)
 
-            Text("Qualität vor Quantität! Morgen kannst du wieder swipen. Schau dir jetzt deine Matches an.")
+            Text("Qualität vor Quantität! Morgen kannst du wieder swipen. Schau dir jetzt deine Bewerbungen an.")
                 .font(Theme.Typography.body)
                 .foregroundStyle(Theme.Colors.textSecondary)
                 .multilineTextAlignment(.center)
 
-            PrimaryButton(title: "Zu meinen Matches") {
-                router.selectedTab = .matches
+            PrimaryButton(title: "Zu meinen Bewerbungen") {
+                router.selectedTab = .bewerbungen
             }
             .frame(width: 220)
         }

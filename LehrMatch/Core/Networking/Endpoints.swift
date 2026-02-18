@@ -29,23 +29,36 @@ extension Endpoint {
         Endpoint(path: "/rest/v1/lehrstellen", queryItems: [("id", "eq.\(id)")])
     }
 
-    // MARK: - Swipes
+    // MARK: - Swipes (kept for feed algorithm)
     static let swipes = Endpoint(path: "/rest/v1/swipes")
 
-    // MARK: - Matches
+    // MARK: - Bewerbungen
+    static let bewerbungen = Endpoint(path: "/rest/v1/bewerbungen")
+    static func bewerbungen(studentId: UUID) -> Endpoint {
+        Endpoint(path: "/rest/v1/bewerbungen", queryItems: [
+            ("student_id", "eq.\(studentId)"),
+            ("order", "sent_at.desc")
+        ])
+    }
+    static func bewerbung(id: UUID) -> Endpoint {
+        Endpoint(path: "/rest/v1/bewerbungen", queryItems: [("id", "eq.\(id)")])
+    }
+
+    // MARK: - Skipped Listings
+    static let skippedListings = Endpoint(path: "/rest/v1/skipped_listings")
+
+    // MARK: - Zeugnisse
+    static func zeugnisse(studentId: UUID) -> Endpoint {
+        Endpoint(path: "/rest/v1/zeugnisse", queryItems: [("student_id", "eq.\(studentId)")])
+    }
+
+    // MARK: - Messages (future: linked to bewerbungen)
+    static func messages(bewerbungId: UUID) -> Endpoint {
+        Endpoint(path: "/rest/v1/messages", queryItems: [("bewerbung_id", "eq.\(bewerbungId)")])
+    }
+
+    // MARK: - Matches (legacy, kept for backward compat)
     static func matches(studentId: UUID) -> Endpoint {
         Endpoint(path: "/rest/v1/matches", queryItems: [("student_id", "eq.\(studentId)")])
-    }
-
-    // MARK: - Messages
-    static func messages(matchId: UUID) -> Endpoint {
-        Endpoint(path: "/rest/v1/messages", queryItems: [("match_id", "eq.\(matchId)")])
-    }
-
-    // MARK: - Video Motivation
-    static let generateScript = Endpoint(path: "/functions/v1/video/generate-script")
-    static let createVideo = Endpoint(path: "/functions/v1/video/create")
-    static func motivationVideos(studentId: UUID) -> Endpoint {
-        Endpoint(path: "/rest/v1/motivation_videos", queryItems: [("student_id", "eq.\(studentId)")])
     }
 }

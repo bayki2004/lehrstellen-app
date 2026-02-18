@@ -4,6 +4,7 @@ import Foundation
 @Observable
 final class OnboardingViewModel {
     var currentStep: OnboardingStep = .welcome
+    var selectedUserType: UserType = .student
     var dateOfBirth: Date = Calendar.current.date(byAdding: .year, value: -15, to: .now) ?? .now
     var requiresParentalConsent = false
     var parentEmail = ""
@@ -33,6 +34,15 @@ final class OnboardingViewModel {
     var isUnder14: Bool { age < 14 }
     var isMinor: Bool { age < 18 }
 
+    func selectRole(_ type: UserType) {
+        selectedUserType = type
+        if type == .student {
+            currentStep = .ageVerification
+        } else {
+            currentStep = .registration
+        }
+    }
+
     func proceedFromAgeVerification() {
         if isUnder14 {
             errorMessage = "Du musst mindestens 14 Jahre alt sein, um LehrMatch zu nutzen."
@@ -53,8 +63,12 @@ final class OnboardingViewModel {
         defer { isLoading = false }
 
         do {
-            _ = try await authManager.signUp(email: email, password: password)
-            currentStep = .basicProfile
+            _ = try await authManager.signUp(email: email, password: password, userType: selectedUserType)
+            if selectedUserType == .student {
+                currentStep = .basicProfile
+            } else {
+                currentStep = .ready
+            }
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -69,7 +83,20 @@ final class OnboardingViewModel {
     }
 
     func completeOnboarding() {
+        currentStep = .profileBuilder
+    }
+
+    func finishProfileBuilder() {
         currentStep = .ready
+    }
+
+    func demoSignIn() {
+        authManager.demoSignIn(as: selectedUserType)
+        if selectedUserType == .student {
+            currentStep = .basicProfile
+        } else {
+            currentStep = .ready
+        }
     }
 
     func advanceTo(_ step: OnboardingStep) {

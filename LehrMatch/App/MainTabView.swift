@@ -1,12 +1,23 @@
 import SwiftUI
 
 struct MainTabView: View {
+    @Environment(AppState.self) private var appState
     @Environment(NavigationRouter.self) private var router
 
     var body: some View {
+        if appState.userType == .company {
+            companyTabView
+        } else {
+            studentTabView
+        }
+    }
+
+    // MARK: - Student Tabs
+
+    private var studentTabView: some View {
         @Bindable var router = router
 
-        TabView(selection: $router.selectedTab) {
+        return TabView(selection: $router.selectedTab) {
             Tab(AppTab.discover.title, systemImage: AppTab.discover.icon, value: .discover) {
                 NavigationStack(path: $router.discoverPath) {
                     DiscoveryFeedView()
@@ -16,18 +27,9 @@ struct MainTabView: View {
                 }
             }
 
-            Tab(AppTab.matches.title, systemImage: AppTab.matches.icon, value: .matches) {
-                NavigationStack(path: $router.matchesPath) {
-                    MatchesListView()
-                        .navigationDestination(for: AppDestination.self) { destination in
-                            destinationView(for: destination)
-                        }
-                }
-            }
-
-            Tab(AppTab.videos.title, systemImage: AppTab.videos.icon, value: .videos) {
-                NavigationStack(path: $router.videosPath) {
-                    VideoLibraryView()
+            Tab(AppTab.bewerbungen.title, systemImage: AppTab.bewerbungen.icon, value: .bewerbungen) {
+                NavigationStack(path: $router.bewerbungenPath) {
+                    BewerbungenListView()
                         .navigationDestination(for: AppDestination.self) { destination in
                             destinationView(for: destination)
                         }
@@ -46,6 +48,27 @@ struct MainTabView: View {
         .tint(Theme.Colors.primary)
     }
 
+    // MARK: - Company Tabs
+
+    private var companyTabView: some View {
+        TabView {
+            CompanyDashboardView()
+                .tabItem { Label(CompanyTab.dashboard.title, systemImage: CompanyTab.dashboard.icon) }
+
+            CompanyListingsView()
+                .tabItem { Label(CompanyTab.listings.title, systemImage: CompanyTab.listings.icon) }
+
+            CompanyBewerbungenView()
+                .tabItem { Label(CompanyTab.bewerbungen.title, systemImage: CompanyTab.bewerbungen.icon) }
+
+            CompanyProfileView()
+                .tabItem { Label(CompanyTab.companyProfile.title, systemImage: CompanyTab.companyProfile.icon) }
+        }
+        .tint(Theme.Colors.primary)
+    }
+
+    // MARK: - Destination Routing
+
     @ViewBuilder
     private func destinationView(for destination: AppDestination) -> some View {
         switch destination {
@@ -53,20 +76,16 @@ struct MainTabView: View {
             CardDetailView(lehrstelleId: id)
         case .filter:
             FilterSheetView()
-        case .matchDetail(let id):
-            MatchDetailView(matchId: id)
-        case .chat(let matchId):
-            ChatView(matchId: matchId)
-        case .videoGenerator(let matchId):
-            VideoGeneratorView(matchId: matchId)
-        case .videoPreview(let videoId):
-            VideoPreviewView(videoId: videoId)
+        case .bewerbungDetail(let id):
+            BewerbungDetailView(bewerbungId: id)
         case .editProfile:
             EditProfileView()
         case .settings:
             SettingsView()
         case .personalityResults:
             PersonalityResultsView()
+        case .profileBuilder:
+            ProfileBuilderView()
         }
     }
 }

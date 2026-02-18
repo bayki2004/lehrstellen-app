@@ -8,15 +8,21 @@ final class AppState {
     var currentStudent: StudentProfile?
     var parentalConsentStatus: ParentalConsentStatus = .notRequired
 
+    var userType: UserType? {
+        authManager.userType
+    }
+
     let apiClient: APIClient
     let authManager: AuthManager
     let realtimeClient: RealtimeClient
+    let storageClient: StorageClient
 
     init(config: SupabaseConfig = .current) {
         let api = APIClient(config: config)
         self.apiClient = api
         self.authManager = AuthManager(apiClient: api)
         self.realtimeClient = RealtimeClient(config: config)
+        self.storageClient = StorageClient(config: config)
     }
 
     func signOut() {

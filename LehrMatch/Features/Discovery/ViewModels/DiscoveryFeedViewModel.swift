@@ -9,6 +9,7 @@ final class DiscoveryFeedViewModel {
     var dailySwipesRemaining: Int = 20
     var hasReachedDailyLimit: Bool { dailySwipesRemaining <= 0 }
     var activeFilters: FeedFilters?
+    var lastSentBewerbung: Bewerbung?
 
     private let apiClient: APIClient
     private let studentId: UUID
@@ -54,12 +55,15 @@ final class DiscoveryFeedViewModel {
         }
     }
 
-    func recordSwipe(card: LehrstelleCard, direction: SwipeDirection) async {
+    func handleSwipe(card: LehrstelleCard, direction: SwipeDirection) async {
         swipedCardIds.insert(card.id)
         cards.removeAll { $0.id == card.id }
 
         if direction == .right || direction == .superLike {
             dailySwipesRemaining -= 1
+            await createBewerbung(for: card)
+        } else {
+            await skipListing(card: card)
         }
 
         // Pre-fetch more cards if running low
@@ -67,7 +71,7 @@ final class DiscoveryFeedViewModel {
             await loadNextBatch()
         }
 
-        // Record swipe on server
+        // Also record swipe for feed algorithm
         let action = SwipeAction(
             studentId: studentId,
             lehrstelleId: card.id,
@@ -82,6 +86,43 @@ final class DiscoveryFeedViewModel {
             )
         } catch {
             // Swipe recorded locally even if server fails
+        }
+    }
+
+    private func createBewerbung(for card: LehrstelleCard) async {
+        let request = CreateBewerbungRequest(studentId: studentId, listingId: card.id)
+        do {
+            let bewerbung: Bewerbung = try await apiClient.request(
+                endpoint: .bewerbungen,
+                method: .post,
+                body: request
+            )
+            lastSentBewerbung = bewerbung
+        } catch {
+            // Create a local representation for the confirmation overlay
+            lastSentBewerbung = Bewerbung(
+                id: UUID(),
+                studentId: studentId,
+                listingId: card.id,
+                status: .sent,
+                sentAt: .now,
+                companyName: card.companyName,
+                berufTitle: card.title,
+                canton: card.canton
+            )
+        }
+    }
+
+    private func skipListing(card: LehrstelleCard) async {
+        let request = SkipListingRequest(studentId: studentId, listingId: card.id)
+        do {
+            try await apiClient.requestVoid(
+                endpoint: .skippedListings,
+                method: .post,
+                body: request
+            )
+        } catch {
+            // Skip recorded locally even if server fails
         }
     }
 

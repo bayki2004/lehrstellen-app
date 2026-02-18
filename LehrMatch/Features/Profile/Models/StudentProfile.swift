@@ -6,6 +6,7 @@ struct StudentProfile: Identifiable, Codable {
     var lastName: String
     var dateOfBirth: Date
     var canton: String
+    var city: String?
     var schoolName: String
     var schoolYear: String
     var preferredLanguage: AppLanguage
@@ -17,6 +18,19 @@ struct StudentProfile: Identifiable, Codable {
     var multicheckScore: Int?
     var personalityProfile: PersonalityProfile?
 
+    // V2: Bewerbung profile fields
+    var phone: String?
+    var nationality: String?
+    var motivationVideoUrl: String?
+    var videoThumbnailUrl: String?
+    var videoDurationSeconds: Int?
+    var motivationLetter: String?
+    var schools: [School]
+    var languages: [Language]
+    var hobbies: [String]
+    var referencesList: [Reference]
+    var profileCompleteness: Int
+
     var fullName: String { "\(firstName) \(lastName)" }
 
     var age: Int {
@@ -27,6 +41,106 @@ struct StudentProfile: Identifiable, Codable {
         guard let url = profilePhotoUrl else { return nil }
         return URL(string: url)
     }
+
+    init(
+        id: UUID = UUID(),
+        firstName: String,
+        lastName: String,
+        dateOfBirth: Date,
+        canton: String,
+        city: String? = nil,
+        schoolName: String = "",
+        schoolYear: String = "",
+        preferredLanguage: AppLanguage = .de,
+        profilePhotoUrl: String? = nil,
+        bio: String? = nil,
+        interests: [String] = [],
+        skills: [String] = [],
+        schnupperlehreExperience: [SchnupperlehreEntry] = [],
+        multicheckScore: Int? = nil,
+        personalityProfile: PersonalityProfile? = nil,
+        phone: String? = nil,
+        nationality: String? = nil,
+        motivationVideoUrl: String? = nil,
+        videoThumbnailUrl: String? = nil,
+        videoDurationSeconds: Int? = nil,
+        motivationLetter: String? = nil,
+        schools: [School] = [],
+        languages: [Language] = [],
+        hobbies: [String] = [],
+        referencesList: [Reference] = [],
+        profileCompleteness: Int = 0
+    ) {
+        self.id = id
+        self.firstName = firstName
+        self.lastName = lastName
+        self.dateOfBirth = dateOfBirth
+        self.canton = canton
+        self.city = city
+        self.schoolName = schoolName
+        self.schoolYear = schoolYear
+        self.preferredLanguage = preferredLanguage
+        self.profilePhotoUrl = profilePhotoUrl
+        self.bio = bio
+        self.interests = interests
+        self.skills = skills
+        self.schnupperlehreExperience = schnupperlehreExperience
+        self.multicheckScore = multicheckScore
+        self.personalityProfile = personalityProfile
+        self.phone = phone
+        self.nationality = nationality
+        self.motivationVideoUrl = motivationVideoUrl
+        self.videoThumbnailUrl = videoThumbnailUrl
+        self.videoDurationSeconds = videoDurationSeconds
+        self.motivationLetter = motivationLetter
+        self.schools = schools
+        self.languages = languages
+        self.hobbies = hobbies
+        self.referencesList = referencesList
+        self.profileCompleteness = profileCompleteness
+    }
+}
+
+// MARK: - Nested Types
+
+struct School: Codable, Identifiable {
+    let id: UUID
+    var name: String
+    var level: String
+    var startYear: Int
+    var endYear: Int?
+    var isCurrent: Bool
+}
+
+struct Language: Codable, Identifiable {
+    let id: UUID
+    var name: String
+    var proficiency: LanguageProficiency
+}
+
+enum LanguageProficiency: String, Codable, CaseIterable {
+    case a1, a2, b1, b2, c1, c2, native
+
+    var displayName: String {
+        switch self {
+        case .a1: "A1 - Anfänger"
+        case .a2: "A2 - Grundlagen"
+        case .b1: "B1 - Mittelstufe"
+        case .b2: "B2 - Gute Mittelstufe"
+        case .c1: "C1 - Fortgeschritten"
+        case .c2: "C2 - Annähernd muttersprachlich"
+        case .native: "Muttersprache"
+        }
+    }
+}
+
+struct Reference: Codable, Identifiable {
+    let id: UUID
+    var name: String
+    var role: String
+    var organization: String
+    var email: String?
+    var phone: String?
 }
 
 struct SchnupperlehreEntry: Codable, Identifiable {
@@ -87,6 +201,15 @@ extension StudentProfile {
             )
         ],
         multicheckScore: nil,
-        personalityProfile: nil
+        personalityProfile: nil,
+        schools: [
+            School(id: UUID(), name: "Sekundarschule Musterhausen", level: "Sek A", startYear: 2023, endYear: nil, isCurrent: true)
+        ],
+        languages: [
+            Language(id: UUID(), name: "Deutsch", proficiency: .native),
+            Language(id: UUID(), name: "Englisch", proficiency: .b1)
+        ],
+        hobbies: ["Fussball", "Gaming", "Lesen"],
+        profileCompleteness: 45
     )
 }
