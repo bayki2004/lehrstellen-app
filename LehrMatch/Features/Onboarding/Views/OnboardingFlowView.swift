@@ -3,6 +3,7 @@ import SwiftUI
 struct OnboardingFlowView: View {
     @Environment(AppState.self) private var appState
     @State private var viewModel: OnboardingViewModel
+    @State private var quizViewModel: PersonalityQuizViewModel?
 
     init() {
         // Initialized properly in body via appState; placeholder for compilation
@@ -27,13 +28,20 @@ struct OnboardingFlowView: View {
                 case .basicProfile:
                     BasicProfileView(viewModel: viewModel)
                 case .personalityQuiz:
-                    PersonalityQuizView(
-                        viewModel: PersonalityQuizViewModel(
-                            apiClient: appState.apiClient,
-                            studentId: appState.authManager.currentUserId ?? UUID()
-                        ),
-                        onComplete: { viewModel.advanceTo(.personalityResults) }
-                    )
+                    if let quizVM = quizViewModel {
+                        PersonalityQuizView(
+                            viewModel: quizVM,
+                            onComplete: { viewModel.advanceTo(.personalityResults) }
+                        )
+                    } else {
+                        ProgressView()
+                            .onAppear {
+                                quizViewModel = PersonalityQuizViewModel(
+                                    apiClient: appState.apiClient,
+                                    studentId: appState.authManager.currentUserId ?? UUID()
+                                )
+                            }
+                    }
                 case .personalityResults:
                     PersonalityResultsView()
                 case .interestSelection:

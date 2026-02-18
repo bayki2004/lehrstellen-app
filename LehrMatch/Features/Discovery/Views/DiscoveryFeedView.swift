@@ -55,6 +55,11 @@ struct DiscoveryFeedView: View {
                 await vm.loadInitialFeed()
             }
         }
+        .onChange(of: router.pendingFilters) { _, newFilters in
+            guard let filters = newFilters, let vm = viewModel else { return }
+            router.pendingFilters = nil
+            Task { await vm.applyFilters(filters) }
+        }
     }
 
     // MARK: - Card Stack

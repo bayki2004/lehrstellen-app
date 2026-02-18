@@ -2,6 +2,7 @@ import SwiftUI
 
 struct PersonalityRevealView: View {
     let hollandCodes: HollandCodes
+    var buttonTitle: String = "Jetzt Lehrstellen entdecken"
     let onContinue: () -> Void
 
     @State private var revealStage = 0 // 0=radar, 1=card1, 2=card2, 3=card3, 4=done
@@ -50,7 +51,7 @@ struct PersonalityRevealView: View {
                 }
 
                 if revealStage >= 4 {
-                    PrimaryButton(title: "Jetzt Lehrstellen entdecken") {
+                    PrimaryButton(title: buttonTitle) {
                         onContinue()
                     }
                     .padding(.horizontal, Theme.Spacing.lg)

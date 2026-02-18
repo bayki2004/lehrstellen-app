@@ -8,6 +8,7 @@ final class NavigationRouter {
     var matchesPath = NavigationPath()
     var videosPath = NavigationPath()
     var profilePath = NavigationPath()
+    var pendingFilters: FeedFilters?
 
     func navigate(to destination: AppDestination) {
         switch destination {

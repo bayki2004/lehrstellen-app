@@ -8,6 +8,7 @@ final class DiscoveryFeedViewModel {
     var errorMessage: String?
     var dailySwipesRemaining: Int = 20
     var hasReachedDailyLimit: Bool { dailySwipesRemaining <= 0 }
+    var activeFilters: FeedFilters?
 
     private let apiClient: APIClient
     private let studentId: UUID
@@ -41,7 +42,7 @@ final class DiscoveryFeedViewModel {
             let newCards: [LehrstelleCard] = try await apiClient.request(
                 endpoint: .feedRecommendations,
                 method: .post,
-                body: FeedRequest(studentId: studentId, batchSize: 20)
+                body: FeedRequest(studentId: studentId, batchSize: 20, filters: activeFilters)
             )
             cards.append(contentsOf: newCards.filter { !swipedCardIds.contains($0.id) })
         } catch {
@@ -84,6 +85,13 @@ final class DiscoveryFeedViewModel {
         }
     }
 
+    func applyFilters(_ filters: FeedFilters) async {
+        activeFilters = filters
+        cards = []
+        swipedCardIds = []
+        await loadNextBatch()
+    }
+
     func loadSampleData() {
         cards = LehrstelleCard.samples
     }
@@ -92,4 +100,12 @@ final class DiscoveryFeedViewModel {
 struct FeedRequest: Encodable {
     let studentId: UUID
     let batchSize: Int
+    let filters: FeedFilters?
+}
+
+struct FeedFilters: Encodable, Equatable {
+    var cantons: [String]?
+    var berufsfelder: [String]?
+    var educationType: String?
+    var minCompatibility: Double?
 }

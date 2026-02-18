@@ -20,6 +20,7 @@ struct LehrstelleCard: Identifiable, Codable, Hashable {
     let cultureTags: [String]
     let requirements: [String]
     let compatibilityScore: Double
+    let berufsschuleCanton: String?
     let companySize: CompanySize?
     let isVerified: Bool
     let isPremium: Bool
@@ -93,6 +94,7 @@ extension LehrstelleCard {
             cultureTags: ["Innovation", "Teamwork", "Flexibel", "Modern"],
             requirements: ["Sek A / Niveau E", "Gute Noten in Mathe", "Interesse an Technologie"],
             compatibilityScore: 0.87,
+            berufsschuleCanton: "ZH",
             companySize: .large,
             isVerified: true,
             isPremium: true
@@ -117,6 +119,7 @@ extension LehrstelleCard {
             cultureTags: ["Familiär", "Handwerk", "Tradition"],
             requirements: ["Sek B", "Teamfähigkeit", "Frühaufsteher"],
             compatibilityScore: 0.62,
+            berufsschuleCanton: "BE",
             companySize: .small,
             isVerified: true,
             isPremium: false
@@ -141,6 +144,7 @@ extension LehrstelleCard {
             cultureTags: ["Gesundheit", "Menschen helfen", "Vielseitig", "Modern"],
             requirements: ["Sek A oder B", "Empathie", "Teamfähigkeit", "Belastbarkeit"],
             compatibilityScore: 0.74,
+            berufsschuleCanton: "ZH",
             companySize: .large,
             isVerified: true,
             isPremium: true

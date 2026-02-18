@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct FilterSheetView: View {
+    @Environment(NavigationRouter.self) private var router
     @State private var selectedCantons: Set<Canton> = [.zurich, .bern]
     @State private var selectedBerufsfelder: Set<Berufsfeld> = []
     @State private var educationType: EducationType? = nil
@@ -66,8 +67,19 @@ struct FilterSheetView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Fertig") { dismiss() }
-                        .fontWeight(.semibold)
+                    Button("Fertig") {
+                        let filters = FeedFilters(
+                            cantons: selectedCantons.count < Canton.allCases.count
+                                ? selectedCantons.map(\.rawValue) : nil,
+                            berufsfelder: selectedBerufsfelder.isEmpty
+                                ? nil : selectedBerufsfelder.map(\.displayName),
+                            educationType: educationType?.rawValue,
+                            minCompatibility: minCompatibility > 0 ? minCompatibility : nil
+                        )
+                        router.pendingFilters = filters
+                        dismiss()
+                    }
+                    .fontWeight(.semibold)
                 }
             }
         }
