@@ -64,7 +64,7 @@ export default function CompanyProfileScreen() {
 
     setIsSubmitting(true);
     try {
-      await api.post('/companies/profile', {
+      await api.post('/companies/me', {
         companyName: companyName.trim(),
         description: description.trim(),
         industry,
@@ -94,11 +94,17 @@ export default function CompanyProfileScreen() {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.flex}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
         <ScrollView
           contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
+          keyboardShouldPersistTaps="always"
+          showsVerticalScrollIndicator={false}
         >
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Text style={styles.backText}>Zurueck</Text>
+          </TouchableOpacity>
+
           <View style={styles.header}>
             <Text style={styles.title}>Unternehmensprofil</Text>
             <Text style={styles.subtitle}>
@@ -113,6 +119,7 @@ export default function CompanyProfileScreen() {
               value={companyName}
               onChangeText={setCompanyName}
               autoCapitalize="words"
+              autoCorrect={false}
             />
 
             <Input
@@ -126,7 +133,13 @@ export default function CompanyProfileScreen() {
 
             <View style={styles.pickerContainer}>
               <Text style={styles.pickerLabel}>Branche</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.chipScroll}
+                keyboardShouldPersistTaps="always"
+                nestedScrollEnabled
+              >
                 {INDUSTRIES.map((ind) => (
                   <TouchableOpacity
                     key={ind}
@@ -143,7 +156,13 @@ export default function CompanyProfileScreen() {
 
             <View style={styles.pickerContainer}>
               <Text style={styles.pickerLabel}>Unternehmensgroesse</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.chipScroll}
+                keyboardShouldPersistTaps="always"
+                nestedScrollEnabled
+              >
                 {COMPANY_SIZES.map((size) => (
                   <TouchableOpacity
                     key={size.value}
@@ -160,7 +179,13 @@ export default function CompanyProfileScreen() {
 
             <View style={styles.pickerContainer}>
               <Text style={styles.pickerLabel}>Kanton</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.chipScroll}
+                keyboardShouldPersistTaps="always"
+                nestedScrollEnabled
+              >
                 {SWISS_CANTONS.map((c) => (
                   <TouchableOpacity
                     key={c.code}
@@ -181,6 +206,7 @@ export default function CompanyProfileScreen() {
               value={city}
               onChangeText={setCity}
               autoCapitalize="words"
+              autoCorrect={false}
             />
 
             <Input
@@ -189,6 +215,7 @@ export default function CompanyProfileScreen() {
               value={contactPersonName}
               onChangeText={setContactPersonName}
               autoCapitalize="words"
+              autoCorrect={false}
             />
 
             <Button
@@ -216,8 +243,16 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xl,
+    paddingTop: spacing.md,
     paddingBottom: spacing.xl,
+  },
+  backButton: {
+    marginBottom: spacing.sm,
+  },
+  backText: {
+    fontSize: typography.body,
+    color: colors.primary,
+    fontWeight: fontWeights.semiBold,
   },
   header: {
     marginBottom: spacing.xl,

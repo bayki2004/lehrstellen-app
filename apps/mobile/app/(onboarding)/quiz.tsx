@@ -6,6 +6,7 @@ import {
   Animated,
   Dimensions,
   Alert,
+  Pressable,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -110,6 +111,10 @@ export default function QuizScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Pressable onPress={() => router.back()} style={styles.backButton}>
+        <Text style={styles.backText}>Zurueck</Text>
+      </Pressable>
+
       <View style={styles.header}>
         <Text style={styles.stepLabel}>Schritt 2 von 3</Text>
         <Text style={styles.title}>Persoenlichkeits-Quiz</Text>
@@ -169,6 +174,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
     paddingHorizontal: spacing.lg,
+  },
+  backButton: {
+    paddingTop: spacing.sm,
+    marginBottom: spacing.xs,
+  },
+  backText: {
+    fontSize: typography.body,
+    color: colors.primary,
+    fontWeight: fontWeights.semiBold,
   },
   header: {
     paddingTop: spacing.md,

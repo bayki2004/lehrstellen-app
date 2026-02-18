@@ -5,11 +5,13 @@ import * as controller from './company.controller';
 
 const router = Router();
 
-router.get('/:id', authenticate, asyncHandler(controller.getById));
+// Authenticated company routes (must be before /:id to avoid "me" being treated as an ID)
+router.use(authenticate);
+router.get('/me', requireRole('COMPANY'), asyncHandler(controller.getProfile));
+router.post('/me', requireRole('COMPANY'), asyncHandler(controller.createProfile));
+router.put('/me', requireRole('COMPANY'), asyncHandler(controller.updateProfile));
 
-router.use(authenticate, requireRole('COMPANY'));
-router.get('/me', asyncHandler(controller.getProfile));
-router.post('/me', asyncHandler(controller.createProfile));
-router.put('/me', asyncHandler(controller.updateProfile));
+// Public-ish route (any authenticated user can view a company by ID)
+router.get('/:id', asyncHandler(controller.getById));
 
 export { router as companyRouter };

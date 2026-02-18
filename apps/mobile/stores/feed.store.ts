@@ -25,7 +25,7 @@ export const useFeedStore = create<FeedState>((set, get) => ({
   fetchFeed: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get<ListingWithScoreDTO[]>('/feed');
+      const response = await api.get<ListingWithScoreDTO[]>('/swipes/feed');
       set({
         cards: response.data,
         currentIndex: 0,
@@ -40,7 +40,7 @@ export const useFeedStore = create<FeedState>((set, get) => ({
 
   swipe: async (direction: 'LEFT' | 'RIGHT', listingId: string) => {
     try {
-      const response = await api.post<SwipeResponse>('/swipes', {
+      const response = await api.post<SwipeResponse>('/swipes/', {
         listingId,
         direction,
       });

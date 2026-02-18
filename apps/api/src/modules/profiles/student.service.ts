@@ -21,12 +21,17 @@ export async function createStudentProfile(userId: string, data: UpdateStudentPr
     throw ApiError.conflict('Profile already exists');
   }
 
+  const parsedDate = new Date(data.dateOfBirth!);
+  if (isNaN(parsedDate.getTime())) {
+    throw ApiError.badRequest('Invalid date format. Use YYYY-MM-DD (e.g. 2008-05-15)');
+  }
+
   const profile = await prisma.studentProfile.create({
     data: {
       userId,
       firstName: data.firstName!,
       lastName: data.lastName!,
-      dateOfBirth: new Date(data.dateOfBirth!),
+      dateOfBirth: parsedDate,
       canton: data.canton!,
       city: data.city!,
       bio: data.bio,
