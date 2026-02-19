@@ -152,6 +152,7 @@ model CompanyProfile {
   companySize       String
   website           String?
   logoUrl           String?
+  videoUrl          String?
   canton            String
   city              String
   address           String?
@@ -162,10 +163,40 @@ model CompanyProfile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   listings Listing[]
+  photos   CompanyPhoto[]
+  links    CompanyLink[]
 
   @@map("company_profiles")
+}
+
+model CompanyPhoto {
+  id        String   @id @default(cuid())
+  companyId String
+  url       String
+  caption   String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  company CompanyProfile @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@map("company_photos")
+}
+
+model CompanyLink {
+  id        String   @id @default(cuid())
+  companyId String
+  label     String
+  url       String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  company CompanyProfile @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@map("company_links")
 }
 
 // ============================================

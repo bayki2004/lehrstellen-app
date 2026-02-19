@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import path from 'path';
 import { env } from './config/env';
 import { errorHandler } from './middleware/errorHandler';
 import { authRouter } from './modules/auth/auth.router';
@@ -17,9 +18,12 @@ import { applicationsRouter } from './modules/applications/applications.router';
 const app = express();
 
 // Middleware
-app.use(helmet());
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: env.CORS_ORIGIN }));
 app.use(express.json());
+
+// Serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 if (env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }

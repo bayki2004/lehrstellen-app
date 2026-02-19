@@ -79,6 +79,20 @@ export interface RiasecScores {
 // COMPANY PROFILE
 // ============================================
 
+export interface CompanyPhotoDTO {
+  id: string;
+  url: string;
+  caption?: string;
+  sortOrder: number;
+}
+
+export interface CompanyLinkDTO {
+  id: string;
+  label: string;
+  url: string;
+  sortOrder: number;
+}
+
 export interface CompanyProfileDTO {
   id: string;
   companyName: string;
@@ -87,6 +101,7 @@ export interface CompanyProfileDTO {
   companySize: string;
   website?: string;
   logoUrl?: string;
+  videoUrl?: string;
   canton: string;
   city: string;
   address?: string;
@@ -94,6 +109,9 @@ export interface CompanyProfileDTO {
   contactPersonRole?: string;
   isVerified: boolean;
   listingsCount?: number;
+  photos: CompanyPhotoDTO[];
+  links: CompanyLinkDTO[];
+  listings?: ListingDTO[];
 }
 
 export interface UpdateCompanyProfileRequest {
@@ -102,11 +120,13 @@ export interface UpdateCompanyProfileRequest {
   industry?: string;
   companySize?: string;
   website?: string;
+  videoUrl?: string | null;
   canton?: string;
   city?: string;
   address?: string;
   contactPersonName?: string;
   contactPersonRole?: string;
+  links?: { label: string; url: string }[];
 }
 
 // ============================================
