@@ -162,6 +162,7 @@ struct LanguageSettingsView: View {
 
 struct PersonalityResultsView: View {
     @Environment(AppState.self) private var appState
+    @Environment(NavigationRouter.self) private var router
     @State private var quizViewModel: PersonalityQuizViewModel?
     @State private var showQuiz = false
 
@@ -179,8 +180,16 @@ struct PersonalityResultsView: View {
                 PersonalityQuizView(
                     viewModel: quizVM,
                     revealButtonTitle: "Ergebnis anzeigen",
+                    onPassendeBerufe: {
+                        if let profile = quizVM.personalityProfile {
+                            appState.currentStudent?.personalityProfile = profile
+                        }
+                        Task { try? await quizVM.saveProfile() }
+                        showQuiz = false
+                        quizViewModel = nil
+                        router.navigate(to: .passendeBerufe)
+                    },
                     onComplete: {
-                        // Update AppState with the new profile
                         if let profile = quizVM.personalityProfile {
                             appState.currentStudent?.personalityProfile = profile
                         }
@@ -233,6 +242,11 @@ struct PersonalityResultsView: View {
                     personalityBar(label: "Sozial", value: codes.social, color: .orange)
                     personalityBar(label: "Unternehmerisch", value: codes.enterprising, color: .red)
                     personalityBar(label: "Konventionell", value: codes.conventional, color: .gray)
+                }
+                .padding(.horizontal, Theme.Spacing.lg)
+
+                PrimaryButton(title: "Passende Berufe entdecke") {
+                    router.navigate(to: .passendeBerufe)
                 }
                 .padding(.horizontal, Theme.Spacing.lg)
 

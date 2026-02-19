@@ -6,6 +6,7 @@ struct SwipeCardView: View {
     let swipeEngine: SwipeEngine
     let onSwipe: (SwipeDirection) -> Void
     let onTap: () -> Void
+    var commuteMinutes: Int?
 
     @State private var showDetail = false
 
@@ -110,6 +111,9 @@ struct SwipeCardView: View {
 
             HStack(spacing: Theme.Spacing.sm) {
                 Label(card.locationDisplay, systemImage: "mappin")
+                if let minutes = commuteMinutes {
+                    Label("\(minutes) min", systemImage: "tram.fill")
+                }
                 Spacer()
                 Label(card.educationType.displayName, systemImage: "graduationcap")
             }

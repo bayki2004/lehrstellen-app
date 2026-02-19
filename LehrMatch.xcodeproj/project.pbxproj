@@ -7,30 +7,47 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F511D9CB8F68D9D9B0341314 /* Beruf.swift in Sources */ = {isa = PBXBuildFile; fileRef = A043BAE1603803A839C0CB52 /* Beruf.swift */; };
+		B598694B0E8BBA51A55DB446 /* BerufRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D74C3035DF4A6F8F1F2F416 /* BerufRowView.swift */; };
+		005007A40A97C549FE4D94AA /* Berufsschule.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA517AD748CEF343BBAB0498 /* Berufsschule.swift */; };
+		32E97CC31667BAF165D33764 /* BerufsschuleDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638B34FA781359331A3ED13A /* BerufsschuleDetailView.swift */; };
+		E5A6E743849E63F8101AC616 /* BerufsschulePinView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5534EA92B26FA8ADC30543F /* BerufsschulePinView.swift */; };
+		C8C8050EED40EF171CC2784D /* BerufsschulePreviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8FD0BA84A167FE482ED4A92 /* BerufsschulePreviewSheet.swift */; };
+		31CE692EDFCE0B5ECDC4C1DD /* BerufsschuleRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 640CA4B8601EE8D9224ECDE3 /* BerufsschuleRowView.swift */; };
+		F2E1D0C9B8A7F6E5D4C3B2A1 /* LehrstelleRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F2 /* LehrstelleRowView.swift */; };
 		01A8DE1E876A06B2E23A37FD /* Endpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F5CCFC8E5BE7D4BEF61618B /* Endpoints.swift */; };
 		047301C0556F80FFF67B4F2F /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B266620CA2A95766A4E2F4FC /* AuthView.swift */; };
 		073DAEC71B0BA8994233A5E7 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26DF8984E3720E2BB75A44B /* OnboardingFlowView.swift */; };
+		8B24F98B098D2F129A31E399 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E7D80FDFED273606F4C76FF /* SearchView.swift */; };
+		DB9FA0D4AF211849B3A47ED1 /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 698E3B36A45C17FF134EEE52 /* SearchViewModel.swift */; };
 		0891312DEE3671B70A280C2E /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2063EE04A4AC11D54D67F9ED /* WelcomeView.swift */; };
 		0DEB98F2507207ABB1AA506F /* AgeVerificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B478811592A2EFD1D4C3DBA2 /* AgeVerificationView.swift */; };
+		0E01AD41F2D9C023A040EA11 /* CameraRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 801ABBB53943AE0451E353C6 /* CameraRecorderView.swift */; };
 		0E69BAF51152623945CE10C6 /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA34BF4D82346AB7783580CC /* KeychainService.swift */; };
+		0ED631A67EB5A19E214C8007 /* VideoCompressor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E11D1BE5D83B62657C54F8 /* VideoCompressor.swift */; };
 		0F2FF69B2086256FAF58ABA9 /* BasicProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6FB22EE86751631E079184 /* BasicProfileView.swift */; };
 		105B993BBFA27F1862D090A8 /* ReadyToSwipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0317A9B4B3D062B4DF71C794 /* ReadyToSwipeView.swift */; };
+		1112DD73C9C40FA6DA8F8807 /* CompanyDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DB939DE22AF4636381EF579 /* CompanyDashboardView.swift */; };
 		19D6688B0297C3C79D931D5E /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3AB921BE5686AB4662A2BD4 /* ChatViewModel.swift */; };
 		1C2DD0ABB836FE8B2A565EAC /* StudentProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8360E0A399BA78DA3DC0C8A2 /* StudentProfile.swift */; };
 		279AEBDDC0D44634DAF8AA03 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C18904D8C233D833CE23E9A /* SettingsView.swift */; };
 		295174923881E95636CBC3CC /* QuizProgressHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B6D7889515CC959B49744EE /* QuizProgressHeader.swift */; };
 		2A37753D9B8B2BB9E9721188 /* PersonalityQuizViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FA93BA25003FA0D52C5F37 /* PersonalityQuizViewModel.swift */; };
+		2D69A8122BF3E6272EE0121C /* BewerbungSentConfirmationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5645C99D9949F1F0EA33ADEB /* BewerbungSentConfirmationView.swift */; };
 		2E333881454D12A62E79CE6C /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361CA5A002125560C9021AF5 /* AuthManager.swift */; };
 		2E92D5EDE64193C7CAE23406 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F466B204AE5CC7BA9280F1E /* MainTabView.swift */; };
 		305DB6091BCD5DE21ACFCB77 /* Match.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8721AE1F49E3487FD20CA2EB /* Match.swift */; };
-		38E59DEBC7283EDEAE262107 /* VideoMotivationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9478CC1A90CA5C2A17879CD /* VideoMotivationViewModel.swift */; };
+		378674430651AE0E829FE1F5 /* BewerbungDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99A976A276B657468EC753D7 /* BewerbungDetailView.swift */; };
 		3AE4B93744739071A4AB7266 /* QuizGamificationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E7BBB0C32AB0D3A9B4FABD1 /* QuizGamificationTests.swift */; };
 		3CF5E104861F671B3C2681C5 /* FilterSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00445ED8DA1DE55E042D9BE3 /* FilterSheetView.swift */; };
 		3E1AF5F0446B48CFC313C1C8 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFD083CBD62C9992B42109F5 /* AppState.swift */; };
 		3E3F9EADD9CDAFD444A4D53E /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4089D4A164272E8B90D9A78 /* NotificationManager.swift */; };
+		3FFADBB83E1B7FA51DE17C44 /* PersonalInfoStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA07F25B6C53DF9CFDD1D1F3 /* PersonalInfoStepView.swift */; };
+		44D24FF4A76048959370EF49 /* CompanyListingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847409F3946059B08509B483 /* CompanyListingsView.swift */; };
 		482DC4C46676B76B2B533F28 /* PersonalityQuizViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBADF87E22CBAC253C7929FA /* PersonalityQuizViewModelTests.swift */; };
 		4B2EAEE955CAE41CFB6D358F /* CompatibilityBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80C5782AAF84E58E4BBF759D /* CompatibilityBadge.swift */; };
 		4CD92760E3F9C1691F832C5E /* RealtimeClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1685AD9E115693313E1C17E3 /* RealtimeClient.swift */; };
+		4D413F0142DECE3467205E32 /* ProfileBuilderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADC1B480858164EA06D5FB1E /* ProfileBuilderView.swift */; };
 		4E9420B5E61ED89DE4E80E13 /* MatchesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 332E5DA7E4591B31B6A8F8E5 /* MatchesViewModel.swift */; };
 		4FADE5BE8C6C292394507A40 /* QuizGamification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7270C539F51621CE4A94298B /* QuizGamification.swift */; };
 		51DCEC41CD0E3E7FDBF89FEB /* AvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C7C8B8256B768366EAE6EAD /* AvatarView.swift */; };
@@ -38,49 +55,76 @@
 		53FC535536285B0ABE1FB84A /* CardContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBA3876568585B25DF9DD898 /* CardContainer.swift */; };
 		54087C1A1DC115FF57C61A72 /* ActivityTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7F59C6B3D48C657DB2F9F6 /* ActivityTile.swift */; };
 		547F8CA49333182040366B03 /* ChatListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A523CA3C0B8A5D2D6D8614 /* ChatListView.swift */; };
+		571642CFEBB6CF2BD00DB2EC /* CompanyProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C213B2853715D194536647E8 /* CompanyProfileView.swift */; };
 		579D93C2E741B6DE7F3E4883 /* ActivityTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED6368C86BF9BBCE9CA0B2C /* ActivityTileView.swift */; };
 		5FE8254184BF1B22DC83AA56 /* InterestSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E15B3DB82A8D1DE8D4C8E282 /* InterestSelectionView.swift */; };
 		636E9A5C94E806B532C98945 /* PersonalityQuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EC7CC058F038A507E6F49AD /* PersonalityQuizView.swift */; };
 		668E82BE0B06CF24CE613E2B /* ParentalConsentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663C574B04406C53391CBBD5 /* ParentalConsentManager.swift */; };
-		69AF1A9219A4B72A076D9D47 /* VideoLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A2EFF308935071039C3CBA /* VideoLibraryView.swift */; };
 		73757B6216D96AD606828257 /* OnboardingStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32FA296F35F68D2F0359B9E6 /* OnboardingStep.swift */; };
+		74C5EC63CFF01D53617FE8EA /* RoleSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A924303E1F09CADD6E0186D7 /* RoleSelectionView.swift */; };
 		7556C72940595BA9621B07A9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3A0D98C2A2FF9F70A6953CB1 /* Assets.xcassets */; };
-		79CFB551C94D8E33985E91AF /* VideoGeneratorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8D47AE351F75FCB27B9496C /* VideoGeneratorView.swift */; };
 		7BDC39B3B0382ECF59026EFE /* NavigationRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44F419D9E6EA68A6779A88B /* NavigationRouter.swift */; };
+		7DB2E2C5AE3CDFDA908DE4E7 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EB96F00D1BFE40E011EEF81 /* MapView.swift */; };
 		7F96FD01DFB1E436F5CC6768 /* PersonalityRevealView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CBC4CB0391C60C47EBA0117 /* PersonalityRevealView.swift */; };
 		81BE1AD01F025CB5F140B7F0 /* EditProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B203186D05FE913367BB9A50 /* EditProfileView.swift */; };
+		85C7F86060C0DFE0CC7982EA /* SkillsLanguagesStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE3CC09C763E4C3182278A1E /* SkillsLanguagesStepView.swift */; };
 		8B3993F28589171AA6129688 /* DiscoveryFeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFE3D31345B4F45EC406933 /* DiscoveryFeedView.swift */; };
 		8E17A587FFD7F06009491CD8 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC775B1BC658CE022830ACEB /* APIClient.swift */; };
 		90E70B106761D3556D84DE7E /* PhaseTransitionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F3A09E13F9086376A5E3AED /* PhaseTransitionView.swift */; };
 		958AE9979E157F611B5972CC /* SwipeCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63BE0B59868EECC5B2072A1D /* SwipeCardView.swift */; };
 		973DD82F8072C4DAE054B335 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B002FC5B7D31DF56C43A105 /* ProfileView.swift */; };
 		98508CF0D23C270672664FF7 /* MatchDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59C9B3873DE958516BAF9319 /* MatchDetailView.swift */; };
+		9B05C08E9A1E7B55AE4DC14D /* CommuteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E8A12BB3F1B0F861F6FD5C9 /* CommuteService.swift */; };
 		9E33D590D3FCAA1B1768A933 /* MatchesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF2A72E549AD5EDAC83DA5C9 /* MatchesListView.swift */; };
 		9FE3E991951A418F65DD1D01 /* RadarChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B9EA5DE5AE7C343B34F865A /* RadarChartView.swift */; };
 		A05C475FCED6CA2A444DD64A /* QuizContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BC3E40C56CA92AA72F9D087 /* QuizContent.swift */; };
+		A0817F456D1CFD53DA57F983 /* EducationStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7DA87AD54567A891B486F2A /* EducationStepView.swift */; };
+		A14BB27C843A81AFB820A650 /* ProfileBuilderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E492217F022E8C32AA1538B3 /* ProfileBuilderViewModel.swift */; };
 		A2BAD04C336E0DC5B8894B2F /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C28B5782A9DE9345E961A335 /* ChatMessage.swift */; };
 		A4EFB72BF4A2CFEE61C5F80F /* MatchCelebrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B054149746D90792E95CD15 /* MatchCelebrationView.swift */; };
-		A6AEEDEC5DDDA4527B5BF7E0 /* MotivationVideo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 603278F3B81A34FF53A81BF0 /* MotivationVideo.swift */; };
+		AB5B9A461EF26FE31266C6D5 /* CompanyProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A8403182B4BE0960CDF3FE /* CompanyProfile.swift */; };
 		AC7885DC5060C73A9E745D27 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B223E1EF7287EDA2EA9D7DB2 /* OnboardingViewModel.swift */; };
 		AE770A7813261F2C285E967A /* MessageBubbleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB859099DF33C3292D0D6AAD /* MessageBubbleView.swift */; };
+		B05192725F43A62D1BA35CAD /* ListingPreviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A642D67E463A6F838451F160 /* ListingPreviewSheet.swift */; };
+		B1AE935CEEB88D6BE2FED12B /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0688C3ACFCA05D0D1A7E49DF /* MapViewModel.swift */; };
 		B5F5CA1223008822595BCD18 /* CardDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B7C3080C01B0DED38D4C3B3 /* CardDetailView.swift */; };
+		B9D73BF79AA66F9E445CB633 /* CompanyBewerbungenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C198DB92EBF57B926B5E6C5 /* CompanyBewerbungenView.swift */; };
 		BB87FCCBCEE414947BAD3E59 /* SupabaseConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB4355DA9BA6B70A9411C5ED /* SupabaseConfig.swift */; };
 		BD8F3B4B8DB7868ABE0FA73B /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E28B9F5A5B970F0D2F92B86 /* ChatView.swift */; };
+		C4B91AC95F051EDEB6C72AED /* MapPinView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13B9D778EA5646B8354304B2 /* MapPinView.swift */; };
+		C64439C735429D09D63FD5AC /* StorageClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC88F8BE67640D5AF2207F99 /* StorageClient.swift */; };
+		C6802E0388F0C51A9B8503BD /* MotivationLetterStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D7217122B02EA4025315990 /* MotivationLetterStepView.swift */; };
 		C95D59388BF92EFD5BFF6460 /* QuizModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D307C43FE110B3E5BC343D /* QuizModelsTests.swift */; };
+		CBFC96799A7D6DFD9688EB19 /* Bewerbung.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06CD04A74B320D137EFC5FAA /* Bewerbung.swift */; };
 		D49858F577379F8A68E22263 /* SwipeAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2219EDDA80A38A92D388B729 /* SwipeAction.swift */; };
-		D5F87FB7D31636997AB49358 /* VideoPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DABD2A65110EA05FC208D4AB /* VideoPreviewView.swift */; };
 		D6D661DF63225709340C563F /* PrimaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E47F38E212DE922486CE221 /* PrimaryButton.swift */; };
+		D71F00A42DDD38D64D8184CC /* ExperienceStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91A4E91BAF2BC061A75B6DC0 /* ExperienceStepView.swift */; };
 		D783C8C8F00704048D1B15BA /* QuizScoringEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4FF4B04CCDF4F146E576E79 /* QuizScoringEngineTests.swift */; };
 		D7C45B2D4E2630CC0E79C0A5 /* LehrMatchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DA5A421DA9652F2CF01EAF0 /* LehrMatchTests.swift */; };
+		D7DDC3B43C6C612543B0E638 /* BewerbungenListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F911E54AA36C4C7426E6EFD2 /* BewerbungenListViewModel.swift */; };
+		D9CA0C86C0F516E0AC077138 /* MapFilterBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844FFC847D6771E2B9B643CA /* MapFilterBar.swift */; };
 		E14DFF39312B412B2E085421 /* QuizContentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACD2CE2A3928FC96807E75F /* QuizContentTests.swift */; };
+		E1560F0257B57A330543D559 /* GeocodingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B620509E3EA5D256EC050273 /* GeocodingService.swift */; };
 		E234B0668463C8DA9BA5D140 /* LehrstelleCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6182D78D5CACB3F5FC4CB3E6 /* LehrstelleCard.swift */; };
 		E24AAF217B3F976A0CF43E35 /* QuizScoringEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4430DFB2C07A01A2A88AD6B4 /* QuizScoringEngine.swift */; };
 		E9532A673637CD8E799CDA46 /* DiscoveryFeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C642415955B2DF86D455F624 /* DiscoveryFeedViewModel.swift */; };
+		EBFAA465E6F0158BEF941B18 /* MotivationVideoStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 118CF2216A94E07D6B19AB7B /* MotivationVideoStepView.swift */; };
+		ED99805AC7B24A6B1C742927 /* DocumentsStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A4DFBBDECDA34C773E4FEA8 /* DocumentsStepView.swift */; };
 		EFB4DF72FC978D7327291787 /* SwipeEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16841637A9443830300BA134 /* SwipeEngine.swift */; };
 		F4BD25CA5405A7FD27F591E1 /* PersonalityProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 522F965C58D4627DA313F498 /* PersonalityProfile.swift */; };
 		F824189A702F6CB25738EAE5 /* ParentalConsentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63AA2E9B67C546F433B3A218 /* ParentalConsentView.swift */; };
+		F99EBD7578A64FA84A2AFFF6 /* Zeugnis.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8213519F9F7D5D2C87D19A6 /* Zeugnis.swift */; };
 		FA1CCB2036416563EE2268E9 /* ActivityGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ECE6BDA7F810ACEB78492BC /* ActivityGridView.swift */; };
+		FC1F65C43B57CE6D9EEA52C0 /* BewerbungenListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2AA8AFEA872409D197647C4 /* BewerbungenListView.swift */; };
 		FC6235092EDB473FD25296DA /* LehrMatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633436F2CE0876491A2680D /* LehrMatchApp.swift */; };
+		AA11BB22CC33DD44EE55FF66 /* BerufMatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5C /* BerufMatch.swift */; };
+		BB22CC33DD44EE55FF667788 /* RIASECMatchingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F6071829A3B4C5D6 /* RIASECMatchingEngine.swift */; };
+		CC33DD44EE55FF66778899AA /* PassendeBerufeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D4E5F60718293AB4C5D6E7 /* PassendeBerufeViewModel.swift */; };
+		DD44EE55FF66778899AABB22 /* BerufDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E5F60718293AB4C5D6E7F8 /* BerufDetailViewModel.swift */; };
+		EE55FF66778899AABB22CC33 /* PassendeBerufeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5F60718293AB4C5D6E7F8A9 /* PassendeBerufeView.swift */; };
+		FF66778899AABB22CC33DD44 /* BerufMatchCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F60718293AB4C5D6E7F8A9B0 /* BerufMatchCardView.swift */; };
+		0077889AABB22CC33DD44EE5 /* BerufDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 071829A3B4C5D6E7F8A9B0C1 /* BerufDetailView.swift */; };
+		11889AABB22CC33DD44EE5FF /* ComparisonRadarChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1829A3B4C5D6E7F8A9B0C1D2 /* ComparisonRadarChartView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -94,21 +138,36 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A043BAE1603803A839C0CB52 /* Beruf.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Beruf.swift; sourceTree = "<group>"; };
+		3D74C3035DF4A6F8F1F2F416 /* BerufRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BerufRowView.swift; sourceTree = "<group>"; };
+		638B34FA781359331A3ED13A /* BerufsschuleDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BerufsschuleDetailView.swift; sourceTree = "<group>"; };
+		A5534EA92B26FA8ADC30543F /* BerufsschulePinView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BerufsschulePinView.swift; sourceTree = "<group>"; };
+		F8FD0BA84A167FE482ED4A92 /* BerufsschulePreviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BerufsschulePreviewSheet.swift; sourceTree = "<group>"; };
+		640CA4B8601EE8D9224ECDE3 /* BerufsschuleRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BerufsschuleRowView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6A7B8C9D0E1F2 /* LehrstelleRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LehrstelleRowView.swift; sourceTree = "<group>"; };
 		00445ED8DA1DE55E042D9BE3 /* FilterSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterSheetView.swift; sourceTree = "<group>"; };
 		02A523CA3C0B8A5D2D6D8614 /* ChatListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatListView.swift; sourceTree = "<group>"; };
 		0317A9B4B3D062B4DF71C794 /* ReadyToSwipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadyToSwipeView.swift; sourceTree = "<group>"; };
+		0688C3ACFCA05D0D1A7E49DF /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
+		06CD04A74B320D137EFC5FAA /* Bewerbung.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bewerbung.swift; sourceTree = "<group>"; };
 		0B054149746D90792E95CD15 /* MatchCelebrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchCelebrationView.swift; sourceTree = "<group>"; };
 		0EC7CC058F038A507E6F49AD /* PersonalityQuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalityQuizView.swift; sourceTree = "<group>"; };
 		0F3A09E13F9086376A5E3AED /* PhaseTransitionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhaseTransitionView.swift; sourceTree = "<group>"; };
+		118CF2216A94E07D6B19AB7B /* MotivationVideoStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotivationVideoStepView.swift; sourceTree = "<group>"; };
+		13B9D778EA5646B8354304B2 /* MapPinView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapPinView.swift; sourceTree = "<group>"; };
+		3E7D80FDFED273606F4C76FF /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
+		698E3B36A45C17FF134EEE52 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
 		16841637A9443830300BA134 /* SwipeEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeEngine.swift; sourceTree = "<group>"; };
 		1685AD9E115693313E1C17E3 /* RealtimeClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealtimeClient.swift; sourceTree = "<group>"; };
 		1B6D7889515CC959B49744EE /* QuizProgressHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizProgressHeader.swift; sourceTree = "<group>"; };
+		1C198DB92EBF57B926B5E6C5 /* CompanyBewerbungenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanyBewerbungenView.swift; sourceTree = "<group>"; };
 		1C7C8B8256B768366EAE6EAD /* AvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarView.swift; sourceTree = "<group>"; };
 		1CBC4CB0391C60C47EBA0117 /* PersonalityRevealView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalityRevealView.swift; sourceTree = "<group>"; };
 		2063EE04A4AC11D54D67F9ED /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		2219EDDA80A38A92D388B729 /* SwipeAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeAction.swift; sourceTree = "<group>"; };
 		2C6FB22EE86751631E079184 /* BasicProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicProfileView.swift; sourceTree = "<group>"; };
 		2E7BBB0C32AB0D3A9B4FABD1 /* QuizGamificationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizGamificationTests.swift; sourceTree = "<group>"; };
+		2EB96F00D1BFE40E011EEF81 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		30178B103C9D1DDC7C1CA54A /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		32FA296F35F68D2F0359B9E6 /* OnboardingStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStep.swift; sourceTree = "<group>"; };
 		332E5DA7E4591B31B6A8F8E5 /* MatchesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchesViewModel.swift; sourceTree = "<group>"; };
@@ -120,60 +179,99 @@
 		4430DFB2C07A01A2A88AD6B4 /* QuizScoringEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizScoringEngine.swift; sourceTree = "<group>"; };
 		4C18904D8C233D833CE23E9A /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		522F965C58D4627DA313F498 /* PersonalityProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalityProfile.swift; sourceTree = "<group>"; };
+		5645C99D9949F1F0EA33ADEB /* BewerbungSentConfirmationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BewerbungSentConfirmationView.swift; sourceTree = "<group>"; };
 		59C9B3873DE958516BAF9319 /* MatchDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchDetailView.swift; sourceTree = "<group>"; };
-		603278F3B81A34FF53A81BF0 /* MotivationVideo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotivationVideo.swift; sourceTree = "<group>"; };
 		6182D78D5CACB3F5FC4CB3E6 /* LehrstelleCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LehrstelleCard.swift; sourceTree = "<group>"; };
 		63AA2E9B67C546F433B3A218 /* ParentalConsentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentalConsentView.swift; sourceTree = "<group>"; };
 		63BE0B59868EECC5B2072A1D /* SwipeCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeCardView.swift; sourceTree = "<group>"; };
 		663C574B04406C53391CBBD5 /* ParentalConsentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentalConsentManager.swift; sourceTree = "<group>"; };
+		6A4DFBBDECDA34C773E4FEA8 /* DocumentsStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentsStepView.swift; sourceTree = "<group>"; };
+		6D7217122B02EA4025315990 /* MotivationLetterStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotivationLetterStepView.swift; sourceTree = "<group>"; };
 		6E47F38E212DE922486CE221 /* PrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryButton.swift; sourceTree = "<group>"; };
+		6E8A12BB3F1B0F861F6FD5C9 /* CommuteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommuteService.swift; sourceTree = "<group>"; };
 		6ED6368C86BF9BBCE9CA0B2C /* ActivityTileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityTileView.swift; sourceTree = "<group>"; };
 		6F466B204AE5CC7BA9280F1E /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		7270C539F51621CE4A94298B /* QuizGamification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizGamification.swift; sourceTree = "<group>"; };
 		72FA93BA25003FA0D52C5F37 /* PersonalityQuizViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalityQuizViewModel.swift; sourceTree = "<group>"; };
 		7DA5A421DA9652F2CF01EAF0 /* LehrMatchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LehrMatchTests.swift; sourceTree = "<group>"; };
+		801ABBB53943AE0451E353C6 /* CameraRecorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraRecorderView.swift; sourceTree = "<group>"; };
 		80C5782AAF84E58E4BBF759D /* CompatibilityBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompatibilityBadge.swift; sourceTree = "<group>"; };
 		8360E0A399BA78DA3DC0C8A2 /* StudentProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudentProfile.swift; sourceTree = "<group>"; };
+		844FFC847D6771E2B9B643CA /* MapFilterBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapFilterBar.swift; sourceTree = "<group>"; };
+		847409F3946059B08509B483 /* CompanyListingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanyListingsView.swift; sourceTree = "<group>"; };
 		8721AE1F49E3487FD20CA2EB /* Match.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Match.swift; sourceTree = "<group>"; };
 		8ACD2CE2A3928FC96807E75F /* QuizContentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizContentTests.swift; sourceTree = "<group>"; };
+		8DB939DE22AF4636381EF579 /* CompanyDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanyDashboardView.swift; sourceTree = "<group>"; };
 		8ECE6BDA7F810ACEB78492BC /* ActivityGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityGridView.swift; sourceTree = "<group>"; };
 		8F5CCFC8E5BE7D4BEF61618B /* Endpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Endpoints.swift; sourceTree = "<group>"; };
+		91A4E91BAF2BC061A75B6DC0 /* ExperienceStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExperienceStepView.swift; sourceTree = "<group>"; };
+		99A976A276B657468EC753D7 /* BewerbungDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BewerbungDetailView.swift; sourceTree = "<group>"; };
 		9A2B187DE12D8C56025D2AC0 /* LehrMatch.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = LehrMatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B002FC5B7D31DF56C43A105 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		9B7C3080C01B0DED38D4C3B3 /* CardDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardDetailView.swift; sourceTree = "<group>"; };
 		9E28B9F5A5B970F0D2F92B86 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+		A3E11D1BE5D83B62657C54F8 /* VideoCompressor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCompressor.swift; sourceTree = "<group>"; };
 		A4089D4A164272E8B90D9A78 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
-		A9478CC1A90CA5C2A17879CD /* VideoMotivationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoMotivationViewModel.swift; sourceTree = "<group>"; };
+		A642D67E463A6F838451F160 /* ListingPreviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListingPreviewSheet.swift; sourceTree = "<group>"; };
+		A924303E1F09CADD6E0186D7 /* RoleSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoleSelectionView.swift; sourceTree = "<group>"; };
+		ADC1B480858164EA06D5FB1E /* ProfileBuilderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileBuilderView.swift; sourceTree = "<group>"; };
 		AF821783D75809FD2A496AC6 /* LehrMatch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LehrMatch.entitlements; sourceTree = "<group>"; };
 		B0D307C43FE110B3E5BC343D /* QuizModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizModelsTests.swift; sourceTree = "<group>"; };
 		B203186D05FE913367BB9A50 /* EditProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileView.swift; sourceTree = "<group>"; };
 		B223E1EF7287EDA2EA9D7DB2 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
 		B266620CA2A95766A4E2F4FC /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
 		B26DF8984E3720E2BB75A44B /* OnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
+		B2AA8AFEA872409D197647C4 /* BewerbungenListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BewerbungenListView.swift; sourceTree = "<group>"; };
 		B44F419D9E6EA68A6779A88B /* NavigationRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationRouter.swift; sourceTree = "<group>"; };
 		B478811592A2EFD1D4C3DBA2 /* AgeVerificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgeVerificationView.swift; sourceTree = "<group>"; };
 		B4FF4B04CCDF4F146E576E79 /* QuizScoringEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizScoringEngineTests.swift; sourceTree = "<group>"; };
+		B620509E3EA5D256EC050273 /* GeocodingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeocodingService.swift; sourceTree = "<group>"; };
+		B8213519F9F7D5D2C87D19A6 /* Zeugnis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Zeugnis.swift; sourceTree = "<group>"; };
 		BA34BF4D82346AB7783580CC /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
 		BC775B1BC658CE022830ACEB /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		BFD083CBD62C9992B42109F5 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		C1A8403182B4BE0960CDF3FE /* CompanyProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanyProfile.swift; sourceTree = "<group>"; };
+		C213B2853715D194536647E8 /* CompanyProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanyProfileView.swift; sourceTree = "<group>"; };
 		C28B5782A9DE9345E961A335 /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessage.swift; sourceTree = "<group>"; };
 		C633436F2CE0876491A2680D /* LehrMatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LehrMatchApp.swift; sourceTree = "<group>"; };
 		C642415955B2DF86D455F624 /* DiscoveryFeedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoveryFeedViewModel.swift; sourceTree = "<group>"; };
-		C6A2EFF308935071039C3CBA /* VideoLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoLibraryView.swift; sourceTree = "<group>"; };
+		CA517AD748CEF343BBAB0498 /* Berufsschule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Berufsschule.swift; sourceTree = "<group>"; };
 		CB859099DF33C3292D0D6AAD /* MessageBubbleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBubbleView.swift; sourceTree = "<group>"; };
 		D3AB921BE5686AB4662A2BD4 /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
-		DABD2A65110EA05FC208D4AB /* VideoPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPreviewView.swift; sourceTree = "<group>"; };
 		DC7F59C6B3D48C657DB2F9F6 /* ActivityTile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityTile.swift; sourceTree = "<group>"; };
 		E15B3DB82A8D1DE8D4C8E282 /* InterestSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterestSelectionView.swift; sourceTree = "<group>"; };
-		E8D47AE351F75FCB27B9496C /* VideoGeneratorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoGeneratorView.swift; sourceTree = "<group>"; };
+		E492217F022E8C32AA1538B3 /* ProfileBuilderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileBuilderViewModel.swift; sourceTree = "<group>"; };
+		E7DA87AD54567A891B486F2A /* EducationStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EducationStepView.swift; sourceTree = "<group>"; };
 		EB4355DA9BA6B70A9411C5ED /* SupabaseConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseConfig.swift; sourceTree = "<group>"; };
 		EBADF87E22CBAC253C7929FA /* PersonalityQuizViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalityQuizViewModelTests.swift; sourceTree = "<group>"; };
 		EF2A72E549AD5EDAC83DA5C9 /* MatchesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchesListView.swift; sourceTree = "<group>"; };
+		F911E54AA36C4C7426E6EFD2 /* BewerbungenListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BewerbungenListViewModel.swift; sourceTree = "<group>"; };
+		FA07F25B6C53DF9CFDD1D1F3 /* PersonalInfoStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalInfoStepView.swift; sourceTree = "<group>"; };
 		FAFE3D31345B4F45EC406933 /* DiscoveryFeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoveryFeedView.swift; sourceTree = "<group>"; };
 		FBA3876568585B25DF9DD898 /* CardContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardContainer.swift; sourceTree = "<group>"; };
+		FC88F8BE67640D5AF2207F99 /* StorageClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageClient.swift; sourceTree = "<group>"; };
+		FE3CC09C763E4C3182278A1E /* SkillsLanguagesStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkillsLanguagesStepView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B5C /* BerufMatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BerufMatch.swift; sourceTree = "<group>"; };
+		B2C3D4E5F6071829A3B4C5D6 /* RIASECMatchingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RIASECMatchingEngine.swift; sourceTree = "<group>"; };
+		C3D4E5F60718293AB4C5D6E7 /* PassendeBerufeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassendeBerufeViewModel.swift; sourceTree = "<group>"; };
+		D4E5F60718293AB4C5D6E7F8 /* BerufDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BerufDetailViewModel.swift; sourceTree = "<group>"; };
+		E5F60718293AB4C5D6E7F8A9 /* PassendeBerufeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassendeBerufeView.swift; sourceTree = "<group>"; };
+		F60718293AB4C5D6E7F8A9B0 /* BerufMatchCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BerufMatchCardView.swift; sourceTree = "<group>"; };
+		071829A3B4C5D6E7F8A9B0C1 /* BerufDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BerufDetailView.swift; sourceTree = "<group>"; };
+		1829A3B4C5D6E7F8A9B0C1D2 /* ComparisonRadarChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComparisonRadarChartView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		0A0847E4290736C5E0B7E51F /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				99A976A276B657468EC753D7 /* BewerbungDetailView.swift */,
+				B2AA8AFEA872409D197647C4 /* BewerbungenListView.swift */,
+				5645C99D9949F1F0EA33ADEB /* BewerbungSentConfirmationView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		0E35526272C9D023AC8F2BFC /* DesignSystem */ = {
 			isa = PBXGroup;
 			children = (
@@ -193,6 +291,14 @@
 				B44F419D9E6EA68A6779A88B /* NavigationRouter.swift */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		13D8562338CE454AAB822CC5 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				0688C3ACFCA05D0D1A7E49DF /* MapViewModel.swift */,
+			);
+			path = ViewModels;
 			sourceTree = "<group>";
 		};
 		14A1571007C63E858FC3BFEC /* Lottie */ = {
@@ -243,20 +349,20 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		2BCCB09C7CD3F60A538C53E0 /* Views */ = {
+		2C0882C7CCC3D8151C922541 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				E8D47AE351F75FCB27B9496C /* VideoGeneratorView.swift */,
-				C6A2EFF308935071039C3CBA /* VideoLibraryView.swift */,
-				DABD2A65110EA05FC208D4AB /* VideoPreviewView.swift */,
+				06CD04A74B320D137EFC5FAA /* Bewerbung.swift */,
 			);
-			path = Views;
+			path = Models;
 			sourceTree = "<group>";
 		};
 		2DD98D81F252591F26809D5A /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				59E6665FBE2305A3AEFCFC86 /* ProfileBuilder */,
 				B203186D05FE913367BB9A50 /* EditProfileView.swift */,
+				ADC1B480858164EA06D5FB1E /* ProfileBuilderView.swift */,
 				9B002FC5B7D31DF56C43A105 /* ProfileView.swift */,
 				4C18904D8C233D833CE23E9A /* SettingsView.swift */,
 			);
@@ -266,6 +372,7 @@
 		31927276D6B8200618E501BF /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				E492217F022E8C32AA1538B3 /* ProfileBuilderViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -294,12 +401,24 @@
 			path = Networking;
 			sourceTree = "<group>";
 		};
-		3ECDFDE90C2C661FDC5A4C15 /* Models */ = {
+		422549F36BDFB4F639567205 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				603278F3B81A34FF53A81BF0 /* MotivationVideo.swift */,
+				A043BAE1603803A839C0CB52 /* Beruf.swift */,
+				CA517AD748CEF343BBAB0498 /* Berufsschule.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		43561F774DE972682870BACB /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				1C198DB92EBF57B926B5E6C5 /* CompanyBewerbungenView.swift */,
+				8DB939DE22AF4636381EF579 /* CompanyDashboardView.swift */,
+				847409F3946059B08509B483 /* CompanyListingsView.swift */,
+				C213B2853715D194536647E8 /* CompanyProfileView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		4BB72A6FCB91A6127A4FDEC2 /* LehrMatch */ = {
@@ -315,16 +434,6 @@
 			path = LehrMatch;
 			sourceTree = "<group>";
 		};
-		50C72A15A042BC1F7FEE190D /* VideoMotivation */ = {
-			isa = PBXGroup;
-			children = (
-				3ECDFDE90C2C661FDC5A4C15 /* Models */,
-				D9AD45779EF4FAD519AA90EC /* ViewModels */,
-				2BCCB09C7CD3F60A538C53E0 /* Views */,
-			);
-			path = VideoMotivation;
-			sourceTree = "<group>";
-		};
 		527DFA73F8CE7DE7C81FFD1B /* Profile */ = {
 			isa = PBXGroup;
 			children = (
@@ -333,6 +442,20 @@
 				2DD98D81F252591F26809D5A /* Views */,
 			);
 			path = Profile;
+			sourceTree = "<group>";
+		};
+		59E6665FBE2305A3AEFCFC86 /* ProfileBuilder */ = {
+			isa = PBXGroup;
+			children = (
+				6A4DFBBDECDA34C773E4FEA8 /* DocumentsStepView.swift */,
+				E7DA87AD54567A891B486F2A /* EducationStepView.swift */,
+				91A4E91BAF2BC061A75B6DC0 /* ExperienceStepView.swift */,
+				6D7217122B02EA4025315990 /* MotivationLetterStepView.swift */,
+				118CF2216A94E07D6B19AB7B /* MotivationVideoStepView.swift */,
+				FA07F25B6C53DF9CFDD1D1F3 /* PersonalInfoStepView.swift */,
+				FE3CC09C763E4C3182278A1E /* SkillsLanguagesStepView.swift */,
+			);
+			path = ProfileBuilder;
 			sourceTree = "<group>";
 		};
 		615BCF313E8D6F9F58A3F753 = {
@@ -387,6 +510,15 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
+		7CD4815F28F708C56810943A /* Camera */ = {
+			isa = PBXGroup;
+			children = (
+				801ABBB53943AE0451E353C6 /* CameraRecorderView.swift */,
+				A3E11D1BE5D83B62657C54F8 /* VideoCompressor.swift */,
+			);
+			path = Camera;
+			sourceTree = "<group>";
+		};
 		7E14328B8F1E2F0CDC612783 /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
@@ -404,12 +536,32 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		88A73ECC19617F000E662950 /* Bewerbungen */ = {
+			isa = PBXGroup;
+			children = (
+				2C0882C7CCC3D8151C922541 /* Models */,
+				E84F3EEFD1C205FABAE19574 /* ViewModels */,
+				0A0847E4290736C5E0B7E51F /* Views */,
+			);
+			path = Bewerbungen;
+			sourceTree = "<group>";
+		};
 		8B6388B374E7811BD296A84C /* Models */ = {
 			isa = PBXGroup;
 			children = (
 				C28B5782A9DE9345E961A335 /* ChatMessage.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		900E0261C3AD983D64AEA8B9 /* Map */ = {
+			isa = PBXGroup;
+			children = (
+				422549F36BDFB4F639567205 /* Models */,
+				13D8562338CE454AAB822CC5 /* ViewModels */,
+				FDEB77FAFDB749F3A44DE819 /* Views */,
+			);
+			path = Map;
 			sourceTree = "<group>";
 		};
 		9166709DB7099614FBEFA745 /* ViewModels */ = {
@@ -425,6 +577,23 @@
 			isa = PBXGroup;
 			children = (
 				8721AE1F49E3487FD20CA2EB /* Match.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		97CB8D96C070ECAD1B810427 /* Company */ = {
+			isa = PBXGroup;
+			children = (
+				9D075CAF6C735E2616167CBB /* Models */,
+				43561F774DE972682870BACB /* Views */,
+			);
+			path = Company;
+			sourceTree = "<group>";
+		};
+		9D075CAF6C735E2616167CBB /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				C1A8403182B4BE0960CDF3FE /* CompanyProfile.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -446,6 +615,15 @@
 				3A0D98C2A2FF9F70A6953CB1 /* Assets.xcassets */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		C782508024F72C5FBE5D2799 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				6E8A12BB3F1B0F861F6FD5C9 /* CommuteService.swift */,
+				B620509E3EA5D256EC050273 /* GeocodingService.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 		C9155785D81318F04D45B679 /* Chat */ = {
@@ -475,6 +653,7 @@
 				1B6D7889515CC959B49744EE /* QuizProgressHeader.swift */,
 				3B9EA5DE5AE7C343B34F865A /* RadarChartView.swift */,
 				0317A9B4B3D062B4DF71C794 /* ReadyToSwipeView.swift */,
+				A924303E1F09CADD6E0186D7 /* RoleSelectionView.swift */,
 				2063EE04A4AC11D54D67F9ED /* WelcomeView.swift */,
 			);
 			path = Views;
@@ -490,13 +669,17 @@
 		CB725F55011293269830399D /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				88A73ECC19617F000E662950 /* Bewerbungen */,
 				C9155785D81318F04D45B679 /* Chat */,
+				97CB8D96C070ECAD1B810427 /* Company */,
 				64208621EAA7AFEBBEA97D1F /* Discovery */,
+				900E0261C3AD983D64AEA8B9 /* Map */,
 				F046113F89304617E618BF44 /* Matching */,
 				E4C063E8F59DE03E2FC111AD /* Notifications */,
 				CE6906D14AD107E057D12AFF /* Onboarding */,
+				A7B8C9D0E1F2A3B4C5D6E7F8 /* PassendeBerufe */,
 				527DFA73F8CE7DE7C81FFD1B /* Profile */,
-				50C72A15A042BC1F7FEE190D /* VideoMotivation */,
+				6426FAE9480469A7737EC218 /* Search */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -527,25 +710,20 @@
 		D701B28205A9BE3D052A8C93 /* Storage */ = {
 			isa = PBXGroup;
 			children = (
+				FC88F8BE67640D5AF2207F99 /* StorageClient.swift */,
 			);
 			path = Storage;
-			sourceTree = "<group>";
-		};
-		D9AD45779EF4FAD519AA90EC /* ViewModels */ = {
-			isa = PBXGroup;
-			children = (
-				A9478CC1A90CA5C2A17879CD /* VideoMotivationViewModel.swift */,
-			);
-			path = ViewModels;
 			sourceTree = "<group>";
 		};
 		E34DD06A393BA09FCAA05717 /* Core */ = {
 			isa = PBXGroup;
 			children = (
 				6798E5B26D6301E1B1B252E7 /* Auth */,
+				7CD4815F28F708C56810943A /* Camera */,
 				F6C4F22ED9538D5A620B53BC /* Extensions */,
 				645F084294F261F16C86EAE5 /* Localization */,
 				3D13A813EF137F5A87C1F6CE /* Networking */,
+				C782508024F72C5FBE5D2799 /* Services */,
 				D701B28205A9BE3D052A8C93 /* Storage */,
 			);
 			path = Core;
@@ -559,10 +737,19 @@
 			path = Notifications;
 			sourceTree = "<group>";
 		};
+		E84F3EEFD1C205FABAE19574 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				F911E54AA36C4C7426E6EFD2 /* BewerbungenListViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
 		EF832C6890339833C59F4361 /* Models */ = {
 			isa = PBXGroup;
 			children = (
 				8360E0A399BA78DA3DC0C8A2 /* StudentProfile.swift */,
+				B8213519F9F7D5D2C87D19A6 /* Zeugnis.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -584,6 +771,20 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		FDEB77FAFDB749F3A44DE819 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				638B34FA781359331A3ED13A /* BerufsschuleDetailView.swift */,
+				A5534EA92B26FA8ADC30543F /* BerufsschulePinView.swift */,
+				F8FD0BA84A167FE482ED4A92 /* BerufsschulePreviewSheet.swift */,
+				A642D67E463A6F838451F160 /* ListingPreviewSheet.swift */,
+				844FFC847D6771E2B9B643CA /* MapFilterBar.swift */,
+				13B9D778EA5646B8354304B2 /* MapPinView.swift */,
+				2EB96F00D1BFE40E011EEF81 /* MapView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		FF1290ED9B68623338810BB7 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
@@ -591,6 +792,73 @@
 				16841637A9443830300BA134 /* SwipeEngine.swift */,
 			);
 			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		2F803D7CAF9FE9B8D8EB743A /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				698E3B36A45C17FF134EEE52 /* SearchViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		A5DCA33037D16A3B73A0CC16 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				3D74C3035DF4A6F8F1F2F416 /* BerufRowView.swift */,
+				640CA4B8601EE8D9224ECDE3 /* BerufsschuleRowView.swift */,
+				A1B2C3D4E5F6A7B8C9D0E1F2 /* LehrstelleRowView.swift */,
+				3E7D80FDFED273606F4C76FF /* SearchView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		6426FAE9480469A7737EC218 /* Search */ = {
+			isa = PBXGroup;
+			children = (
+				2F803D7CAF9FE9B8D8EB743A /* ViewModels */,
+				A5DCA33037D16A3B73A0CC16 /* Views */,
+			);
+			path = Search;
+			sourceTree = "<group>";
+		};
+		A7B8C9D0E1F2A3B4C5D6E7F8 /* PassendeBerufe */ = {
+			isa = PBXGroup;
+			children = (
+				B8C9D0E1F2A3B4C5D6E7F8A9 /* Models */,
+				C9D0E1F2A3B4C5D6E7F8A9B0 /* ViewModels */,
+				D0E1F2A3B4C5D6E7F8A9B0C1 /* Views */,
+			);
+			path = PassendeBerufe;
+			sourceTree = "<group>";
+		};
+		B8C9D0E1F2A3B4C5D6E7F8A9 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F60718293A4B5C /* BerufMatch.swift */,
+				B2C3D4E5F6071829A3B4C5D6 /* RIASECMatchingEngine.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		C9D0E1F2A3B4C5D6E7F8A9B0 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				D4E5F60718293AB4C5D6E7F8 /* BerufDetailViewModel.swift */,
+				C3D4E5F60718293AB4C5D6E7 /* PassendeBerufeViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		D0E1F2A3B4C5D6E7F8A9B0C1 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				071829A3B4C5D6E7F8A9B0C1 /* BerufDetailView.swift */,
+				F60718293AB4C5D6E7F8A9B0 /* BerufMatchCardView.swift */,
+				1829A3B4C5D6E7F8A9B0C1D2 /* ComparisonRadarChartView.swift */,
+				E5F60718293AB4C5D6E7F8A9 /* PassendeBerufeView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -700,30 +968,65 @@
 				047301C0556F80FFF67B4F2F /* AuthView.swift in Sources */,
 				51DCEC41CD0E3E7FDBF89FEB /* AvatarView.swift in Sources */,
 				0F2FF69B2086256FAF58ABA9 /* BasicProfileView.swift in Sources */,
+				F511D9CB8F68D9D9B0341314 /* Beruf.swift in Sources */,
+				0077889AABB22CC33DD44EE5 /* BerufDetailView.swift in Sources */,
+				DD44EE55FF66778899AABB22 /* BerufDetailViewModel.swift in Sources */,
+				AA11BB22CC33DD44EE55FF66 /* BerufMatch.swift in Sources */,
+				FF66778899AABB22CC33DD44 /* BerufMatchCardView.swift in Sources */,
+				B598694B0E8BBA51A55DB446 /* BerufRowView.swift in Sources */,
+				005007A40A97C549FE4D94AA /* Berufsschule.swift in Sources */,
+				32E97CC31667BAF165D33764 /* BerufsschuleDetailView.swift in Sources */,
+				E5A6E743849E63F8101AC616 /* BerufsschulePinView.swift in Sources */,
+				C8C8050EED40EF171CC2784D /* BerufsschulePreviewSheet.swift in Sources */,
+				31CE692EDFCE0B5ECDC4C1DD /* BerufsschuleRowView.swift in Sources */,
+				F2E1D0C9B8A7F6E5D4C3B2A1 /* LehrstelleRowView.swift in Sources */,
+				CBFC96799A7D6DFD9688EB19 /* Bewerbung.swift in Sources */,
+				378674430651AE0E829FE1F5 /* BewerbungDetailView.swift in Sources */,
+				2D69A8122BF3E6272EE0121C /* BewerbungSentConfirmationView.swift in Sources */,
+				FC1F65C43B57CE6D9EEA52C0 /* BewerbungenListView.swift in Sources */,
+				D7DDC3B43C6C612543B0E638 /* BewerbungenListViewModel.swift in Sources */,
+				0E01AD41F2D9C023A040EA11 /* CameraRecorderView.swift in Sources */,
 				53FC535536285B0ABE1FB84A /* CardContainer.swift in Sources */,
 				B5F5CA1223008822595BCD18 /* CardDetailView.swift in Sources */,
 				547F8CA49333182040366B03 /* ChatListView.swift in Sources */,
 				A2BAD04C336E0DC5B8894B2F /* ChatMessage.swift in Sources */,
 				BD8F3B4B8DB7868ABE0FA73B /* ChatView.swift in Sources */,
 				19D6688B0297C3C79D931D5E /* ChatViewModel.swift in Sources */,
+				9B05C08E9A1E7B55AE4DC14D /* CommuteService.swift in Sources */,
+				11889AABB22CC33DD44EE5FF /* ComparisonRadarChartView.swift in Sources */,
+				B9D73BF79AA66F9E445CB633 /* CompanyBewerbungenView.swift in Sources */,
+				1112DD73C9C40FA6DA8F8807 /* CompanyDashboardView.swift in Sources */,
+				44D24FF4A76048959370EF49 /* CompanyListingsView.swift in Sources */,
+				AB5B9A461EF26FE31266C6D5 /* CompanyProfile.swift in Sources */,
+				571642CFEBB6CF2BD00DB2EC /* CompanyProfileView.swift in Sources */,
 				4B2EAEE955CAE41CFB6D358F /* CompatibilityBadge.swift in Sources */,
 				8B3993F28589171AA6129688 /* DiscoveryFeedView.swift in Sources */,
 				E9532A673637CD8E799CDA46 /* DiscoveryFeedViewModel.swift in Sources */,
+				ED99805AC7B24A6B1C742927 /* DocumentsStepView.swift in Sources */,
 				81BE1AD01F025CB5F140B7F0 /* EditProfileView.swift in Sources */,
+				A0817F456D1CFD53DA57F983 /* EducationStepView.swift in Sources */,
 				01A8DE1E876A06B2E23A37FD /* Endpoints.swift in Sources */,
+				D71F00A42DDD38D64D8184CC /* ExperienceStepView.swift in Sources */,
 				3CF5E104861F671B3C2681C5 /* FilterSheetView.swift in Sources */,
+				E1560F0257B57A330543D559 /* GeocodingService.swift in Sources */,
 				5FE8254184BF1B22DC83AA56 /* InterestSelectionView.swift in Sources */,
 				0E69BAF51152623945CE10C6 /* KeychainService.swift in Sources */,
 				FC6235092EDB473FD25296DA /* LehrMatchApp.swift in Sources */,
 				E234B0668463C8DA9BA5D140 /* LehrstelleCard.swift in Sources */,
+				B05192725F43A62D1BA35CAD /* ListingPreviewSheet.swift in Sources */,
 				2E92D5EDE64193C7CAE23406 /* MainTabView.swift in Sources */,
+				D9CA0C86C0F516E0AC077138 /* MapFilterBar.swift in Sources */,
+				C4B91AC95F051EDEB6C72AED /* MapPinView.swift in Sources */,
+				7DB2E2C5AE3CDFDA908DE4E7 /* MapView.swift in Sources */,
+				B1AE935CEEB88D6BE2FED12B /* MapViewModel.swift in Sources */,
 				305DB6091BCD5DE21ACFCB77 /* Match.swift in Sources */,
 				A4EFB72BF4A2CFEE61C5F80F /* MatchCelebrationView.swift in Sources */,
 				98508CF0D23C270672664FF7 /* MatchDetailView.swift in Sources */,
 				9E33D590D3FCAA1B1768A933 /* MatchesListView.swift in Sources */,
 				4E9420B5E61ED89DE4E80E13 /* MatchesViewModel.swift in Sources */,
 				AE770A7813261F2C285E967A /* MessageBubbleView.swift in Sources */,
-				A6AEEDEC5DDDA4527B5BF7E0 /* MotivationVideo.swift in Sources */,
+				C6802E0388F0C51A9B8503BD /* MotivationLetterStepView.swift in Sources */,
+				EBFAA465E6F0158BEF941B18 /* MotivationVideoStepView.swift in Sources */,
 				7BDC39B3B0382ECF59026EFE /* NavigationRouter.swift in Sources */,
 				3E3F9EADD9CDAFD444A4D53E /* NotificationManager.swift in Sources */,
 				073DAEC71B0BA8994233A5E7 /* OnboardingFlowView.swift in Sources */,
@@ -731,12 +1034,17 @@
 				AC7885DC5060C73A9E745D27 /* OnboardingViewModel.swift in Sources */,
 				668E82BE0B06CF24CE613E2B /* ParentalConsentManager.swift in Sources */,
 				F824189A702F6CB25738EAE5 /* ParentalConsentView.swift in Sources */,
+				EE55FF66778899AABB22CC33 /* PassendeBerufeView.swift in Sources */,
+				CC33DD44EE55FF66778899AA /* PassendeBerufeViewModel.swift in Sources */,
+				3FFADBB83E1B7FA51DE17C44 /* PersonalInfoStepView.swift in Sources */,
 				F4BD25CA5405A7FD27F591E1 /* PersonalityProfile.swift in Sources */,
 				636E9A5C94E806B532C98945 /* PersonalityQuizView.swift in Sources */,
 				2A37753D9B8B2BB9E9721188 /* PersonalityQuizViewModel.swift in Sources */,
 				7F96FD01DFB1E436F5CC6768 /* PersonalityRevealView.swift in Sources */,
 				90E70B106761D3556D84DE7E /* PhaseTransitionView.swift in Sources */,
 				D6D661DF63225709340C563F /* PrimaryButton.swift in Sources */,
+				4D413F0142DECE3467205E32 /* ProfileBuilderView.swift in Sources */,
+				A14BB27C843A81AFB820A650 /* ProfileBuilderViewModel.swift in Sources */,
 				973DD82F8072C4DAE054B335 /* ProfileView.swift in Sources */,
 				A05C475FCED6CA2A444DD64A /* QuizContent.swift in Sources */,
 				4FADE5BE8C6C292394507A40 /* QuizGamification.swift in Sources */,
@@ -745,18 +1053,22 @@
 				9FE3E991951A418F65DD1D01 /* RadarChartView.swift in Sources */,
 				105B993BBFA27F1862D090A8 /* ReadyToSwipeView.swift in Sources */,
 				4CD92760E3F9C1691F832C5E /* RealtimeClient.swift in Sources */,
+				BB22CC33DD44EE55FF667788 /* RIASECMatchingEngine.swift in Sources */,
+				74C5EC63CFF01D53617FE8EA /* RoleSelectionView.swift in Sources */,
+				8B24F98B098D2F129A31E399 /* SearchView.swift in Sources */,
+				DB9FA0D4AF211849B3A47ED1 /* SearchViewModel.swift in Sources */,
 				279AEBDDC0D44634DAF8AA03 /* SettingsView.swift in Sources */,
+				85C7F86060C0DFE0CC7982EA /* SkillsLanguagesStepView.swift in Sources */,
+				C64439C735429D09D63FD5AC /* StorageClient.swift in Sources */,
 				1C2DD0ABB836FE8B2A565EAC /* StudentProfile.swift in Sources */,
 				BB87FCCBCEE414947BAD3E59 /* SupabaseConfig.swift in Sources */,
 				D49858F577379F8A68E22263 /* SwipeAction.swift in Sources */,
 				958AE9979E157F611B5972CC /* SwipeCardView.swift in Sources */,
 				EFB4DF72FC978D7327291787 /* SwipeEngine.swift in Sources */,
 				53197A399FA156FB2ED61C6F /* Theme.swift in Sources */,
-				79CFB551C94D8E33985E91AF /* VideoGeneratorView.swift in Sources */,
-				69AF1A9219A4B72A076D9D47 /* VideoLibraryView.swift in Sources */,
-				38E59DEBC7283EDEAE262107 /* VideoMotivationViewModel.swift in Sources */,
-				D5F87FB7D31636997AB49358 /* VideoPreviewView.swift in Sources */,
+				0ED631A67EB5A19E214C8007 /* VideoCompressor.swift in Sources */,
 				0891312DEE3671B70A280C2E /* WelcomeView.swift in Sources */,
+				F99EBD7578A64FA84A2AFFF6 /* Zeugnis.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -779,6 +1091,8 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "LehrMatch braucht Zugriff auf deine Kamera für dein Profilfoto.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "LehrMatch bruucht din Standort, zum d'Karte uf dich z'zentriere.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "LehrMatch braucht Zugriff auf dein Mikrofon für dein Motivationsvideo.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "LehrMatch braucht Zugriff auf deine Fotos für dein Profilfoto.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -799,6 +1113,8 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "LehrMatch braucht Zugriff auf deine Kamera für dein Profilfoto.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "LehrMatch bruucht din Standort, zum d'Karte uf dich z'zentriere.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "LehrMatch braucht Zugriff auf dein Mikrofon für dein Motivationsvideo.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "LehrMatch braucht Zugriff auf deine Fotos für dein Profilfoto.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				LD_RUNPATH_SEARCH_PATHS = (

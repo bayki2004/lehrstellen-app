@@ -3,6 +3,7 @@ import SwiftUI
 struct PersonalityRevealView: View {
     let hollandCodes: HollandCodes
     var buttonTitle: String = "Jetzt Lehrstellen entdecken"
+    var onPassendeBerufe: (() -> Void)?
     let onContinue: () -> Void
 
     @State private var revealStage = 0 // 0=radar, 1=card1, 2=card2, 3=card3, 4=done
@@ -51,9 +52,19 @@ struct PersonalityRevealView: View {
                 }
 
                 if revealStage >= 4 {
-                    PrimaryButton(title: buttonTitle) {
-                        onContinue()
+                    if let onPassendeBerufe {
+                        PrimaryButton(title: "Passende Berufe entdecke") {
+                            onPassendeBerufe()
+                        }
+                        .padding(.horizontal, Theme.Spacing.lg)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
+
+                    PrimaryButton(
+                        title: buttonTitle,
+                        action: { onContinue() },
+                        style: onPassendeBerufe != nil ? .outlined : .filled
+                    )
                     .padding(.horizontal, Theme.Spacing.lg)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                 }

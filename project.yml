@@ -38,6 +38,7 @@ targets:
         INFOPLIST_KEY_NSCameraUsageDescription: "LehrMatch braucht Zugriff auf deine Kamera für dein Profilfoto."
         INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "LehrMatch braucht Zugriff auf deine Fotos für dein Profilfoto."
         INFOPLIST_KEY_NSMicrophoneUsageDescription: "LehrMatch braucht Zugriff auf dein Mikrofon für dein Motivationsvideo."
+        INFOPLIST_KEY_NSLocationWhenInUseUsageDescription: "LehrMatch bruucht din Standort, zum d'Karte uf dich z'zentriere."
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: true
   LehrMatchTests:
     type: bundle.unit-test

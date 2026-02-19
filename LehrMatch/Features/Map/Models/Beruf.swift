@@ -1,0 +1,56 @@
+import Foundation
+
+struct Beruf: Identifiable, Codable, Hashable {
+    let code: String
+    let nameDe: String
+    let field: String?
+    let educationType: String?
+    let durationYears: Int?
+    let descriptionDe: String?
+    let personalityFit: [String: Double]?
+    let hollandCode: String?
+
+    var id: String { code }
+}
+
+struct BerufsschuleBerufMapping: Identifiable, Codable {
+    let id: UUID?
+    let berufCode: String
+    let berufe: Beruf?
+}
+
+struct BerufsschuleForBerufMapping: Codable {
+    let berufsschuleId: UUID
+    let berufsschulen: Berufsschule?
+}
+
+struct SchoolCategoryMapping: Codable {
+    let berufsschuleId: UUID
+    let berufe: BerufFieldOnly?
+}
+
+struct BerufFieldOnly: Codable {
+    let field: String?
+}
+
+// MARK: - Sample Data
+
+extension Beruf {
+    static let samples: [Beruf] = [
+        Beruf(code: "68500", nameDe: "Kaufmann/-frau EFZ", field: "Kaufmännisch", educationType: "EFZ", durationYears: 3, descriptionDe: "Kaufleute arbeiten in verschiedenen Branchen und erledigen administrative und organisatorische Aufgaben.", personalityFit: ["realistic": 0.2, "investigative": 0.3, "artistic": 0.1, "social": 0.4, "enterprising": 0.5, "conventional": 0.8], hollandCode: "CES"),
+        Beruf(code: "88611", nameDe: "Informatiker/in EFZ Applikationsentwicklung", field: "Informatik", educationType: "EFZ", durationYears: 4, descriptionDe: "Informatiker/innen Applikationsentwicklung entwickeln Software, programmieren Webseiten und Apps.", personalityFit: ["realistic": 0.3, "investigative": 0.9, "artistic": 0.4, "social": 0.2, "enterprising": 0.3, "conventional": 0.5], hollandCode: "ICR"),
+        Beruf(code: "88612", nameDe: "Informatiker/in EFZ Plattformentwicklung", field: "Informatik", educationType: "EFZ", durationYears: 4, descriptionDe: "Informatiker/innen Plattformentwicklung bauen und betreiben IT-Infrastruktur und Netzwerke.", personalityFit: ["realistic": 0.5, "investigative": 0.8, "artistic": 0.1, "social": 0.2, "enterprising": 0.3, "conventional": 0.6], hollandCode: "IRC"),
+        Beruf(code: "86914", nameDe: "Fachmann/-frau Gesundheit EFZ (FaGe)", field: "Gesundheit", educationType: "EFZ", durationYears: 3, descriptionDe: "FaGe pflegen und betreuen Patientinnen und Patienten in Spitälern, Heimen oder der Spitex.", personalityFit: ["realistic": 0.4, "investigative": 0.3, "artistic": 0.1, "social": 0.9, "enterprising": 0.2, "conventional": 0.4], hollandCode: "SRC"),
+        Beruf(code: "86930", nameDe: "Medizinische/r Praxisassistent/in EFZ", field: "Gesundheit", educationType: "EFZ", durationYears: 3, descriptionDe: "MPA arbeiten in Arztpraxen und erledigen medizinische und administrative Aufgaben.", personalityFit: ["realistic": 0.3, "investigative": 0.4, "artistic": 0.1, "social": 0.8, "enterprising": 0.3, "conventional": 0.6], hollandCode: "SCE"),
+        Beruf(code: "45700", nameDe: "Polymechaniker/in EFZ", field: "Technik", educationType: "EFZ", durationYears: 4, descriptionDe: "Polymechaniker/innen fertigen Werkstücke, bauen Maschinen zusammen und führen Messungen durch.", personalityFit: ["realistic": 0.9, "investigative": 0.6, "artistic": 0.1, "social": 0.2, "enterprising": 0.2, "conventional": 0.5], hollandCode: "RIC"),
+        Beruf(code: "47600", nameDe: "Automatiker/in EFZ", field: "Technik", educationType: "EFZ", durationYears: 4, descriptionDe: "Automatiker/innen entwickeln und bauen automatisierte Steuerungen und Anlagen.", personalityFit: ["realistic": 0.7, "investigative": 0.8, "artistic": 0.1, "social": 0.2, "enterprising": 0.2, "conventional": 0.5], hollandCode: "IRE"),
+        Beruf(code: "46500", nameDe: "Elektroinstallateur/in EFZ", field: "Technik", educationType: "EFZ", durationYears: 4, descriptionDe: "Elektroinstallateur/innen planen und installieren elektrische Anlagen in Gebäuden.", personalityFit: ["realistic": 0.9, "investigative": 0.4, "artistic": 0.1, "social": 0.3, "enterprising": 0.3, "conventional": 0.4], hollandCode: "RIC"),
+        Beruf(code: "64700", nameDe: "Grafiker/in EFZ", field: "Design", educationType: "EFZ", durationYears: 4, descriptionDe: "Grafiker/innen gestalten visuelle Kommunikationsmittel wie Plakate, Logos und Websites.", personalityFit: ["realistic": 0.2, "investigative": 0.3, "artistic": 0.9, "social": 0.3, "enterprising": 0.3, "conventional": 0.3], hollandCode: "ASE"),
+        Beruf(code: "88613", nameDe: "Mediamatiker/in EFZ", field: "Informatik", educationType: "EFZ", durationYears: 4, descriptionDe: "Mediamatiker/innen gestalten Medieninhalte, pflegen Webseiten und erstellen Marketingmaterial.", personalityFit: ["realistic": 0.2, "investigative": 0.5, "artistic": 0.8, "social": 0.4, "enterprising": 0.5, "conventional": 0.3], hollandCode: "AIE"),
+        Beruf(code: "71300", nameDe: "Detailhandelsfachmann/-frau EFZ", field: "Detailhandel", educationType: "EFZ", durationYears: 3, descriptionDe: "Detailhandelsfachleute beraten Kunden, bewirtschaften Waren und gestalten Verkaufsflächen.", personalityFit: ["realistic": 0.3, "investigative": 0.2, "artistic": 0.3, "social": 0.7, "enterprising": 0.7, "conventional": 0.4], hollandCode: "SEI"),
+        Beruf(code: "21104", nameDe: "Bäcker/in-Konditor/in EFZ", field: "Gastronomie", educationType: "EFZ", durationYears: 3, descriptionDe: "Bäcker/innen-Konditor/innen stellen Brot, Gebäck, Torten und Confiserie-Produkte her.", personalityFit: ["realistic": 0.8, "investigative": 0.2, "artistic": 0.6, "social": 0.3, "enterprising": 0.3, "conventional": 0.4], hollandCode: "RAC"),
+        Beruf(code: "79000", nameDe: "Koch/Köchin EFZ", field: "Gastronomie", educationType: "EFZ", durationYears: 3, descriptionDe: "Köche/Köchinnen bereiten Speisen zu, planen Menüs und bewirtschaften die Küche.", personalityFit: ["realistic": 0.7, "investigative": 0.2, "artistic": 0.6, "social": 0.4, "enterprising": 0.3, "conventional": 0.3], hollandCode: "RAC"),
+        Beruf(code: "94300", nameDe: "Fachmann/-frau Betreuung EFZ", field: "Soziales", educationType: "EFZ", durationYears: 3, descriptionDe: "FaBe betreuen Kinder, Jugendliche, Menschen mit Beeinträchtigung oder betagte Menschen.", personalityFit: ["realistic": 0.3, "investigative": 0.2, "artistic": 0.3, "social": 0.9, "enterprising": 0.2, "conventional": 0.3], hollandCode: "SAC"),
+        Beruf(code: "51700", nameDe: "Schreiner/in EFZ", field: "Handwerk", educationType: "EFZ", durationYears: 4, descriptionDe: "Schreiner/innen stellen Möbel, Türen, Fenster und Innenausbauten aus Holz her.", personalityFit: ["realistic": 0.9, "investigative": 0.3, "artistic": 0.6, "social": 0.2, "enterprising": 0.2, "conventional": 0.3], hollandCode: "RAI"),
+    ]
+}

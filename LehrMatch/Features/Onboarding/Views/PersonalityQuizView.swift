@@ -3,6 +3,7 @@ import SwiftUI
 struct PersonalityQuizView: View {
     @Bindable var viewModel: PersonalityQuizViewModel
     var revealButtonTitle: String = "Jetzt Lehrstellen entdecken"
+    var onPassendeBerufe: (() -> Void)?
     let onComplete: () -> Void
 
     @State private var showPhaseTransition: QuizBadge?
@@ -23,6 +24,7 @@ struct PersonalityQuizView: View {
                     PersonalityRevealView(
                         hollandCodes: viewModel.personalityProfile!.hollandCodes,
                         buttonTitle: revealButtonTitle,
+                        onPassendeBerufe: onPassendeBerufe,
                         onContinue: {
                             Task {
                                 try? await viewModel.saveProfile()

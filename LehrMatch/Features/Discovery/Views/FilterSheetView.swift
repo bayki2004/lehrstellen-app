@@ -6,6 +6,8 @@ struct FilterSheetView: View {
     @State private var selectedBerufsfelder: Set<Berufsfeld> = []
     @State private var educationType: EducationType? = nil
     @State private var minCompatibility: Double = 0.5
+    @State private var radiusKm: Double? = nil
+    @State private var startDateFrom: Date? = nil
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -46,6 +48,38 @@ struct FilterSheetView: View {
                     .pickerStyle(.segmented)
                 }
 
+                Section("Umkreis") {
+                    Toggle("Radius aktivieren", isOn: Binding(
+                        get: { radiusKm != nil },
+                        set: { isOn in radiusKm = isOn ? 25 : nil }
+                    ))
+                    if let radius = radiusKm {
+                        VStack {
+                            Slider(value: Binding(
+                                get: { radius },
+                                set: { radiusKm = $0 }
+                            ), in: 5...50, step: 5)
+                            Text("Umkreis: \(Int(radius)) km")
+                                .font(Theme.Typography.caption)
+                                .foregroundStyle(Theme.Colors.textSecondary)
+                        }
+                    }
+                }
+
+                Section("Lehrstellen-Start") {
+                    Toggle("Startdatum filtern", isOn: Binding(
+                        get: { startDateFrom != nil },
+                        set: { isOn in startDateFrom = isOn ? Date() : nil }
+                    ))
+                    if let date = startDateFrom {
+                        DatePicker("Ab", selection: Binding(
+                            get: { date },
+                            set: { startDateFrom = $0 }
+                        ), displayedComponents: .date)
+                        .datePickerStyle(.compact)
+                    }
+                }
+
                 Section("Mindest-Kompatibilität") {
                     VStack {
                         Slider(value: $minCompatibility, in: 0...1, step: 0.05)
@@ -64,6 +98,8 @@ struct FilterSheetView: View {
                         selectedBerufsfelder = []
                         educationType = nil
                         minCompatibility = 0.5
+                        radiusKm = nil
+                        startDateFrom = nil
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
@@ -74,7 +110,9 @@ struct FilterSheetView: View {
                             berufsfelder: selectedBerufsfelder.isEmpty
                                 ? nil : selectedBerufsfelder.map(\.displayName),
                             educationType: educationType?.rawValue,
-                            minCompatibility: minCompatibility > 0 ? minCompatibility : nil
+                            minCompatibility: minCompatibility > 0 ? minCompatibility : nil,
+                            radiusKm: radiusKm,
+                            startDateFrom: startDateFrom
                         )
                         router.pendingFilters = filters
                         dismiss()

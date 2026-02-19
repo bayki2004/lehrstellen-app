@@ -27,6 +27,24 @@ struct MainTabView: View {
                 }
             }
 
+            Tab(AppTab.map.title, systemImage: AppTab.map.icon, value: .map) {
+                NavigationStack(path: $router.mapPath) {
+                    MapView()
+                        .navigationDestination(for: AppDestination.self) { destination in
+                            destinationView(for: destination)
+                        }
+                }
+            }
+
+            Tab(AppTab.search.title, systemImage: AppTab.search.icon, value: .search) {
+                NavigationStack(path: $router.searchPath) {
+                    SearchView()
+                        .navigationDestination(for: AppDestination.self) { destination in
+                            destinationView(for: destination)
+                        }
+                }
+            }
+
             Tab(AppTab.bewerbungen.title, systemImage: AppTab.bewerbungen.icon, value: .bewerbungen) {
                 NavigationStack(path: $router.bewerbungenPath) {
                     BewerbungenListView()
@@ -76,6 +94,8 @@ struct MainTabView: View {
             CardDetailView(lehrstelleId: id)
         case .filter:
             FilterSheetView()
+        case .berufsschuleDetail(let id):
+            BerufsschuleDetailView(schoolId: id)
         case .bewerbungDetail(let id):
             BewerbungDetailView(bewerbungId: id)
         case .editProfile:
@@ -86,6 +106,10 @@ struct MainTabView: View {
             PersonalityResultsView()
         case .profileBuilder:
             ProfileBuilderView()
+        case .passendeBerufe:
+            PassendeBerufeView()
+        case .berufDetail(let code):
+            BerufDetailView(berufCode: code)
         }
     }
 }

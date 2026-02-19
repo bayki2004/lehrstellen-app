@@ -31,6 +31,11 @@ struct StudentProfile: Identifiable, Codable {
     var referencesList: [Reference]
     var profileCompleteness: Int
 
+    // Map / commute fields
+    var homeAddress: String?
+    var homeLat: Double?
+    var homeLng: Double?
+
     var fullName: String { "\(firstName) \(lastName)" }
 
     var age: Int {
@@ -69,7 +74,10 @@ struct StudentProfile: Identifiable, Codable {
         languages: [Language] = [],
         hobbies: [String] = [],
         referencesList: [Reference] = [],
-        profileCompleteness: Int = 0
+        profileCompleteness: Int = 0,
+        homeAddress: String? = nil,
+        homeLat: Double? = nil,
+        homeLng: Double? = nil
     ) {
         self.id = id
         self.firstName = firstName
@@ -98,6 +106,9 @@ struct StudentProfile: Identifiable, Codable {
         self.hobbies = hobbies
         self.referencesList = referencesList
         self.profileCompleteness = profileCompleteness
+        self.homeAddress = homeAddress
+        self.homeLat = homeLat
+        self.homeLng = homeLng
     }
 }
 

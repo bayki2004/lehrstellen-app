@@ -49,6 +49,43 @@ struct PersonalInfoStepView: View {
                 }
 
                 formField("Stadt / Ort", text: $viewModel.city)
+
+                // Home address for commute calculation
+                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                    Text("Heimadresse")
+                        .font(Theme.Typography.caption)
+                        .foregroundStyle(Theme.Colors.textSecondary)
+                    TextField("z.B. Bahnhofstrasse 1, 8001 Zürich", text: $viewModel.homeAddress)
+                        .textFieldStyle(.roundedBorder)
+                        .onSubmit {
+                            Task { await viewModel.geocodeHomeAddress() }
+                        }
+
+                    switch viewModel.addressStatus {
+                    case .none:
+                        EmptyView()
+                    case .geocoding:
+                        HStack(spacing: Theme.Spacing.xs) {
+                            ProgressView().scaleEffect(0.7)
+                            Text("Adresse wird gesucht...")
+                                .font(Theme.Typography.caption)
+                                .foregroundStyle(Theme.Colors.textTertiary)
+                        }
+                    case .found:
+                        Text("Adresse gfunde")
+                            .font(Theme.Typography.caption)
+                            .foregroundStyle(.green)
+                    case .notFound:
+                        Text("Adresse nöd gfunde")
+                            .font(Theme.Typography.caption)
+                            .foregroundStyle(.red)
+                    }
+
+                    Text("Dini Adresse wird nur für d'Berechning vo de Reiseziit bruucht")
+                        .font(.system(size: 11))
+                        .foregroundStyle(Theme.Colors.textTertiary)
+                }
+
                 formField("Telefon", text: $viewModel.phone)
                     .keyboardType(.phonePad)
                 formField("Nationalität", text: $viewModel.nationality)

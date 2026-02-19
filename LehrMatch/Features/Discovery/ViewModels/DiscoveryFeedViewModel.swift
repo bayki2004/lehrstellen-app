@@ -41,9 +41,7 @@ final class DiscoveryFeedViewModel {
 
         do {
             let newCards: [LehrstelleCard] = try await apiClient.request(
-                endpoint: .feedRecommendations,
-                method: .post,
-                body: FeedRequest(studentId: studentId, batchSize: 20, filters: activeFilters)
+                endpoint: .feedRecommendations
             )
             cards.append(contentsOf: newCards.filter { !swipedCardIds.contains($0.id) })
         } catch {
@@ -149,4 +147,8 @@ struct FeedFilters: Encodable, Equatable {
     var berufsfelder: [String]?
     var educationType: String?
     var minCompatibility: Double?
+    var radiusKm: Double?
+    var startDateFrom: Date?
+    var startDateTo: Date?
+    var berufCategory: String?
 }

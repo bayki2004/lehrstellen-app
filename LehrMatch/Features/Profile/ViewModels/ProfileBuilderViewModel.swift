@@ -53,6 +53,12 @@ final class ProfileBuilderViewModel {
     var profilePhotoUrl: String?
     var selectedPhoto: PhotosPickerItem?
 
+    // Home address (for map / commute)
+    var homeAddress = ""
+    var homeLat: Double?
+    var homeLng: Double?
+    var addressStatus: AddressGeocodingStatus = .none
+
     // Video
     var motivationVideoUrl: String?
     var videoThumbnailUrl: String?
@@ -146,6 +152,9 @@ final class ProfileBuilderViewModel {
         languages = p.languages
         skills = p.skills
         hobbies = p.hobbies
+        homeAddress = p.homeAddress ?? ""
+        homeLat = p.homeLat
+        homeLng = p.homeLng
         zeugnisse = []
     }
 
@@ -222,6 +231,34 @@ final class ProfileBuilderViewModel {
         }
     }
 
+    func geocodeHomeAddress() async {
+        let trimmed = homeAddress.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            addressStatus = .none
+            homeLat = nil
+            homeLng = nil
+            return
+        }
+
+        addressStatus = .geocoding
+        let geocoder = GeocodingService()
+        do {
+            if let coord = try await geocoder.geocode(address: trimmed) {
+                homeLat = coord.latitude
+                homeLng = coord.longitude
+                addressStatus = .found
+            } else {
+                homeLat = nil
+                homeLng = nil
+                addressStatus = .notFound
+            }
+        } catch {
+            homeLat = nil
+            homeLng = nil
+            addressStatus = .notFound
+        }
+    }
+
     func removeZeugnis(_ zeugnis: Zeugnis) {
         zeugnisse.removeAll { $0.id == zeugnis.id }
     }
@@ -249,7 +286,10 @@ final class ProfileBuilderViewModel {
             languages: languages,
             skills: skills,
             hobbies: hobbies,
-            references: references.isEmpty ? nil : references
+            references: references.isEmpty ? nil : references,
+            homeAddress: homeAddress.isEmpty ? nil : homeAddress,
+            homeLat: homeLat,
+            homeLng: homeLng
         )
 
         do {
@@ -283,4 +323,14 @@ private struct StudentProfileUpdate: Encodable {
     let skills: [String]
     let hobbies: [String]
     let references: [Reference]?
+    let homeAddress: String?
+    let homeLat: Double?
+    let homeLng: Double?
+}
+
+enum AddressGeocodingStatus {
+    case none
+    case geocoding
+    case found
+    case notFound
 }

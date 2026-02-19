@@ -3,9 +3,6 @@
 # =============================================================================
 # Docs: https://supabase.com/docs/guides/cli/config
 
-[project]
-id = "lehrmatch-local"
-
 [api]
 enabled = true
 port = 54321
@@ -46,10 +43,10 @@ double_confirm_changes = true
 enable_confirmations = false  # Disable for local dev
 
 [auth.external.apple]
-enabled = true
-client_id = ""
-secret = ""
-redirect_uri = ""
+enabled = false
+client_id = "placeholder"
+secret = "placeholder"
+redirect_uri = "http://localhost:54321/auth/v1/callback"
 
 [storage]
 enabled = true

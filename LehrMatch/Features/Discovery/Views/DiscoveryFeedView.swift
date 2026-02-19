@@ -39,6 +39,14 @@ struct DiscoveryFeedView: View {
         .navigationTitle("Entdecken")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    router.selectedTab = .map
+                } label: {
+                    Label("Karte", systemImage: "map")
+                        .font(Theme.Typography.caption)
+                }
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     router.navigate(to: .filter)

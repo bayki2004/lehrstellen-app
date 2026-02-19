@@ -5,17 +5,26 @@ import SwiftUI
 final class NavigationRouter {
     var selectedTab: AppTab = .discover
     var discoverPath = NavigationPath()
+    var mapPath = NavigationPath()
+    var searchPath = NavigationPath()
     var bewerbungenPath = NavigationPath()
     var profilePath = NavigationPath()
     var pendingFilters: FeedFilters?
 
     func navigate(to destination: AppDestination) {
         switch destination {
-        case .cardDetail, .filter:
-            discoverPath.append(destination)
+        case .cardDetail, .filter, .berufsschuleDetail:
+            switch selectedTab {
+            case .map:
+                mapPath.append(destination)
+            case .search:
+                searchPath.append(destination)
+            default:
+                discoverPath.append(destination)
+            }
         case .bewerbungDetail:
             bewerbungenPath.append(destination)
-        case .editProfile, .settings, .personalityResults, .profileBuilder:
+        case .editProfile, .settings, .personalityResults, .profileBuilder, .passendeBerufe, .berufDetail:
             profilePath.append(destination)
         }
     }
@@ -23,6 +32,8 @@ final class NavigationRouter {
     func popCurrent() {
         switch selectedTab {
         case .discover: if !discoverPath.isEmpty { discoverPath.removeLast() }
+        case .map: if !mapPath.isEmpty { mapPath.removeLast() }
+        case .search: if !searchPath.isEmpty { searchPath.removeLast() }
         case .bewerbungen: if !bewerbungenPath.isEmpty { bewerbungenPath.removeLast() }
         case .profile: if !profilePath.isEmpty { profilePath.removeLast() }
         }
@@ -33,12 +44,16 @@ final class NavigationRouter {
 
 enum AppTab: Int, CaseIterable {
     case discover
+    case map
+    case search
     case bewerbungen
     case profile
 
     var title: String {
         switch self {
         case .discover: "Entdecken"
+        case .map: "Karte"
+        case .search: "Suche"
         case .bewerbungen: "Bewerbungen"
         case .profile: "Profil"
         }
@@ -47,6 +62,8 @@ enum AppTab: Int, CaseIterable {
     var icon: String {
         switch self {
         case .discover: "flame.fill"
+        case .map: "map.fill"
+        case .search: "magnifyingglass"
         case .bewerbungen: "doc.text.fill"
         case .profile: "person.fill"
         }
@@ -85,9 +102,12 @@ enum CompanyTab: Int, CaseIterable {
 enum AppDestination: Hashable {
     case cardDetail(id: UUID)
     case filter
+    case berufsschuleDetail(id: UUID)
     case bewerbungDetail(id: UUID)
     case editProfile
     case settings
     case personalityResults
     case profileBuilder
+    case passendeBerufe
+    case berufDetail(code: String)
 }
