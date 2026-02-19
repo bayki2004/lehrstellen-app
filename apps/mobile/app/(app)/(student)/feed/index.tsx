@@ -28,7 +28,11 @@ export default function FeedScreen() {
         ) : error ? (
           <View style={styles.center}>
             <Text style={styles.errorEmoji}>😕</Text>
-            <Text style={styles.errorText}>{error}</Text>
+            <Text style={styles.errorText}>
+              {error.toLowerCase().includes('quiz')
+                ? 'Beantworte zuerst den Persönlichkeitstest, um passende Lehrstellen zu sehen.'
+                : error}
+            </Text>
             <Text style={styles.retryText} onPress={fetchFeed}>
               Erneut versuchen
             </Text>

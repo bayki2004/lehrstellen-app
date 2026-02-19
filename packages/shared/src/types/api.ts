@@ -55,7 +55,77 @@ export interface UpdateStudentProfileRequest {
   canton?: string;
   city?: string;
   bio?: string;
+  phone?: string;
+  nationality?: string;
   desiredFields?: string[];
+}
+
+export interface StudentSchoolDTO {
+  id: string;
+  name: string;
+  level?: string;
+  startYear?: number;
+  endYear?: number;
+  isCurrent: boolean;
+}
+
+export interface StudentSkillDTO {
+  id: string;
+  name: string;
+}
+
+export interface StudentLanguageDTO {
+  id: string;
+  language: string;
+  proficiency: string;
+}
+
+export interface SchnupperlehreEntryDTO {
+  id: string;
+  companyName: string;
+  beruf?: string;
+  canton?: string;
+  date?: string;
+  notes?: string;
+}
+
+export interface StudentProfileExtendedDTO extends StudentProfileDTO {
+  phone?: string;
+  nationality?: string;
+  motivationVideoUrl?: string;
+  motivationLetter?: string;
+  profileCompleteness: number;
+  schools: StudentSchoolDTO[];
+  skills: StudentSkillDTO[];
+  languages: StudentLanguageDTO[];
+  schnupperlehren: SchnupperlehreEntryDTO[];
+}
+
+export interface UpdateStudentExtendedRequest {
+  profilePhoto?: string;
+  motivationVideoUrl?: string;
+  motivationLetter?: string;
+  phone?: string;
+  nationality?: string;
+}
+
+export interface BerufDTO {
+  id: string;
+  name: string;
+  field: string;
+  educationType: string;
+  description?: string;
+  riasecR: number;
+  riasecI: number;
+  riasecA: number;
+  riasecS: number;
+  riasecE: number;
+  riasecC: number;
+}
+
+export interface PassendeBerufDTO extends BerufDTO {
+  matchScore: number;
+  matchPercent: number;
 }
 
 export interface OceanScores {

@@ -10,11 +10,13 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import api from '../../../../services/api';
 import { APPRENTICESHIP_FIELDS, SWISS_CANTONS } from '@lehrstellen/shared';
 import type { ListingDTO } from '@lehrstellen/shared';
 
 export default function SearchScreen() {
+  const router = useRouter();
   const [query, setQuery] = useState('');
   const [selectedField, setSelectedField] = useState('');
   const [selectedCanton, setSelectedCanton] = useState('');
@@ -70,7 +72,11 @@ export default function SearchScreen() {
   };
 
   const renderListing = ({ item }: { item: ListingDTO }) => (
-    <View style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => router.push(`/(app)/(student)/listing/${item.id}` as any)}
+      activeOpacity={0.75}
+    >
       <View style={styles.cardHeader}>
         <View style={styles.cardAvatar}>
           <Text style={styles.cardAvatarText}>
@@ -96,7 +102,7 @@ export default function SearchScreen() {
           <Text style={styles.tagText}>{item.durationYears} Jahre</Text>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (

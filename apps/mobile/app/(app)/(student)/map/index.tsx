@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import api from '../../../../services/api';
 import { CANTON_COORDINATES } from '../../../../constants/cantonCoordinates';
 import type { ListingDTO } from '@lehrstellen/shared';
@@ -33,6 +34,7 @@ const SWITZERLAND_REGION = {
 };
 
 export default function MapScreen() {
+  const router = useRouter();
   const [listings, setListings] = useState<ListingDTO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -99,7 +101,7 @@ export default function MapScreen() {
             if (!coords) return null;
             return (
               <Marker key={listing.id} coordinate={coords} pinColor="#4A90E2">
-                <Callout>
+                <Callout onPress={() => router.push(`/(app)/(student)/listing/${listing.id}` as any)}>
                   <View style={styles.callout}>
                     <Text style={styles.calloutTitle} numberOfLines={1}>
                       {listing.title}
@@ -110,6 +112,7 @@ export default function MapScreen() {
                     <Text style={styles.calloutLocation}>
                       {listing.city}, {listing.canton}
                     </Text>
+                    <Text style={styles.calloutCta}>Details anzeigen →</Text>
                   </View>
                 </Callout>
               </Marker>
@@ -143,12 +146,17 @@ export default function MapScreen() {
               <Text style={styles.cantonCount}>{items.length} Stellen</Text>
             </View>
             {items.map((listing) => (
-              <View key={listing.id} style={styles.listingRow}>
+              <TouchableOpacity
+                key={listing.id}
+                style={styles.listingRow}
+                onPress={() => router.push(`/(app)/(student)/listing/${listing.id}` as any)}
+                activeOpacity={0.7}
+              >
                 <Text style={styles.listingTitle} numberOfLines={1}>{listing.title}</Text>
                 <Text style={styles.listingCompany} numberOfLines={1}>
                   {listing.companyName} - {listing.city}
                 </Text>
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
         )}
@@ -206,6 +214,12 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     marginTop: 2,
   },
+  calloutCta: {
+    fontSize: 12,
+    color: '#4A90E2',
+    fontWeight: '600',
+    marginTop: 6,
+  },
   fallbackBanner: {
     backgroundColor: '#FFF3E0',
     marginHorizontal: 16,
@@ -253,7 +267,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   listingRow: {
-    paddingVertical: 6,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
   },
   listingTitle: {
     fontSize: 15,

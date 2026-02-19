@@ -40,7 +40,7 @@ export async function uploadPhotos(req: Request, res: Response) {
 
 export async function deletePhoto(req: Request, res: Response) {
   const companyId = await companyService.getCompanyIdByUserId(req.user!.userId);
-  await companyService.deletePhoto(companyId, req.params.photoId);
+  await companyService.deletePhoto(companyId, req.params.photoId as string);
   res.json({ message: 'Photo deleted' });
 }
 

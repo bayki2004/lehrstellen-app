@@ -43,6 +43,16 @@ export default function RegisterScreen() {
       return;
     }
 
+    if (!/[A-Z]/.test(password)) {
+      Alert.alert('Fehler', 'Das Passwort muss einen Grossbuchstaben enthalten.');
+      return;
+    }
+
+    if (!/[0-9]/.test(password)) {
+      Alert.alert('Fehler', 'Das Passwort muss eine Zahl enthalten.');
+      return;
+    }
+
     try {
       await register({ email: email.trim(), password, role });
       router.replace('/');
@@ -123,7 +133,7 @@ export default function RegisterScreen() {
             />
             <Input
               label="Passwort"
-              placeholder="Min. 8 Zeichen"
+              placeholder="Min. 8 Zeichen, Grossbuchstabe & Zahl"
               value={password}
               onChangeText={(text) => {
                 setPassword(text);

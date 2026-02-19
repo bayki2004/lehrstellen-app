@@ -98,6 +98,13 @@ model StudentProfile {
   bio         String?  @db.Text
   profilePhoto String?
 
+  // Extended profile fields
+  motivationVideoUrl  String?
+  motivationLetter    String?  @db.Text
+  profileCompleteness Int      @default(0)
+  phone               String?
+  nationality         String?
+
   // OCEAN personality scores (0.0 - 1.0)
   oceanOpenness          Float @default(0.5)
   oceanConscientiousness Float @default(0.5)
@@ -118,11 +125,15 @@ model StudentProfile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   desiredFields StudentDesiredField[]
   swipes        Swipe[]
   matches       Match[]
   applications  Application[]
+  schools       StudentSchool[]
+  skills        StudentSkill[]
+  languages     StudentLanguage[]
+  schnupperlehren SchnupperlehreEntry[]
 
   @@map("student_profiles")
 }
@@ -333,4 +344,79 @@ model Application {
   @@index([studentId])
   @@index([listingId])
   @@map("applications")
+}
+
+// ============================================
+// STUDENT EXTENDED PROFILE
+// ============================================
+
+model StudentSchool {
+  id        String   @id @default(cuid())
+  studentId String
+  student   StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  name      String
+  level     String?
+  startYear Int?
+  endYear   Int?
+  isCurrent Boolean  @default(false)
+
+  @@index([studentId])
+  @@map("student_schools")
+}
+
+model StudentSkill {
+  id        String   @id @default(cuid())
+  studentId String
+  student   StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  name      String
+
+  @@index([studentId])
+  @@map("student_skills")
+}
+
+model StudentLanguage {
+  id          String   @id @default(cuid())
+  studentId   String
+  student     StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  language    String
+  proficiency String
+
+  @@index([studentId])
+  @@map("student_languages")
+}
+
+model SchnupperlehreEntry {
+  id          String   @id @default(cuid())
+  studentId   String
+  student     StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  companyName String
+  beruf       String?
+  canton      String?
+  date        DateTime?
+  notes       String?  @db.Text
+
+  @@index([studentId])
+  @@map("schnupperlehre_entries")
+}
+
+// ============================================
+// BERUFE (CAREER MATCHING)
+// ============================================
+
+model Beruf {
+  id            String  @id @default(cuid())
+  name          String
+  field         String
+  educationType String
+  description   String? @db.Text
+
+  // RIASEC fit profile (0.0 - 1.0 each)
+  riasecR Float @default(0)
+  riasecI Float @default(0)
+  riasecA Float @default(0)
+  riasecS Float @default(0)
+  riasecE Float @default(0)
+  riasecC Float @default(0)
+
+  @@map("berufe")
 }

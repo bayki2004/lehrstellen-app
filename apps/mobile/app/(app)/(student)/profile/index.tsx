@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,36 +6,48 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
+  TouchableOpacity,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import Button from '../../../../components/ui/Button';
 import { useAuthStore } from '../../../../stores/auth.store';
 import api from '../../../../services/api';
-import type { StudentProfileDTO } from '@lehrstellen/shared';
-
-const OCEAN_LABELS = ['Offenheit', 'Gewissenhaftigkeit', 'Extraversion', 'Verträglichkeit', 'Neurotizismus'];
-const RIASEC_LABELS = ['Realistisch', 'Forschend', 'Künstlerisch', 'Sozial', 'Unternehmerisch', 'Konventionell'];
+import ScoreRing from '../../../../components/ui/ScoreRing';
+import type { StudentProfileExtendedDTO } from '@lehrstellen/shared';
+import { pickImage } from '../../../../utils/mediaPicker';
 
 export default function StudentProfileScreen() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
-  const [profile, setProfile] = useState<StudentProfileDTO | null>(null);
+  const [profile, setProfile] = useState<StudentProfileExtendedDTO | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await api.get<StudentProfileDTO>('/students/me');
-        setProfile(res.data);
-      } catch {
-        // silent
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    load();
+  const loadProfile = useCallback(async () => {
+    try {
+      const res = await api.get<StudentProfileExtendedDTO>('/students/me/extended');
+      setProfile(res.data);
+    } catch {
+      // silent
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
+
+  const handlePhotoUpload = async () => {
+    const uri = await pickImage();
+    if (!uri) return;
+    try {
+      await api.put('/students/me/extended', { profilePhoto: uri });
+      await loadProfile();
+    } catch {
+      Alert.alert('Fehler', 'Foto konnte nicht hochgeladen werden.');
+    }
+  };
 
   const handleLogout = () => {
     Alert.alert('Abmelden', 'Möchtest du dich wirklich abmelden?', [
@@ -61,200 +73,224 @@ export default function StudentProfileScreen() {
     );
   }
 
+  const completeness = profile?.profileCompleteness ?? 0;
+  const skillsCount = profile?.skills?.length ?? 0;
+  const schnupperCount = profile?.schnupperlehren?.length ?? 0;
+  const interestsCount = profile?.desiredFields?.length ?? 0;
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.avatarSection}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>
-              {(profile?.firstName || user?.email || '?')[0].toUpperCase()}
-            </Text>
-          </View>
+        {/* Header */}
+        <View style={styles.headerSection}>
+          <TouchableOpacity style={styles.avatarContainer} onPress={handlePhotoUpload} activeOpacity={0.8}>
+            {profile?.profilePhoto ? (
+              <Image source={{ uri: profile.profilePhoto }} style={styles.avatarImage} />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <Text style={styles.avatarText}>
+                  {(profile?.firstName || user?.email || '?')[0].toUpperCase()}
+                </Text>
+              </View>
+            )}
+            <View style={styles.cameraOverlay}>
+              <Text style={{ fontSize: 14 }}>📷</Text>
+            </View>
+          </TouchableOpacity>
+
           <Text style={styles.name}>
             {profile ? `${profile.firstName} ${profile.lastName}` : user?.email}
           </Text>
           {profile?.canton && (
             <Text style={styles.location}>{profile.canton}, {profile.city}</Text>
           )}
+
+          {/* Completeness ring */}
+          <View style={styles.completenessRow}>
+            <ScoreRing score={completeness} size={64} />
+            <Text style={styles.completenessLabel}>Profil{'\n'}vollständig</Text>
+          </View>
         </View>
 
-        {profile?.bio && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Über mich</Text>
-            <Text style={styles.bioText}>{profile.bio}</Text>
+        {/* Stats row */}
+        <View style={styles.statsRow}>
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>{interestsCount}</Text>
+            <Text style={styles.statLabel}>Interessen</Text>
           </View>
-        )}
-
-        {profile?.oceanScores && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Persönlichkeit (OCEAN)</Text>
-            {OCEAN_LABELS.map((label, i) => {
-              const keys = ['openness', 'conscientiousness', 'extraversion', 'agreeableness', 'neuroticism'] as const;
-              const value = (profile.oceanScores as any)?.[keys[i]] ?? 0;
-              return (
-                <View key={label} style={styles.traitRow}>
-                  <Text style={styles.traitLabel}>{label}</Text>
-                  <View style={styles.traitBarBg}>
-                    <View style={[styles.traitBarFill, { width: `${value * 100}%` }]} />
-                  </View>
-                  <Text style={styles.traitValue}>{Math.round(value * 100)}%</Text>
-                </View>
-              );
-            })}
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>{skillsCount}</Text>
+            <Text style={styles.statLabel}>Fähigkeiten</Text>
           </View>
-        )}
-
-        {profile?.riasecScores && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Interessen (RIASEC)</Text>
-            {RIASEC_LABELS.map((label, i) => {
-              const keys = ['realistic', 'investigative', 'artistic', 'social', 'enterprising', 'conventional'] as const;
-              const value = (profile.riasecScores as any)?.[keys[i]] ?? 0;
-              return (
-                <View key={label} style={styles.traitRow}>
-                  <Text style={styles.traitLabel}>{label}</Text>
-                  <View style={styles.traitBarBg}>
-                    <View
-                      style={[styles.traitBarFill, styles.riasecFill, { width: `${value * 100}%` }]}
-                    />
-                  </View>
-                  <Text style={styles.traitValue}>{Math.round(value * 100)}%</Text>
-                </View>
-              );
-            })}
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>{schnupperCount}</Text>
+            <Text style={styles.statLabel}>Schnupperlehren</Text>
           </View>
-        )}
+        </View>
 
-        {profile?.desiredFields && profile.desiredFields.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Gewünschte Berufsfelder</Text>
-            <View style={styles.tags}>
-              {profile.desiredFields.map((field) => (
-                <View key={field} style={styles.tag}>
-                  <Text style={styles.tagText}>{field}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        )}
-
-        <View style={styles.logoutSection}>
-          <Button title="Abmelden" variant="outline" onPress={handleLogout} />
+        {/* Menu items */}
+        <View style={styles.menuSection}>
+          <MenuRow
+            emoji="📝"
+            title="Bewerbungsprofil"
+            subtitle="Lebenslauf, Schule, Fähigkeiten"
+            onPress={() => router.push('/(app)/(student)/profile/builder')}
+          />
+          <MenuRow
+            emoji="🧠"
+            title="Persönlichkeitsprofil"
+            subtitle={profile?.quizCompleted ? 'RIASEC & OCEAN Ergebnisse' : 'Quiz noch nicht abgeschlossen'}
+            onPress={() => router.push('/(app)/(student)/profile/personality')}
+          />
+          <MenuRow
+            emoji="🎯"
+            title="Passende Berufe"
+            subtitle="Berufe basierend auf deinem Profil"
+            onPress={() => router.push('/(app)/(student)/profile/passende-berufe')}
+          />
+          <MenuRow
+            emoji="⚙️"
+            title="Einstellungen"
+            subtitle="Konto & Abmelden"
+            onPress={handleLogout}
+            danger
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
+function MenuRow({
+  emoji,
+  title,
+  subtitle,
+  onPress,
+  danger,
+}: {
+  emoji: string;
+  title: string;
+  subtitle: string;
+  onPress: () => void;
+  danger?: boolean;
+}) {
+  return (
+    <TouchableOpacity style={styles.menuRow} onPress={onPress} activeOpacity={0.7}>
+      <View style={styles.menuIcon}>
+        <Text style={{ fontSize: 22 }}>{emoji}</Text>
+      </View>
+      <View style={styles.menuText}>
+        <Text style={[styles.menuTitle, danger && styles.menuTitleDanger]}>{title}</Text>
+        <Text style={styles.menuSubtitle}>{subtitle}</Text>
+      </View>
+      <Text style={styles.menuChevron}>›</Text>
+    </TouchableOpacity>
+  );
+}
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  content: {
-    paddingBottom: 40,
-  },
-  avatarSection: {
+  container: { flex: 1, backgroundColor: '#F8F9FA' },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  content: { paddingBottom: 40 },
+  headerSection: {
     alignItems: 'center',
     paddingVertical: 24,
+    paddingHorizontal: 16,
   },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+  avatarContainer: {
+    marginBottom: 14,
+    position: 'relative',
+  },
+  avatarImage: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+  },
+  avatarPlaceholder: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
     backgroundColor: '#4A90E2',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
   },
-  avatarText: {
-    color: '#FFFFFF',
-    fontSize: 32,
-    fontWeight: '700',
-  },
-  name: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#1A1A2E',
-  },
-  location: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginTop: 4,
-  },
-  section: {
+  avatarText: { color: '#FFFFFF', fontSize: 36, fontWeight: '700' },
+  cameraOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
     backgroundColor: '#FFFFFF',
-    marginHorizontal: 16,
-    marginBottom: 12,
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 14,
+    width: 28,
+    height: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#1A1A2E',
-    marginBottom: 12,
-  },
-  bioText: {
-    fontSize: 15,
-    color: '#4B5563',
-    lineHeight: 22,
-  },
-  traitRow: {
+  name: { fontSize: 22, fontWeight: '700', color: '#1A1A2E' },
+  location: { fontSize: 14, color: '#6B7280', marginTop: 4 },
+  completenessRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    gap: 12,
+    marginTop: 16,
   },
-  traitLabel: {
-    width: 120,
+  completenessLabel: {
     fontSize: 13,
     color: '#6B7280',
+    lineHeight: 18,
   },
-  traitBarBg: {
-    flex: 1,
-    height: 8,
-    backgroundColor: '#E5E7EB',
-    borderRadius: 4,
-    overflow: 'hidden',
-    marginRight: 8,
-  },
-  traitBarFill: {
-    height: '100%',
-    backgroundColor: '#4A90E2',
-    borderRadius: 4,
-  },
-  riasecFill: {
-    backgroundColor: '#FF6B35',
-  },
-  traitValue: {
-    width: 40,
-    fontSize: 12,
-    color: '#6B7280',
-    textAlign: 'right',
-  },
-  tags: {
+  statsRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 16,
+    borderRadius: 16,
+    paddingVertical: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  tag: {
-    backgroundColor: '#EBF5FF',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
+  statItem: { flex: 1, alignItems: 'center' },
+  statNumber: { fontSize: 24, fontWeight: '800', color: '#1A1A2E' },
+  statLabel: { fontSize: 12, color: '#9CA3AF', marginTop: 2 },
+  statDivider: { width: 1, backgroundColor: '#E5E7EB' },
+  menuSection: {
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 16,
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  tagText: {
-    fontSize: 13,
-    color: '#4A90E2',
-    fontWeight: '500',
-  },
-  logoutSection: {
+  menuRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
     paddingHorizontal: 16,
-    paddingTop: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
   },
+  menuIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  menuText: { flex: 1 },
+  menuTitle: { fontSize: 15, fontWeight: '600', color: '#1A1A2E' },
+  menuTitleDanger: { color: '#EF4444' },
+  menuSubtitle: { fontSize: 13, color: '#9CA3AF', marginTop: 1 },
+  menuChevron: { fontSize: 22, color: '#C4C9D4', fontWeight: '300' },
 });

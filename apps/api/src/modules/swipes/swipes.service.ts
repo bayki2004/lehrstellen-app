@@ -17,9 +17,7 @@ export async function getSwipeFeed(userId: string): Promise<ListingWithScoreDTO[
     throw ApiError.notFound('Student profile not found');
   }
 
-  if (!student.quizCompletedAt) {
-    throw ApiError.badRequest('Complete the personality quiz first');
-  }
+  const quizDone = !!student.quizCompletedAt;
 
   // Get IDs of already-swiped listings
   const swipedListingIds = (
@@ -29,9 +27,11 @@ export async function getSwipeFeed(userId: string): Promise<ListingWithScoreDTO[
     })
   ).map((s) => s.listingId);
 
-  // Get neighboring cantons for broader matching
+  // Get neighboring cantons for broader matching (fall back to all cantons when quiz not done)
   const neighborCantons = CANTON_NEIGHBORS[student.canton] ?? [];
-  const relevantCantons = [student.canton, ...neighborCantons];
+  const relevantCantons = quizDone
+    ? [student.canton, ...neighborCantons]
+    : undefined; // undefined = no canton filter
 
   // Fetch candidate listings (not yet swiped, active, nearby)
   const candidates = await prisma.listing.findMany({
@@ -39,7 +39,7 @@ export async function getSwipeFeed(userId: string): Promise<ListingWithScoreDTO[
       isActive: true,
       spotsAvailable: { gt: 0 },
       id: { notIn: swipedListingIds },
-      canton: { in: relevantCantons },
+      ...(relevantCantons ? { canton: { in: relevantCantons } } : {}),
     },
     include: { company: true },
     take: 200,
@@ -47,9 +47,12 @@ export async function getSwipeFeed(userId: string): Promise<ListingWithScoreDTO[
 
   const desiredFields = student.desiredFields.map((d) => d.field);
 
-  // Score and sort
+  // Score and sort; when quiz not done use neutral score 50 for all listings
   const scored = candidates
     .map((listing) => {
+      if (!quizDone) {
+        return { listing, score: 50, breakdown: [] };
+      }
       const result = computeCompatibility(student, listing, desiredFields);
       return {
         listing,
@@ -57,7 +60,7 @@ export async function getSwipeFeed(userId: string): Promise<ListingWithScoreDTO[
         breakdown: result.breakdown,
       };
     })
-    .filter((item) => item.score >= MIN_SCORE)
+    .filter((item) => !quizDone || item.score >= MIN_SCORE)
     .sort((a, b) => b.score - a.score)
     .slice(0, FEED_SIZE);
 

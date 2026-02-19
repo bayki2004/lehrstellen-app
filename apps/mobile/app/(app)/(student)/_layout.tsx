@@ -21,13 +21,6 @@ export default function StudentLayout() {
       }}
     >
       <Tabs.Screen
-        name="search"
-        options={{
-          title: 'Suche',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="🔍" focused={focused} />,
-        }}
-      />
-      <Tabs.Screen
         name="feed"
         options={{
           title: 'Entdecken',
@@ -42,10 +35,17 @@ export default function StudentLayout() {
         }}
       />
       <Tabs.Screen
-        name="chat"
+        name="search"
         options={{
-          title: 'Chat',
-          tabBarIcon: ({ focused }) => <TabIcon emoji="💬" focused={focused} />,
+          title: 'Suche',
+          tabBarIcon: ({ focused }) => <TabIcon emoji="🔍" focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
+        name="bewerbungen"
+        options={{
+          title: 'Bewerbungen',
+          tabBarIcon: ({ focused }) => <TabIcon emoji="📋" focused={focused} />,
         }}
       />
       <Tabs.Screen
@@ -55,8 +55,10 @@ export default function StudentLayout() {
           tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} />,
         }}
       />
-      {/* Hide matches from tab bar (accessed via chat) */}
+      {/* Hide from tab bar — accessed programmatically */}
+      <Tabs.Screen name="chat" options={{ href: null }} />
       <Tabs.Screen name="matches" options={{ href: null }} />
+      <Tabs.Screen name="listing" options={{ href: null }} />
     </Tabs>
   );
 }
