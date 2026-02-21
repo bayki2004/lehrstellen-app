@@ -1,31 +1,69 @@
 import SwiftUI
 
 struct CompanyListingsView: View {
+    @Environment(AppState.self) private var appState
+    @Environment(NavigationRouter.self) private var router
+    @State private var viewModel: CompanyListingsViewModel?
+    @State private var showCreateListing = false
+
     var body: some View {
-        NavigationStack {
-            VStack(spacing: Theme.Spacing.lg) {
-                Spacer()
-
-                Image(systemName: "briefcase.fill")
-                    .font(.system(size: 60))
-                    .foregroundStyle(Theme.Colors.primaryFallback)
-
-                Text("Meine Lehrstellen")
-                    .font(Theme.Typography.title)
-
-                Text("Demnächst verfügbar")
-                    .font(Theme.Typography.body)
-                    .foregroundStyle(Theme.Colors.textSecondary)
-
-                Text("Hier können Sie bald Ihre Lehrstellen-Inserate verwalten.")
-                    .font(Theme.Typography.caption)
-                    .foregroundStyle(Theme.Colors.textTertiary)
-                    .multilineTextAlignment(.center)
-
-                Spacer()
+        Group {
+            if let vm = viewModel {
+                listingsContent(vm)
+            } else {
+                ProgressView()
             }
-            .padding(Theme.Spacing.xl)
-            .navigationTitle("Lehrstellen")
+        }
+        .task {
+            if viewModel == nil {
+                viewModel = CompanyListingsViewModel(apiClient: appState.expressClient)
+            }
+            await viewModel?.loadListings()
+        }
+    }
+
+    private func listingsContent(_ vm: CompanyListingsViewModel) -> some View {
+        List {
+            if vm.listings.isEmpty && !vm.isLoading {
+                ContentUnavailableView(
+                    "Keine Lehrstellen",
+                    systemImage: "briefcase",
+                    description: Text("Erstellen Sie Ihre erste Lehrstelle, um Bewerbungen zu erhalten.")
+                )
+            } else {
+                ForEach(vm.listings) { listing in
+                    CompanyListingRowView(listing: listing)
+                }
+                .onDelete { indexSet in
+                    for index in indexSet {
+                        let listing = vm.listings[index]
+                        Task { await vm.deleteListing(id: listing.id) }
+                    }
+                }
+            }
+        }
+        .navigationTitle("Lehrstellen")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showCreateListing = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+            }
+        }
+        .refreshable {
+            await vm.loadListings()
+        }
+        .sheet(isPresented: $showCreateListing) {
+            CreateListingView(apiClient: appState.expressClient) {
+                Task { await vm.loadListings() }
+            }
+        }
+        .overlay {
+            if vm.isLoading && vm.listings.isEmpty {
+                ProgressView()
+            }
         }
     }
 }

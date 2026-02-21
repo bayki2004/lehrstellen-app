@@ -22,7 +22,7 @@ struct MainTabView: View {
                 NavigationStack(path: $router.discoverPath) {
                     DiscoveryFeedView()
                         .navigationDestination(for: AppDestination.self) { destination in
-                            destinationView(for: destination)
+                            studentDestinationView(for: destination)
                         }
                 }
             }
@@ -31,7 +31,7 @@ struct MainTabView: View {
                 NavigationStack(path: $router.mapPath) {
                     MapView()
                         .navigationDestination(for: AppDestination.self) { destination in
-                            destinationView(for: destination)
+                            studentDestinationView(for: destination)
                         }
                 }
             }
@@ -40,7 +40,7 @@ struct MainTabView: View {
                 NavigationStack(path: $router.searchPath) {
                     SearchView()
                         .navigationDestination(for: AppDestination.self) { destination in
-                            destinationView(for: destination)
+                            studentDestinationView(for: destination)
                         }
                 }
             }
@@ -49,7 +49,7 @@ struct MainTabView: View {
                 NavigationStack(path: $router.bewerbungenPath) {
                     BewerbungenListView()
                         .navigationDestination(for: AppDestination.self) { destination in
-                            destinationView(for: destination)
+                            studentDestinationView(for: destination)
                         }
                 }
             }
@@ -58,7 +58,7 @@ struct MainTabView: View {
                 NavigationStack(path: $router.profilePath) {
                     ProfileView()
                         .navigationDestination(for: AppDestination.self) { destination in
-                            destinationView(for: destination)
+                            studentDestinationView(for: destination)
                         }
                 }
             }
@@ -69,26 +69,52 @@ struct MainTabView: View {
     // MARK: - Company Tabs
 
     private var companyTabView: some View {
-        TabView {
-            CompanyDashboardView()
-                .tabItem { Label(CompanyTab.dashboard.title, systemImage: CompanyTab.dashboard.icon) }
+        @Bindable var router = router
 
-            CompanyListingsView()
-                .tabItem { Label(CompanyTab.listings.title, systemImage: CompanyTab.listings.icon) }
+        return TabView(selection: $router.selectedCompanyTab) {
+            Tab(CompanyTab.dashboard.title, systemImage: CompanyTab.dashboard.icon, value: .dashboard) {
+                NavigationStack(path: $router.companyDashboardPath) {
+                    CompanyDashboardView()
+                        .navigationDestination(for: CompanyDestination.self) { destination in
+                            companyDestinationView(for: destination)
+                        }
+                }
+            }
 
-            CompanyBewerbungenView()
-                .tabItem { Label(CompanyTab.bewerbungen.title, systemImage: CompanyTab.bewerbungen.icon) }
+            Tab(CompanyTab.listings.title, systemImage: CompanyTab.listings.icon, value: .listings) {
+                NavigationStack(path: $router.companyListingsPath) {
+                    CompanyListingsView()
+                        .navigationDestination(for: CompanyDestination.self) { destination in
+                            companyDestinationView(for: destination)
+                        }
+                }
+            }
 
-            CompanyProfileView()
-                .tabItem { Label(CompanyTab.companyProfile.title, systemImage: CompanyTab.companyProfile.icon) }
+            Tab(CompanyTab.bewerbungen.title, systemImage: CompanyTab.bewerbungen.icon, value: .bewerbungen) {
+                NavigationStack(path: $router.companyBewerbungenPath) {
+                    CompanyBewerbungenView()
+                        .navigationDestination(for: CompanyDestination.self) { destination in
+                            companyDestinationView(for: destination)
+                        }
+                }
+            }
+
+            Tab(CompanyTab.companyProfile.title, systemImage: CompanyTab.companyProfile.icon, value: .companyProfile) {
+                NavigationStack(path: $router.companyProfilePath) {
+                    CompanyProfileView()
+                        .navigationDestination(for: CompanyDestination.self) { destination in
+                            companyDestinationView(for: destination)
+                        }
+                }
+            }
         }
         .tint(Theme.Colors.primary)
     }
 
-    // MARK: - Destination Routing
+    // MARK: - Student Destination Routing
 
     @ViewBuilder
-    private func destinationView(for destination: AppDestination) -> some View {
+    private func studentDestinationView(for destination: AppDestination) -> some View {
         switch destination {
         case .cardDetail(let id):
             CardDetailView(lehrstelleId: id)
@@ -110,6 +136,22 @@ struct MainTabView: View {
             PassendeBerufeView()
         case .berufDetail(let code):
             BerufDetailView(berufCode: code)
+        }
+    }
+
+    // MARK: - Company Destination Routing
+
+    @ViewBuilder
+    private func companyDestinationView(for destination: CompanyDestination) -> some View {
+        switch destination {
+        case .listingDetail:
+            EmptyView() // TODO: Listing detail view
+        case .createListing:
+            EmptyView() // Handled via sheet in CompanyListingsView
+        case .bewerbungDetail(let id):
+            CompanyBewerbungDetailView(applicationId: id)
+        case .editProfile:
+            EmptyView() // Handled in-place via edit mode
         }
     }
 }

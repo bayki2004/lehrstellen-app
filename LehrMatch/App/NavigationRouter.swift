@@ -3,6 +3,7 @@ import SwiftUI
 @MainActor
 @Observable
 final class NavigationRouter {
+    // MARK: - Student Navigation
     var selectedTab: AppTab = .discover
     var discoverPath = NavigationPath()
     var mapPath = NavigationPath()
@@ -10,6 +11,13 @@ final class NavigationRouter {
     var bewerbungenPath = NavigationPath()
     var profilePath = NavigationPath()
     var pendingFilters: FeedFilters?
+
+    // MARK: - Company Navigation
+    var selectedCompanyTab: CompanyTab = .dashboard
+    var companyDashboardPath = NavigationPath()
+    var companyListingsPath = NavigationPath()
+    var companyBewerbungenPath = NavigationPath()
+    var companyProfilePath = NavigationPath()
 
     func navigate(to destination: AppDestination) {
         switch destination {
@@ -29,6 +37,17 @@ final class NavigationRouter {
         }
     }
 
+    func navigateCompany(to destination: CompanyDestination) {
+        switch destination {
+        case .listingDetail, .createListing:
+            companyListingsPath.append(destination)
+        case .bewerbungDetail:
+            companyBewerbungenPath.append(destination)
+        case .editProfile:
+            companyProfilePath.append(destination)
+        }
+    }
+
     func popCurrent() {
         switch selectedTab {
         case .discover: if !discoverPath.isEmpty { discoverPath.removeLast() }
@@ -36,6 +55,15 @@ final class NavigationRouter {
         case .search: if !searchPath.isEmpty { searchPath.removeLast() }
         case .bewerbungen: if !bewerbungenPath.isEmpty { bewerbungenPath.removeLast() }
         case .profile: if !profilePath.isEmpty { profilePath.removeLast() }
+        }
+    }
+
+    func popCurrentCompany() {
+        switch selectedCompanyTab {
+        case .dashboard: if !companyDashboardPath.isEmpty { companyDashboardPath.removeLast() }
+        case .listings: if !companyListingsPath.isEmpty { companyListingsPath.removeLast() }
+        case .bewerbungen: if !companyBewerbungenPath.isEmpty { companyBewerbungenPath.removeLast() }
+        case .companyProfile: if !companyProfilePath.isEmpty { companyProfilePath.removeLast() }
         }
     }
 }
@@ -97,7 +125,7 @@ enum CompanyTab: Int, CaseIterable {
     }
 }
 
-// MARK: - Navigation Destinations
+// MARK: - Student Destinations
 
 enum AppDestination: Hashable {
     case cardDetail(id: UUID)
@@ -110,4 +138,13 @@ enum AppDestination: Hashable {
     case profileBuilder
     case passendeBerufe
     case berufDetail(code: String)
+}
+
+// MARK: - Company Destinations
+
+enum CompanyDestination: Hashable {
+    case listingDetail(id: String)
+    case createListing
+    case bewerbungDetail(id: String)
+    case editProfile
 }
