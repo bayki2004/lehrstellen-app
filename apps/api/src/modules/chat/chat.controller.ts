@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import * as chatService from './chat.service';
 
 export async function getMessages(req: Request, res: Response) {
-  const limit = typeof req.query.limit === 'string' ? parseInt(req.query.limit) : 50;
+  const limit = typeof req.query.limit === 'string' ? (parseInt(req.query.limit, 10) || 50) : 50;
   const before = typeof req.query.before === 'string' ? req.query.before : undefined;
   const messages = await chatService.getMessages(
     req.user!.userId,

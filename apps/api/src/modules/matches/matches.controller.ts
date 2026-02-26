@@ -10,3 +10,8 @@ export async function getById(req: Request, res: Response) {
   const match = await matchesService.getMatchById(req.user!.userId, req.params.id as string);
   res.json(match);
 }
+
+export async function dismissMatch(req: Request, res: Response) {
+  await matchesService.dismissMatch(req.user!.userId, req.params.id as string);
+  res.status(204).end();
+}

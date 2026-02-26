@@ -75,8 +75,8 @@ async function verifyMatchAccess(userId: string, matchId: string): Promise<void>
     throw ApiError.notFound('Match not found');
   }
 
-  const isStudent = match.student.userId === userId;
-  const isCompany = match.listing.company.userId === userId;
+  const isStudent = match.student?.userId === userId;
+  const isCompany = match.listing?.company?.userId === userId;
 
   if (!isStudent && !isCompany) {
     throw ApiError.forbidden('Not authorized to access this chat');

@@ -133,6 +133,22 @@ export interface UpdateCompanyProfileRequest {
 // LISTINGS
 // ============================================
 
+export type InfoCardType = 'vorteile' | 'anforderungen' | 'aufgaben' | 'wir_bieten';
+
+export interface InfoCard {
+  type: InfoCardType;
+  title: string;
+  items: string[];
+  icon?: string;
+}
+
+export const INFO_CARD_PRESETS: Record<InfoCardType, { title: string; icon: string }> = {
+  vorteile: { title: 'Vorteile', icon: '🌟' },
+  anforderungen: { title: 'Anforderungen', icon: '📋' },
+  aufgaben: { title: 'Deine Aufgaben', icon: '🔧' },
+  wir_bieten: { title: 'Wir bieten', icon: '🎁' },
+};
+
 export interface ListingDTO {
   id: string;
   companyId: string;
@@ -151,11 +167,13 @@ export interface ListingDTO {
   requiredSchoolLevel?: string;
   requiredLanguages: string[];
   createdAt: string;
+  cards?: InfoCard[];
 }
 
 export interface ListingWithScoreDTO extends ListingDTO {
   compatibilityScore: number;
   scoreBreakdown: ScoreBreakdown[];
+  berufCode?: string;
 }
 
 export interface ScoreBreakdown {
@@ -187,6 +205,7 @@ export interface CreateListingRequest {
   idealRiasecSocial?: number;
   idealRiasecEnterprising?: number;
   idealRiasecConventional?: number;
+  cards?: InfoCard[];
 }
 
 // ============================================
@@ -255,6 +274,12 @@ export interface ApplicationDTO {
   createdAt: string;
   updatedAt: string;
   listing: ListingDTO;
+  // Bewerbung content (customized per job by student)
+  motivationsschreiben?: string;
+  verfuegbarkeit?: string;
+  relevanteErfahrungen?: string[];
+  fragenAnBetrieb?: string;
+  schnupperlehreWunsch?: boolean;
 }
 
 export interface ApplicationTimelineEntry {
@@ -273,19 +298,19 @@ export interface UpdateApplicationStatusRequest {
 // ============================================
 
 export interface WsClientEvents {
-  'join-match': { matchId: string };
-  'leave-match': { matchId: string };
-  'send-message': { matchId: string; content: string; type?: string };
-  'mark-read': { matchId: string };
-  'typing-start': { matchId: string };
-  'typing-stop': { matchId: string };
+  'join-match': (data: { matchId: string }) => void;
+  'leave-match': (data: { matchId: string }) => void;
+  'send-message': (data: { matchId: string; content: string; type?: string }) => void;
+  'mark-read': (data: { matchId: string }) => void;
+  'typing-start': (data: { matchId: string }) => void;
+  'typing-stop': (data: { matchId: string }) => void;
 }
 
 export interface WsServerEvents {
-  'new-message': MessageDTO;
-  'message-read': { matchId: string; readBy: string };
-  'typing': { matchId: string; userId: string; isTyping: boolean };
-  'match-created': { matchId: string; listing: ListingDTO };
+  'new-message': (message: MessageDTO) => void;
+  'message-read': (data: { matchId: string; readBy: string }) => void;
+  'typing': (data: { matchId: string; userId: string; isTyping: boolean }) => void;
+  'match-created': (data: { matchId: string; listing: ListingDTO }) => void;
 }
 
 // ============================================

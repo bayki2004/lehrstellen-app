@@ -230,6 +230,8 @@ model Listing {
   idealRiasecEnterprising     Float?
   idealRiasecConventional     Float?
 
+  cards    Json     @default("[]")
+
   canton   String
   city     String
   isActive Boolean @default(true)
@@ -237,7 +239,7 @@ model Listing {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  company      CompanyProfile @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company      CompanyProfile? @relation(fields: [companyId], references: [id], onDelete: SetNull)
   swipes       Swipe[]
   matches      Match[]
   applications Application[]
@@ -322,6 +324,14 @@ model Application {
   status    ApplicationStatus @default(PENDING)
   notes     String?           @db.Text
   timeline  Json              @default("[]")
+
+  // Bewerbung content (customized per job by student)
+  motivationsschreiben String?  @db.Text
+  verfuegbarkeit       String?
+  relevanteErfahrungen Json     @default("[]")
+  fragenAnBetrieb      String?  @db.Text
+  schnupperlehreWunsch Boolean  @default(false)
+
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
 

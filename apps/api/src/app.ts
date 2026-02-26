@@ -14,13 +14,15 @@ import { swipesRouter } from './modules/swipes/swipes.router';
 import { matchesRouter } from './modules/matches/matches.router';
 import { chatRouter } from './modules/chat/chat.router';
 import { applicationsRouter } from './modules/applications/applications.router';
+import { berufsschulenRouter } from './modules/berufsschulen/berufsschulen.router';
+import { berufeRouter } from './modules/berufe/berufe.router';
 
 const app = express();
 
 // Middleware
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: env.CORS_ORIGIN }));
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
@@ -43,6 +45,8 @@ app.use('/api/swipes', swipesRouter);
 app.use('/api/matches', matchesRouter);
 app.use('/api/chat', chatRouter);
 app.use('/api/applications', applicationsRouter);
+app.use('/api/berufsschulen', berufsschulenRouter);
+app.use('/api/berufe', berufeRouter);
 
 // Error handling
 app.use(errorHandler);

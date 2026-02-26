@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build artifacts
+build/
+build_output/
+dist/
+ios/
+android/
+
+# Expo
+.expo/
+apps/api/.expo/
+
+# OS files
+.DS_Store
+*.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Xcode
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+
+# Lockfile (we use pnpm)
+package-lock.json
+
+# Supabase local
+supabase/.branches/
+supabase/.temp/
+
+# Logs
+*.log
+api.log
+
+# Claude Code
+.claude/
+
+# Misc
+*.tgz
+.npmrc

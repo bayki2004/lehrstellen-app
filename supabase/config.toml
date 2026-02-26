@@ -29,7 +29,7 @@ api_url = "http://127.0.0.1"
 
 [auth]
 enabled = true
-site_url = "http://127.0.0.1:3000"
+site_url = "http://127.0.0.1:3002"
 additional_redirect_urls = ["lehrmatch://auth-callback"]
 jwt_expiry = 3600
 enable_refresh_token_rotation = true
@@ -63,4 +63,12 @@ enabled = false
 # =============================================================================
 [db.seed]
 enabled = true
-sql_paths = ["./seed/001_berufe.sql", "./seed/002_sample_data.sql"]
+sql_paths = [
+  "./seed/001_berufe.sql",
+  "./seed/002_sample_data.sql",
+  "./seed/003_companies.sql",
+  "./seed/004_lehrstellen_batch1.sql",
+  "./seed/005_lehrstellen_batch2.sql",
+  "./seed/006_lehrstellen_batch3.sql",
+  "./seed/007_berufsschulen.sql",
+]

@@ -2,13 +2,49 @@ import { prisma } from '@lehrstellen/database';
 import type { MatchDTO } from '@lehrstellen/shared';
 import { ApiError } from '../../utils/ApiError';
 
+/**
+ * For proxy listings (created from lehrstellen), the Prisma `company` relation
+ * is null. Batch-fetch company info from Supabase `companies` table.
+ */
+async function enrichLehrstellenCompanyData(listings: any[]): Promise<void> {
+  const needEnrichment = listings.filter((l) => l && !l.company);
+  if (needEnrichment.length === 0) return;
+
+  const companyIds = [...new Set(needEnrichment.map((l) => l.companyId).filter(Boolean))];
+  if (companyIds.length === 0) return;
+
+  const placeholders = companyIds.map((_, i) => `$${i + 1}::uuid`).join(',');
+  const companies = await prisma.$queryRawUnsafe<any[]>(
+    `SELECT id, company_name, logo_url, canton, city FROM companies WHERE id IN (${placeholders})`,
+    ...companyIds,
+  );
+
+  const companyMap = new Map(companies.map((c: any) => [c.id, c]));
+
+  for (const listing of needEnrichment) {
+    const c = companyMap.get(listing.companyId);
+    if (c) {
+      listing.company = {
+        companyName: c.company_name,
+        logoUrl: c.logo_url,
+        canton: c.canton,
+        city: c.city,
+      };
+    }
+  }
+}
+
 export async function getMatches(userId: string, role: string): Promise<MatchDTO[]> {
   if (role === 'STUDENT') {
     const student = await prisma.studentProfile.findUnique({ where: { userId } });
     if (!student) throw ApiError.notFound('Profile not found');
 
     const matches = await prisma.match.findMany({
-      where: { studentId: student.id, status: 'ACTIVE' },
+      where: {
+        studentId: student.id,
+        status: 'ACTIVE',
+        application: { status: 'ACCEPTED' },
+      },
       include: {
         listing: { include: { company: true } },
         messages: { orderBy: { createdAt: 'desc' }, take: 1 },
@@ -21,6 +57,7 @@ export async function getMatches(userId: string, role: string): Promise<MatchDTO
       orderBy: { updatedAt: 'desc' },
     });
 
+    await enrichLehrstellenCompanyData(matches.map((m) => m.listing));
     return matches.map((m) => mapToDTO(m, userId));
   }
 
@@ -32,6 +69,7 @@ export async function getMatches(userId: string, role: string): Promise<MatchDTO
     where: {
       listing: { companyId: company.id },
       status: 'ACTIVE',
+      application: { status: 'ACCEPTED' },
     },
     include: {
       listing: { include: { company: true } },
@@ -46,6 +84,7 @@ export async function getMatches(userId: string, role: string): Promise<MatchDTO
     orderBy: { updatedAt: 'desc' },
   });
 
+  await enrichLehrstellenCompanyData(matches.map((m) => m.listing));
   return matches.map((m) => mapToDTO(m, userId));
 }
 
@@ -68,6 +107,8 @@ export async function getMatchById(userId: string, matchId: string): Promise<Mat
     throw ApiError.notFound('Match not found');
   }
 
+  await enrichLehrstellenCompanyData([match.listing]);
+
   // Verify user is part of this match
   const student = await prisma.studentProfile.findUnique({ where: { userId } });
   const company = await prisma.companyProfile.findUnique({ where: { userId } });
@@ -79,7 +120,32 @@ export async function getMatchById(userId: string, matchId: string): Promise<Mat
     throw ApiError.forbidden('Not authorized to view this match');
   }
 
+  // Chat is only available after application is accepted
+  const application = await prisma.application.findUnique({ where: { matchId } });
+  if (!application || application.status !== 'ACCEPTED') {
+    throw ApiError.forbidden('Chat ist nur nach Annahme der Bewerbung verfügbar');
+  }
+
   return mapToDTO(match, userId);
+}
+
+export async function dismissMatch(userId: string, matchId: string): Promise<void> {
+  const student = await prisma.studentProfile.findUnique({ where: { userId } });
+  if (!student) throw ApiError.notFound('Profile not found');
+
+  const match = await prisma.match.findUnique({ where: { id: matchId } });
+  if (!match) throw ApiError.notFound('Match not found');
+
+  if (match.studentId !== student.id) {
+    throw ApiError.forbidden('Not authorized to dismiss this match');
+  }
+
+  // Delete related application (if any) and the match itself
+  await prisma.$transaction([
+    prisma.application.deleteMany({ where: { matchId } }),
+    prisma.message.deleteMany({ where: { matchId } }),
+    prisma.match.delete({ where: { id: matchId } }),
+  ]);
 }
 
 function mapToDTO(match: any, userId: string): MatchDTO {
