@@ -1,47 +1,59 @@
 # LehrMatch — Lehrstellen App
 
-SwiftUI-native iOS app that matches Swiss students with Lehrstellen (apprenticeships) based on personality profiles — like Tinder, but for careers.
+Cross-platform mobile app (React Native Expo + SwiftUI) that matches Swiss students with Lehrstellen (apprenticeships) based on personality profiles — like Tinder, but for careers.
 
 ## Architecture Overview
 
-This project combines two codebases into a unified platform:
+This project combines two frontends and a unified backend:
 
 | Layer | Student Side | Company Side |
 |-------|-------------|--------------|
-| **Frontend** | SwiftUI (iOS native) | SwiftUI (iOS native) |
-| **Backend** | Supabase (PostgREST + Auth) | Express.js + Prisma ORM |
-| **Database** | Supabase PostgreSQL | Same PostgreSQL via Prisma |
-| **Auth** | Supabase Auth | JWT (Express middleware) |
-| **Real-time** | Supabase Realtime | Socket.io |
+| **Frontend** | React Native Expo (iOS/Android) + SwiftUI (iOS) | React Native Expo (iOS/Android) + SwiftUI (iOS) |
+| **Backend** | Express.js + Prisma ORM + Supabase | Express.js + Prisma ORM |
+| **Database** | PostgreSQL (Supabase) | Same PostgreSQL via Prisma |
+| **Auth** | JWT (Express middleware) + Supabase Auth | JWT (Express middleware) |
+| **Real-time** | Socket.io | Socket.io |
+| **State** | Zustand + React Query (TanStack v5) | Zustand + React Query |
 
-### Branch Merge History
+### Branch History
 
-This main branch was created by merging two feature branches:
-
-- **Rashad branch** (student side) — SwiftUI iOS app with personality quiz, swipe feed, map, search, Passende Berufe, Bewerbungen. Uses Supabase directly.
-- **Kaan branch** (company side) — Express.js API backend with Prisma ORM, company dashboard, listings CRUD, applicant management, profile with media. Originally built as an Expo/React Native app, company UI was ported to SwiftUI.
+- **main** — Merged from Rashad (student SwiftUI) + Kaan (company Express backend)
+- **V_3** — Current development branch: full React Native Expo mobile app, unified Express API, dual data sources (Prisma + Supabase), deep bug fixes, filter overhaul
 
 **Data model source of truth:** Prisma schema (`packages/database/prisma/schema.prisma`)
 
 ---
 
-## Current Version: V3 + Company Features
+## Current Version: V_3
 
-### Student Features (from Rashad)
+### What's New in V_3
+- **React Native Expo App** — Full cross-platform mobile app (iOS/Android) alongside the original SwiftUI codebase
+- **Dual Data Sources** — Swipe feed merges Prisma `listings` (company-created) and Supabase `lehrstellen` (scraped/imported apprenticeships)
+- **Proxy Listings** — Swiping on a Supabase lehrstelle auto-creates a proxy in the Prisma `listings` table via `ensureLehrstelleProxy()`
+- **Berufe & Berufsschulen API** — New Express endpoints for professions (with RIASEC data, salary, requirements) and vocational schools
+- **Filter Overhaul** — Reworked feed filters with canton, category, and education type support
+- **Scraper Service** — Backend service for importing lehrstellen from external sources
+- **Info Cards** — Contextual info cards in the feed for onboarding and engagement
+- **Enriched Seed Data** — Expanded berufe with Anforderungen & Lohn data, more berufsschulen and companies
+
+### Student Features
 - **Personality Quiz** — "Build Your Day" 3-phase quiz (26 questions, RIASEC scoring, gamification)
-- **Swipe Feed** — Discover Lehrstellen with compatibility scores, filters (canton, category, education type)
-- **Map View** — Interactive map with pins for Lehrstellen and Berufsschulen
-- **Search** — Lehrstellen, Berufe, and Berufsschulen tabs
+- **Swipe Feed** — Discover Lehrstellen with compatibility scores, swipe deck with animated cards
+- **Map View** — Interactive map with pins for Lehrstellen and Berufsschulen, filter bar, preview sheets
+- **Search** — Lehrstellen, Berufe, and Berufsschulen tabs with detail views
 - **Passende Berufe** — RIASEC-based career matching with radar chart comparison
-- **Bewerbungen** — One-way application tracking (sent, viewed, interview, offer, accepted)
-- **Profile Builder** — Multi-step student profile with documents, motivation video
+- **Bewerbungen** — Application tracking: prepare, send, track status (offen → gesendet → accepted/rejected)
+- **Profile Builder** — 6-step builder: personal info, education, experience, skills/languages, documents, motivation video
+- **Chat** — Messaging with matched companies (after application accepted)
+- **Commute Info** — Travel time and distance to lehrstellen shown on cards
 
-### Company Features (from Kaan)
+### Company Features
 - **Dashboard** — KPIs: total listings, active listings, applications, pending count
 - **Listings Management** — Create, edit, delete Lehrstellen with ideal personality profiles (OCEAN + RIASEC)
 - **Applicant Management** — View incoming applications, compatibility scores, update status (shortlist, interview, accept/reject)
 - **Company Profile** — Edit description, photo gallery, video, links, contact details
-- **Application Status Flow** — PENDING → VIEWED → SHORTLISTED → INTERVIEW_SCHEDULED → ACCEPTED/REJECTED
+- **Company Onboarding** — Profile setup flow during first login
+- **Chat** — Messaging with matched students
 
 ---
 
@@ -49,95 +61,103 @@ This main branch was created by merging two feature branches:
 
 | Component | Technology |
 |-----------|-----------|
-| **iOS Frontend** | SwiftUI, iOS 17+, MVVM with `@Observable` |
-| **Student Backend** | Supabase (PostgreSQL, Auth, PostgREST, Realtime, Edge Functions) |
-| **Company Backend** | Express.js, TypeScript, Prisma ORM, JWT, Socket.io |
-| **Database** | PostgreSQL (shared, accessed via both Supabase and Prisma) |
+| **Mobile App** | React Native, Expo SDK 54, expo-router v6, TypeScript |
+| **iOS App (Legacy)** | SwiftUI, iOS 17+, MVVM with `@Observable` |
+| **State Management** | Zustand (stores) + React Query / TanStack v5 (server state) |
+| **Backend API** | Express.js, TypeScript, Prisma ORM, JWT, Socket.io |
+| **Database** | PostgreSQL (Supabase), accessed via both Prisma ORM and Supabase PostgREST |
 | **Matching** | RIASEC/Holland Codes + OCEAN Big Five, cosine similarity |
-| **Monorepo** | pnpm + Turborepo (for Express API + shared packages) |
-| **Infrastructure** | Docker Compose (PostgreSQL + Redis) |
+| **Monorepo** | pnpm + Turborepo (API + mobile + shared packages) |
+| **Infrastructure** | Docker Compose (PostgreSQL + Redis), Supabase (local dev) |
 
 ---
 
 ## Project Structure
 
 ```
-LehrMatch/                          # iOS App (SwiftUI)
-├── App/
-│   ├── AppState.swift              # Global state (auth, student/company profile)
-│   ├── MainTabView.swift           # 5 student tabs + 4 company tabs
-│   ├── NavigationRouter.swift      # Per-tab NavigationPath routing
-│   └── LehrMatchApp.swift          # Entry point
-├── Core/
-│   ├── Networking/
-│   │   ├── APIClient.swift         # Supabase PostgREST client (student)
-│   │   ├── Endpoints.swift         # Supabase REST endpoints
-│   │   ├── ExpressAPIClient.swift  # Express.js API client (company)
-│   │   ├── ExpressEndpoints.swift  # Express API endpoints
-│   │   ├── SupabaseConfig.swift    # Supabase connection config
-│   │   └── RealtimeClient.swift    # WebSocket subscriptions
-│   ├── Auth/                       # Supabase Auth + Keychain
-│   ├── Services/                   # Geocoding, Commute calculation
-│   └── Storage/                    # File uploads
-├── DesignSystem/
-│   └── Theme.swift                 # Colors, typography, spacing, shadows
-├── Features/
-│   ├── Discovery/                  # Swipe feed, card detail, filters
-│   ├── Map/                        # Map view, pins, preview sheets
-│   ├── Search/                     # Lehrstellen/Berufe/Schulen search
-│   ├── PassendeBerufe/             # RIASEC matching, radar charts
-│   ├── Onboarding/                 # Personality quiz, gamification
-│   ├── Profile/                    # Student profile builder, settings
-│   ├── Bewerbungen/                # Student application tracking
-│   ├── Company/                    # Company features (NEW)
-│   │   ├── Models/                 # CompanyProfile, Listing, Application
-│   │   ├── ViewModels/             # Dashboard, Listings, Bewerbungen, Profile VMs
-│   │   └── Views/                  # Dashboard, Listings, Bewerbungen, Profile views
-│   ├── Chat/                       # Messaging
-│   └── Matching/                   # Legacy match system
-└── Resources/                      # Assets (colors, app icon)
+apps/mobile/                        # React Native Expo App (V_3)
+├── app/
+│   ├── (auth)/                    # Login, register, welcome screens
+│   ├── (onboarding)/              # Quiz, profile setup, field selection
+│   ├── (app)/
+│   │   ├── (student)/             # Student tabs
+│   │   │   ├── feed/              # Swipe feed, listing detail
+│   │   │   ├── map/               # Map view, school/listing detail
+│   │   │   ├── search/            # Search with listing/school detail
+│   │   │   ├── berufe/            # Passende Berufe, quiz, detail
+│   │   │   ├── bewerbungen/       # Applications, prepare flow
+│   │   │   ├── matches/           # Matches list
+│   │   │   ├── chat/              # Chat list, conversation
+│   │   │   └── profile/           # Profile, builder, settings
+│   │   └── (company)/             # Company tabs
+│   │       ├── dashboard/         # KPI dashboard
+│   │       ├── listings/          # Listings CRUD
+│   │       ├── applicants/        # Applicant management
+│   │       ├── chat/              # Chat with students
+│   │       └── profile/           # Company profile editor
+│   └── _layout.tsx                # Root layout
+├── components/                    # Reusable components
+│   ├── swipe/                     # SwipeDeck, SwipeCard
+│   ├── feed/                      # FilterSheet, ActionButtons, MatchCelebration
+│   ├── map/                       # Markers, preview sheets, filters
+│   ├── quiz/                      # Quiz views, gamification bar
+│   ├── search/                    # Row components
+│   ├── charts/                    # RadarChart, ComparisonRadarChart
+│   ├── profileBuilder/            # 6-step builder components
+│   ├── chat/                      # ChatInput, MessageBubble
+│   └── ui/                        # Button, Card, Input, ScoreRing, etc.
+├── stores/                        # Zustand state stores
+│   ├── auth.store.ts              # Auth state, login/register
+│   ├── feed.store.ts              # Feed state, swipe actions
+│   ├── map.store.ts               # Map filters, listings, schools
+│   ├── search.store.ts            # Search queries, results
+│   ├── quiz.store.ts              # Quiz progress, scoring
+│   ├── berufe.store.ts            # Favorite berufe
+│   ├── bewerbungen.store.ts       # Application actions
+│   ├── chat.store.ts              # Chat messages, socket
+│   └── profileBuilder.store.ts    # Multi-step profile builder
+├── hooks/queries/                 # React Query hooks
+├── services/                      # API client, socket, upload
+├── constants/                     # Theme, quiz content, cantons
+├── types/                         # TypeScript types
+└── utils/                         # Scoring engines, commute utils
 
-apps/                               # Express.js Backend (from Kaan)
-├── api/
-│   └── src/
-│       ├── app.ts                  # Express setup, routes
-│       ├── index.ts                # HTTP server + Socket.io
-│       ├── config/                 # Environment config
-│       ├── middleware/             # Auth (JWT), upload, validation
-│       ├── modules/
-│       │   ├── auth/              # Register, login, token refresh
-│       │   ├── profiles/          # Student + Company CRUD
-│       │   ├── listings/          # Lehrstellen CRUD
-│       │   ├── swipes/            # Feed generation + swipe recording
-│       │   ├── matches/           # Match retrieval
-│       │   ├── applications/      # Application tracking
-│       │   ├── quiz/              # Personality quiz scoring
-│       │   └── chat/              # Messaging + WebSocket
-│       └── services/              # Matching algorithm, token service
+apps/api/                           # Express.js Backend
+└── src/
+    ├── app.ts                     # Express setup, routes
+    ├── index.ts                   # HTTP server + Socket.io
+    ├── config/                    # Environment config
+    ├── middleware/                 # Auth (JWT), upload, validation
+    ├── modules/
+    │   ├── auth/                  # Register, login, token refresh
+    │   ├── profiles/              # Student + Company CRUD
+    │   ├── listings/              # Lehrstellen CRUD (+ proxy creation)
+    │   ├── swipes/                # Feed generation + swipe recording
+    │   ├── matches/               # Match retrieval + company enrichment
+    │   ├── applications/          # Application tracking + company enrichment
+    │   ├── berufe/                # Professions API (RIASEC, salary, requirements)
+    │   ├── berufsschulen/         # Vocational schools API
+    │   ├── quiz/                  # Personality quiz scoring
+    │   └── chat/                  # Messaging + WebSocket
+    ├── services/                  # Matching algorithm, scraper, token service
+    └── utils/                     # Info cards
 
-packages/                           # Shared packages
+LehrMatch/                          # SwiftUI iOS App (Legacy)
+├── App/                           # AppState, MainTabView, Router
+├── Core/                          # Networking, Auth, Services
+├── Features/                      # All feature modules
+└── DesignSystem/                  # Theme
+
+packages/
 ├── database/
-│   └── prisma/
-│       └── schema.prisma          # Source-of-truth data model
-└── shared/
-    └── src/
-        ├── types/                 # API DTOs, quiz types
-        └── constants/             # Fields, cantons
+│   └── prisma/schema.prisma      # Source-of-truth data model
+└── shared/src/                    # Shared types + constants
 
-supabase/                           # Supabase Backend
+supabase/
 ├── config.toml
-├── migrations/                    # 15 SQL migrations
-│   ├── 00001-00010               # Core tables, RLS, triggers
-│   ├── 00011-00014               # V3: Map, data import, feed, RIASEC
-│   └── 00015                     # Schema alignment with Prisma
-├── seed/                          # Sample data (berufe, companies, lehrstellen)
-└── functions/                     # Edge Functions (recommendations)
-
-scripts/                            # Data pipeline
-├── onet_import.py                 # O*NET RIASEC data import
-└── seed/                          # Enrich lehrberufe, fetch berufsschulen, geocoding
-
-docker-compose.yml                  # PostgreSQL + Redis for Express API
+├── migrations/                    # 16 SQL migrations (incl. proxy FK drop)
+├── seed/                          # Berufe, companies, lehrstellen, berufsschulen
+└── functions/                     # Edge Functions
 ```
 
 ---
@@ -161,26 +181,30 @@ Supabase adds: `berufe`, `personality_profiles`, `bewerbungen`, `berufsschulen`,
 
 ---
 
-## API Documentation
+## API Documentation (Express.js — `/api`)
 
-### Student Endpoints (Supabase PostgREST)
-
-| Endpoint | Description |
-|----------|-------------|
-| `POST /auth/v1/signup` | Register |
-| `POST /auth/v1/token` | Login |
-| `GET /rest/v1/students` | Student profiles |
-| `GET /rest/v1/lehrstellen_feed` | Discovery feed with scoring |
-| `POST /rest/v1/bewerbungen` | Send application |
-| `GET /rest/v1/berufsschulen` | Vocational schools |
-| `GET /rest/v1/berufe` | Professions with RIASEC data |
-
-### Company Endpoints (Express.js API)
-
+### Auth
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/auth/register` | POST | Register (role: COMPANY) |
+| `/api/auth/register` | POST | Register (role: STUDENT or COMPANY) |
 | `/api/auth/login` | POST | Login (returns JWT) |
+
+### Student
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/swipes/feed` | GET | Merged feed (Prisma listings + Supabase lehrstellen) |
+| `/api/swipes` | POST | Record swipe (LEFT/RIGHT/SUPER), auto-creates proxy for lehrstellen |
+| `/api/matches` | GET | Student matches with company enrichment |
+| `/api/applications` | GET/POST | Application tracking |
+| `/api/berufe` | GET | Professions with RIASEC data, salary, requirements |
+| `/api/berufe/:code` | GET | Single profession detail |
+| `/api/berufe/favorites` | GET/POST/DELETE | Favorite professions |
+| `/api/berufsschulen` | GET | Vocational schools |
+| `/api/berufsschulen/:id` | GET | School detail |
+
+### Company
+| Endpoint | Method | Description |
+|----------|--------|-------------|
 | `/api/companies/me` | GET/PUT | Company profile CRUD |
 | `/api/companies/me/photos` | POST | Upload photos |
 | `/api/companies/me/video` | POST/DELETE | Video management |
@@ -188,47 +212,45 @@ Supabase adds: `berufe`, `personality_profiles`, `bewerbungen`, `berufsschulen`,
 | `/api/listings/my` | GET | Company's listings |
 | `/api/listings/:id` | PUT/DELETE | Update/delete listing |
 | `/api/applications` | GET | Applications for company |
-| `/api/matches` | GET | Matches for company |
-| `/api/chat/:matchId/messages` | GET | Chat messages |
+
+### Shared
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/chat/:matchId/messages` | GET/POST | Chat messages |
+| `/api/matches/:id` | GET | Single match detail |
 
 ---
 
 ## Running the App
 
-### iOS App (SwiftUI)
+### 1. Start Supabase (Database)
+
+```bash
+supabase start       # Starts local Supabase (PostgreSQL, Auth, PostgREST)
+supabase db reset    # Apply migrations + seed data
+```
+
+### 2. Start Express API (Backend)
+
+```bash
+cp .env.example .env              # Configure DATABASE_URL, SUPABASE_URL, etc.
+pnpm install                      # Install all dependencies
+cd packages/database && pnpm prisma migrate deploy && pnpm prisma db seed
+pnpm dev:api                      # → http://localhost:3002/api/health
+```
+
+### 3. Start Mobile App (React Native Expo)
+
+```bash
+pnpm dev:mobile                   # Starts Expo dev server
+# Press 'i' for iOS simulator or 's' for Android emulator
+```
+
+### 4. SwiftUI App (Legacy, optional)
 
 1. Open `LehrMatch.xcodeproj` in Xcode 16+
 2. Select an iPhone simulator (iOS 17+)
-3. Build and run — works in demo mode with sample data
-
-### Express.js API (Company Backend)
-
-```bash
-# Start PostgreSQL + Redis
-docker-compose up -d
-
-# Install dependencies
-pnpm install
-
-# Set up database
-cp .env.example .env
-# Edit .env with your DATABASE_URL
-cd packages/database && pnpm prisma migrate deploy && pnpm prisma db seed
-
-# Start API
-cd apps/api && pnpm dev
-# → http://localhost:3000/api/health
-```
-
-### Supabase (Student Backend)
-
-```bash
-# Start local Supabase
-supabase start
-
-# Apply migrations
-supabase db reset
-```
+3. Build and run
 
 ---
 
@@ -251,15 +273,23 @@ Minimum score: 30% to appear in feed. Top 50 returned per request.
 
 - [x] Personality Quiz (Build Your Day)
 - [x] Swipe Feed with filters
-- [x] Map View
+- [x] Map View with Lehrstellen + Berufsschulen
 - [x] Search (Lehrstellen, Berufe, Schulen)
 - [x] Passende Berufe (RIASEC matching)
-- [x] Student Bewerbungen
+- [x] Student Bewerbungen + Prepare Flow
 - [x] Company Dashboard
 - [x] Company Listings CRUD
 - [x] Company Applicant Management
 - [x] Company Profile with Media
-- [ ] Connect Express API to Supabase PostgreSQL (shared DB)
-- [ ] End-to-end company onboarding flow
+- [x] React Native Expo mobile app (cross-platform)
+- [x] Dual data source feed (Prisma + Supabase lehrstellen)
+- [x] Proxy listing system for lehrstellen
+- [x] Berufe API with salary + requirements
+- [x] Berufsschulen API
+- [x] Company onboarding flow
+- [x] Chat system (student ↔ company)
+- [x] Commute info on listing cards
 - [ ] Push notifications for application status changes
 - [ ] Lehrstellen import from external sources (LENA)
+- [ ] Profile photo/video upload in Expo app
+- [ ] End-to-end testing
