@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -9,11 +9,15 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocalSearchParams, router } from 'expo-router';
+import { useLocalSearchParams, router, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
 import { useBewerbungen } from '../../../../hooks/queries/useBewerbungen';
 import { useUpdateApplicationStatus } from '../../../../hooks/queries/useCompanyBewerbungen';
+import { useApplicationDossier } from '../../../../hooks/queries/useApplicationDossier';
+import { buildDossierHtml } from '../../../../utils/dossierHtml';
 import CompatibilityBadge from '../../../../components/ui/CompatibilityBadge';
 import {
   colors,
@@ -26,8 +30,19 @@ import {
 
 export default function ApplicationDetailScreen() {
   const { applicationId } = useLocalSearchParams<{ applicationId: string }>();
+  const navigation = useNavigation();
   const { data: bewerbungen = [], isLoading } = useBewerbungen();
   const updateStatus = useUpdateApplicationStatus();
+  const [dossierLoading, setDossierLoading] = useState(false);
+
+  // Hide floating tab bar on detail screen
+  React.useEffect(() => {
+    const parent = navigation.getParent();
+    parent?.setOptions({ tabBarStyle: { display: 'none' } });
+    return () => {
+      parent?.setOptions({ tabBarStyle: undefined });
+    };
+  }, [navigation]);
 
   const item = useMemo(
     () => bewerbungen.find((b) => b.applicationId === applicationId),
@@ -88,6 +103,27 @@ export default function ApplicationDetailScreen() {
         },
       ],
     );
+  };
+
+  const handleDownloadDossier = async () => {
+    if (!applicationId) return;
+    setDossierLoading(true);
+    try {
+      const { data: dossier } = await import('../../../../services/api').then((m) =>
+        m.default.get(`/applications/${applicationId}/dossier`),
+      );
+      const html = buildDossierHtml(dossier);
+      const { uri } = await Print.printToFileAsync({ html, base64: false });
+      await Sharing.shareAsync(uri, {
+        mimeType: 'application/pdf',
+        dialogTitle: 'Bewerbungsdossier teilen',
+        UTI: 'com.adobe.pdf',
+      });
+    } catch (error: any) {
+      Alert.alert('Fehler', error.response?.data?.message || 'Dossier konnte nicht erstellt werden.');
+    } finally {
+      setDossierLoading(false);
+    }
   };
 
   if (isLoading) {
@@ -160,11 +196,16 @@ export default function ApplicationDetailScreen() {
           </Text>
         </View>
 
-        {/* Motivationsschreiben */}
-        {item.motivationsschreiben && (
+        {/* Motivation Answers */}
+        {item.motivationAnswers && item.motivationAnswers.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Motivationsschreiben</Text>
-            <Text style={styles.sectionText}>{item.motivationsschreiben}</Text>
+            <Text style={styles.sectionLabel}>Motivationsfragen</Text>
+            {item.motivationAnswers.map((qa: { question: string; answer: string }, idx: number) => (
+              <View key={idx} style={{ marginBottom: idx < item.motivationAnswers!.length - 1 ? 12 : 0 }}>
+                <Text style={[styles.sectionText, { fontWeight: '600', marginBottom: 4 }]}>{qa.question}</Text>
+                <Text style={styles.sectionText}>{qa.answer}</Text>
+              </View>
+            ))}
           </View>
         )}
 
@@ -209,6 +250,22 @@ export default function ApplicationDetailScreen() {
             </View>
           </View>
         )}
+
+        {/* Dossier Download */}
+        <Pressable
+          style={styles.dossierButton}
+          onPress={handleDownloadDossier}
+          disabled={dossierLoading}
+        >
+          {dossierLoading ? (
+            <ActivityIndicator color={colors.primary} size="small" />
+          ) : (
+            <>
+              <Ionicons name="document-text-outline" size={20} color={colors.primary} />
+              <Text style={styles.dossierButtonText}>Dossier herunterladen</Text>
+            </>
+          )}
+        </Pressable>
 
         <View style={{ height: spacing.xxxl }} />
       </ScrollView>
@@ -436,5 +493,25 @@ const styles = StyleSheet.create({
     fontSize: typography.body,
     fontWeight: fontWeights.bold,
     color: colors.white,
+  },
+
+  // Dossier
+  dossierButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: spacing.md,
+    marginTop: spacing.sm,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.xl,
+    borderWidth: 1.5,
+    borderColor: colors.primary + '40',
+    backgroundColor: colors.primary + '08',
+    gap: spacing.xs,
+  },
+  dossierButtonText: {
+    fontSize: typography.body,
+    fontWeight: fontWeights.semiBold,
+    color: colors.primary,
   },
 });

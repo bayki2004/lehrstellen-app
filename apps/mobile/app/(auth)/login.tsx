@@ -19,22 +19,24 @@ import { colors, typography, fontWeights, spacing } from '../../constants/theme'
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { login, isLoading, error, clearError } = useAuthStore();
+  const { login, isLoading } = useAuthStore();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
-      Alert.alert('Fehler', 'Bitte füllen Sie alle Felder aus.');
+      setLoginError('Bitte füll alli Felder us.');
       return;
     }
 
+    setLoginError(null);
     try {
       await login({ email: email.trim(), password });
       router.replace('/');
-    } catch {
-      // Error is set in store
+    } catch (err: any) {
+      setLoginError(err.message || 'Anmeldung fehlgschlage.');
     }
   };
 
@@ -63,7 +65,7 @@ export default function LoginScreen() {
               value={email}
               onChangeText={(text) => {
                 setEmail(text);
-                clearError();
+                setLoginError(null);
               }}
               keyboardType="email-address"
               autoCapitalize="none"
@@ -75,12 +77,17 @@ export default function LoginScreen() {
               value={password}
               onChangeText={(text) => {
                 setPassword(text);
-                clearError();
+                setLoginError(null);
               }}
               secureTextEntry
             />
 
-            {error && <Text style={styles.errorText}>{error}</Text>}
+            {loginError && (
+              <View style={styles.errorBanner}>
+                <Ionicons name="alert-circle" size={18} color={colors.error} />
+                <Text style={styles.errorText}>{loginError}</Text>
+              </View>
+            )}
 
             <Button
               title="Anmelden"
@@ -141,10 +148,20 @@ const styles = StyleSheet.create({
   form: {
     gap: spacing.md,
   },
+  errorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.error + '15',
+    borderRadius: 12,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm + 4,
+    gap: spacing.sm,
+  },
   errorText: {
+    flex: 1,
     color: colors.error,
     fontSize: typography.bodySmall,
-    textAlign: 'center',
+    fontWeight: fontWeights.medium,
   },
   submitButton: {
     marginTop: spacing.md,

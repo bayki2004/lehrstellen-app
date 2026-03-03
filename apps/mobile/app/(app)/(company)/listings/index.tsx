@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import api from '../../../../services/api';
 import { colors, typography, fontWeights, spacing, borderRadius, shadows } from '../../../../constants/theme';
 import type { ListingDTO } from '@lehrstellen/shared';
@@ -33,18 +34,27 @@ export default function ListingsScreen() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchListings();
-  }, [fetchListings]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchListings();
+    }, [fetchListings]),
+  );
 
   const renderListing = ({ item }: { item: ListingDTO & { isActive?: boolean } }) => (
-    <View style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      activeOpacity={0.7}
+      onPress={() => router.push(`/(app)/(company)/listings/${item.id}` as any)}
+    >
       <View style={styles.cardHeader}>
         <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
-        <View style={[styles.badge, item.isActive ? styles.activeBadge : styles.inactiveBadge]}>
-          <Text style={[styles.badgeText, item.isActive ? styles.activeText : styles.inactiveText]}>
-            {item.isActive ? 'Aktiv' : 'Inaktiv'}
-          </Text>
+        <View style={styles.cardHeaderRight}>
+          <View style={[styles.badge, item.isActive !== false ? styles.activeBadge : styles.inactiveBadge]}>
+            <Text style={[styles.badgeText, item.isActive !== false ? styles.activeText : styles.inactiveText]}>
+              {item.isActive !== false ? 'Aktiv' : 'Inaktiv'}
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
         </View>
       </View>
       <Text style={styles.field}>{item.field}</Text>
@@ -57,7 +67,7 @@ export default function ListingsScreen() {
           {item.spotsAvailable} {item.spotsAvailable === 1 ? 'Platz' : 'Plätze'} verfügbar
         </Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   if (isLoading) {
@@ -144,7 +154,7 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingHorizontal: spacing.md,
-    paddingBottom: spacing.lg,
+    paddingBottom: 100,
   },
   card: {
     backgroundColor: colors.surface,
@@ -165,6 +175,11 @@ const styles = StyleSheet.create({
     color: colors.text,
     flex: 1,
     marginRight: spacing.sm,
+  },
+  cardHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   badge: {
     paddingHorizontal: 10,

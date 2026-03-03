@@ -72,6 +72,19 @@ export async function updateStudentProfile(userId: string, data: UpdateStudentPr
       ...(data.canton && { canton: data.canton }),
       ...(data.city && { city: data.city }),
       ...(data.bio !== undefined && { bio: data.bio }),
+      ...(data.motivationLetter !== undefined && { motivationLetter: data.motivationLetter }),
+      ...(data.motivationLetterUrl !== undefined && { motivationLetterUrl: data.motivationLetterUrl }),
+      ...(data.cultureScores && {
+        cultureHierarchyFocus: data.cultureScores.hierarchyFocus,
+        culturePunctualityRigidity: data.cultureScores.punctualityRigidity,
+        cultureResilienceGrit: data.cultureScores.resilienceGrit,
+        cultureSocialEnvironment: data.cultureScores.socialEnvironment,
+        cultureErrorCulture: data.cultureScores.errorCulture,
+        cultureClientFacing: data.cultureScores.clientFacing,
+        cultureDigitalAffinity: data.cultureScores.digitalAffinity,
+        culturePrideFocus: data.cultureScores.prideFocus,
+        cultureQuizCompletedAt: new Date(),
+      }),
     },
   });
 
@@ -117,6 +130,19 @@ function mapToDTO(profile: any): StudentProfileDTO {
       conventional: profile.riasecConventional,
     },
     quizCompleted: !!profile.quizCompletedAt,
+    cultureScores: {
+      hierarchyFocus: profile.cultureHierarchyFocus,
+      punctualityRigidity: profile.culturePunctualityRigidity,
+      resilienceGrit: profile.cultureResilienceGrit,
+      socialEnvironment: profile.cultureSocialEnvironment,
+      errorCulture: profile.cultureErrorCulture,
+      clientFacing: profile.cultureClientFacing,
+      digitalAffinity: profile.cultureDigitalAffinity,
+      prideFocus: profile.culturePrideFocus,
+    },
+    cultureQuizCompleted: !!profile.cultureQuizCompletedAt,
     desiredFields: (profile.desiredFields ?? []).map((d: any) => d.field),
+    motivationLetter: profile.motivationLetter ?? undefined,
+    motivationLetterUrl: profile.motivationLetterUrl ?? undefined,
   };
 }

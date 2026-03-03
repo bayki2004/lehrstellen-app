@@ -15,6 +15,23 @@ export function useSwipeFeed() {
   });
 }
 
+export interface SwipeRemainingDTO {
+  remaining: number;
+  limit: number;
+  resetsAt: string;
+}
+
+export function useSwipeRemaining() {
+  return useQuery({
+    queryKey: queryKeys.feed.remaining(),
+    queryFn: async (): Promise<SwipeRemainingDTO> => {
+      const response = await api.get<SwipeRemainingDTO>('/swipes/remaining');
+      return response.data;
+    },
+    staleTime: 30 * 1000, // 30s — refreshes often enough to stay accurate
+  });
+}
+
 export function useSwipe() {
   const queryClient = useQueryClient();
 
@@ -26,6 +43,7 @@ export function useSwipe() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.feed.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.bewerbungen.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.feed.remaining() });
     },
   });
 }

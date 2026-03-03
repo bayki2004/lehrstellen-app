@@ -7,4 +7,9 @@
 -- The companyId is set to the Supabase company UUID, which doesn't
 -- exist in company_profiles. Without dropping this FK, the insert fails.
 
-ALTER TABLE "listings" DROP CONSTRAINT IF EXISTS "listings_companyId_fkey";
+-- Only run if the listings table exists (created by Prisma db push)
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'listings') THEN
+    ALTER TABLE "listings" DROP CONSTRAINT IF EXISTS "listings_companyId_fkey";
+  END IF;
+END $$;

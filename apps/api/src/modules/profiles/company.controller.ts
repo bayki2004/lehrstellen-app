@@ -40,7 +40,7 @@ export async function uploadPhotos(req: Request, res: Response) {
 
 export async function deletePhoto(req: Request, res: Response) {
   const companyId = await companyService.getCompanyIdByUserId(req.user!.userId);
-  await companyService.deletePhoto(companyId, req.params.photoId);
+  await companyService.deletePhoto(companyId, req.params.photoId as string);
   res.json({ message: 'Photo deleted' });
 }
 
@@ -59,4 +59,9 @@ export async function uploadVideoFile(req: Request, res: Response) {
 export async function deleteVideo(req: Request, res: Response) {
   await companyService.setVideoUrl(req.user!.userId, null);
   res.json({ message: 'Video deleted' });
+}
+
+export async function getCulturePresets(_req: Request, res: Response) {
+  const presets = await companyService.getCulturePresets();
+  res.json({ data: presets });
 }

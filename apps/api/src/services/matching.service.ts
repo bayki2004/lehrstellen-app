@@ -1,16 +1,19 @@
 import type { StudentProfile, Listing } from '@lehrstellen/database';
-import type { ScoreBreakdown } from '@lehrstellen/shared';
-import { FIELD_RIASEC_MAP } from '@lehrstellen/shared';
+import type { ScoreBreakdown, CultureScores, CultureDealbreakers } from '@lehrstellen/shared';
+import { FIELD_RIASEC_MAP, calculateCultureMatch } from '@lehrstellen/shared';
 
 export interface CompatibilityResult {
   totalScore: number;
   breakdown: ScoreBreakdown[];
 }
 
+export type CultureData = CultureScores;
+
 const WEIGHTS = {
-  PERSONALITY: 0.35,
-  INTEREST: 0.35,
-  FIELD: 0.20,
+  PERSONALITY: 0.25,
+  INTEREST: 0.25,
+  CULTURE: 0.25,
+  FIELD: 0.15,
   LOCATION: 0.10,
 };
 
@@ -29,11 +32,15 @@ function cosineSimilarity(a: number[], b: number[]): number {
 /**
  * Compute compatibility between a student and a listing.
  * @param desiredFields - student's desired apprenticeship fields
+ * @param companyCulture - optional culture data from the company profile
+ * @param companyDealbreakers - optional dealbreaker flags from the company profile
  */
 export function computeCompatibility(
   student: StudentProfile,
   listing: Listing,
   desiredFields: string[],
+  companyCulture?: CultureData,
+  companyDealbreakers?: CultureDealbreakers,
 ): CompatibilityResult {
   // 1. OCEAN Personality Score
   const studentOcean = [
@@ -87,9 +94,42 @@ export function computeCompatibility(
   // 4. Location Score
   const locationScore = student.canton === listing.canton ? 100 : 30;
 
+  // 5. Culture Score
+  const studentCulture: CultureData = {
+    hierarchyFocus: student.cultureHierarchyFocus,
+    punctualityRigidity: student.culturePunctualityRigidity,
+    resilienceGrit: student.cultureResilienceGrit,
+    socialEnvironment: student.cultureSocialEnvironment,
+    errorCulture: student.cultureErrorCulture,
+    clientFacing: student.cultureClientFacing,
+    digitalAffinity: student.cultureDigitalAffinity,
+    prideFocus: student.culturePrideFocus,
+  };
+
+  // Culture match with dealbreaker check and per-dimension breakdown
+  const cultureMatch = companyCulture
+    ? calculateCultureMatch(studentCulture, companyCulture, companyDealbreakers)
+    : null;
+
+  if (cultureMatch?.dealbreakerFailed) {
+    return {
+      totalScore: 0,
+      breakdown: [
+        { label: 'Persoenlichkeit', score: 0, weight: WEIGHTS.PERSONALITY },
+        { label: 'Interessen', score: 0, weight: WEIGHTS.INTEREST },
+        { label: 'Unternehmenskultur', score: 0, weight: WEIGHTS.CULTURE },
+        { label: 'Berufsfeld', score: 0, weight: WEIGHTS.FIELD },
+        { label: 'Region', score: 0, weight: WEIGHTS.LOCATION },
+      ],
+    };
+  }
+
+  const cultureScore = cultureMatch?.overallScore ?? 50;
+
   const totalScore =
     personalityScore * WEIGHTS.PERSONALITY +
     interestScore * WEIGHTS.INTEREST +
+    cultureScore * WEIGHTS.CULTURE +
     fieldScore * WEIGHTS.FIELD +
     locationScore * WEIGHTS.LOCATION;
 
@@ -98,6 +138,7 @@ export function computeCompatibility(
     breakdown: [
       { label: 'Persoenlichkeit', score: Math.round(personalityScore), weight: WEIGHTS.PERSONALITY },
       { label: 'Interessen', score: Math.round(interestScore), weight: WEIGHTS.INTEREST },
+      { label: 'Unternehmenskultur', score: cultureScore, weight: WEIGHTS.CULTURE },
       { label: 'Berufsfeld', score: fieldScore, weight: WEIGHTS.FIELD },
       { label: 'Region', score: locationScore, weight: WEIGHTS.LOCATION },
     ],

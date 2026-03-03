@@ -12,7 +12,7 @@ const API_BASE_URL = `http://${devHost}:3002/api`;
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000,
+  timeout: 60000, // Increased to 60s to handle slow database responses
   headers: {
     'Content-Type': 'application/json',
   },
@@ -36,7 +36,21 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Retry logic for network errors or 5xx server errors (idempotent methods only)
+    if (
+      !originalRequest._retry &&
+      (error.code === 'ECONNABORTED' || error.message?.includes('timeout') || error.response?.status >= 500) &&
+      originalRequest.method &&
+      ['get', 'head', 'options'].includes(originalRequest.method.toLowerCase())
+    ) {
+      originalRequest._retry = true;
+      console.log('Retrying request due to network error/timeout...', originalRequest.url);
+      return api(originalRequest);
+    }
+
+    // Handle 401 with token refresh — skip for auth endpoints (login/register handle their own errors)
+    const isAuthRequest = originalRequest.url?.startsWith('/auth/');
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthRequest) {
       originalRequest._retry = true;
 
       const { refreshToken, logout } = useAuthStore.getState();
@@ -54,10 +68,9 @@ api.interceptors.response.use(
         const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
           response.data;
 
-        useAuthStore.setState({
-          accessToken: newAccessToken,
-          refreshToken: newRefreshToken,
-        });
+        // Update in-memory state and persist to SecureStore
+        const { setTokens } = useAuthStore.getState();
+        setTokens(newAccessToken, newRefreshToken);
 
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return api(originalRequest);
@@ -66,6 +79,13 @@ api.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
+
+    console.warn('[API Error]', {
+      message: error.message,
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+    });
 
     return Promise.reject(error);
   },

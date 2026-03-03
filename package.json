@@ -5,6 +5,7 @@
     "dev": "turbo run dev",
     "dev:api": "turbo run dev --filter=@lehrstellen/api",
     "dev:mobile": "turbo run dev --filter=@lehrstellen/mobile",
+    "dev:web": "turbo run dev --filter=@lehrstellen/web",
     "build": "turbo run build",
     "test": "turbo run test",
     "lint": "turbo run lint",
@@ -25,10 +26,5 @@
     "pnpm": ">=9.0.0"
   },
   "packageManager": "pnpm@9.15.0",
-  "version": "1.0.0",
-  "dependencies": {
-    "expo": "~54.0.33",
-    "react": "19.1.0",
-    "react-native": "0.81.5"
-  }
+  "version": "1.0.0"
 }

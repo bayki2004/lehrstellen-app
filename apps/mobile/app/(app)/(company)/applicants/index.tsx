@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingHorizontal: spacing.md,
-    paddingBottom: spacing.xxxl,
+    paddingBottom: 100,
   },
   card: {
     flexDirection: 'row',

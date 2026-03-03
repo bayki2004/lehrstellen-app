@@ -51,7 +51,7 @@ export default function BuildYourDayScreen() {
         <View style={styles.footer}>
           <Button
             title="Weiter"
-            onPress={() => router.replace('/(onboarding)/fields')}
+            onPress={() => router.replace('/(onboarding)/vibe-check')}
             variant="primary"
           />
         </View>

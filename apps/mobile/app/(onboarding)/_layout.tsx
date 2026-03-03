@@ -12,8 +12,11 @@ export default function OnboardingLayout() {
       <Stack.Screen name="student-profile" />
       <Stack.Screen name="quiz" />
       <Stack.Screen name="build-your-day" />
+      <Stack.Screen name="vibe-check" />
       <Stack.Screen name="fields" />
+      <Stack.Screen name="motivation" />
       <Stack.Screen name="company-profile" />
+      <Stack.Screen name="company-culture" />
     </Stack>
   );
 }

@@ -40,7 +40,7 @@ export default function FieldsScreen() {
         desiredFields: selectedFields,
       });
 
-      router.replace('/');
+      router.push('/(onboarding)/motivation');
     } catch (error: any) {
       Alert.alert(
         'Fehler',
@@ -58,7 +58,7 @@ export default function FieldsScreen() {
       </Pressable>
 
       <View style={styles.header}>
-        <Text style={styles.stepLabel}>Schritt 3 von 3</Text>
+        <Text style={styles.stepLabel}>Schritt 3 vo 4</Text>
         <Text style={styles.title}>Was interessiert dich?</Text>
         <Text style={styles.subtitle}>
           Wähle die Berufsfelder aus, die dich interessieren. Du kannst mehrere auswählen.

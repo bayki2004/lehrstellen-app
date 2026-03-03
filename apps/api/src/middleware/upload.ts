@@ -50,3 +50,33 @@ export const uploadVideo = multer({
   fileFilter: videoFilter,
   limits: { fileSize: 50 * 1024 * 1024 },
 });
+
+const studentStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => {
+    const dir = path.join(UPLOADS_DIR, 'students');
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    cb(null, dir);
+  },
+  filename: (_req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, uniqueSuffix + ext);
+  },
+});
+
+const documentFilter = (_req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+  const allowed = ['application/pdf', 'image/jpeg', 'image/png'];
+  if (allowed.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only PDF and image files are allowed'));
+  }
+};
+
+export const uploadDocument = multer({
+  storage: studentStorage,
+  fileFilter: documentFilter,
+  limits: { fileSize: 5 * 1024 * 1024 },
+});

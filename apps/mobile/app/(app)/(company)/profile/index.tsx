@@ -21,7 +21,9 @@ import api from '../../../../services/api';
 import { uploadCompanyPhotos, uploadCompanyVideo, deleteCompanyPhoto, deleteCompanyVideo } from '../../../../services/uploadApi';
 import { pickImages, pickVideo } from '../../../../utils/mediaPicker';
 import { colors, typography, fontWeights, spacing, borderRadius, shadows } from '../../../../constants/theme';
-import type { CompanyProfileDTO, CompanyPhotoDTO, CompanyLinkDTO, ListingDTO } from '@lehrstellen/shared';
+import type { CompanyProfileDTO, CompanyPhotoDTO, CompanyLinkDTO, ListingDTO, CultureScores, CultureDealbreakers, CompanyCulturePresetDTO } from '@lehrstellen/shared';
+import { CULTURE_DIMENSIONS } from '@lehrstellen/shared';
+import CultureSlider from '../../../../components/ui/CultureSlider';
 
 const SERVER_BASE = 'http://192.168.0.15:3002';
 
@@ -49,6 +51,10 @@ export default function CompanyProfileScreen() {
   const [editWebsite, setEditWebsite] = useState('');
   const [editVideoUrl, setEditVideoUrl] = useState('');
   const [editLinks, setEditLinks] = useState<{ label: string; url: string }[]>([]);
+  const [editCultureScores, setEditCultureScores] = useState<Record<string, number>>({});
+  const [editDealbreakers, setEditDealbreakers] = useState<Record<string, boolean>>({});
+  const [editPresetId, setEditPresetId] = useState<string | undefined>();
+  const [presets, setPresets] = useState<CompanyCulturePresetDTO[]>([]);
 
   const loadProfile = useCallback(async () => {
     try {
@@ -64,6 +70,10 @@ export default function CompanyProfileScreen() {
 
   useEffect(() => {
     loadProfile();
+    api.get<{ data: CompanyCulturePresetDTO[] }>('/companies/culture-presets').then((res) => {
+      const raw = res.data;
+      setPresets(Array.isArray(raw) ? raw : Array.isArray((raw as any).data) ? (raw as any).data : []);
+    }).catch(() => {});
   }, [loadProfile]);
 
   const startEditing = () => {
@@ -72,6 +82,16 @@ export default function CompanyProfileScreen() {
     setEditWebsite(profile.website || '');
     setEditVideoUrl(profile.videoUrl || '');
     setEditLinks(profile.links.map((l) => ({ label: l.label, url: l.url })));
+    // Initialize culture edit state
+    const scores: Record<string, number> = {};
+    const breaks: Record<string, boolean> = {};
+    for (const dim of CULTURE_DIMENSIONS) {
+      scores[dim.key] = profile.cultureScores?.[dim.key] ?? 50;
+      breaks[dim.key] = profile.cultureDealbreakers?.[dim.key] ?? false;
+    }
+    setEditCultureScores(scores);
+    setEditDealbreakers(breaks);
+    setEditPresetId(profile.culturePresetId);
     setIsEditing(true);
   };
 
@@ -87,6 +107,9 @@ export default function CompanyProfileScreen() {
         website: editWebsite || undefined,
         videoUrl: editVideoUrl || null,
         links: editLinks.filter((l) => l.label && l.url),
+        cultureScores: editCultureScores as Partial<CultureScores>,
+        cultureDealbreakers: editDealbreakers as Partial<CultureDealbreakers>,
+        ...(editPresetId && { culturePresetId: editPresetId }),
       });
       await loadProfile();
       setIsEditing(false);
@@ -403,6 +426,102 @@ export default function CompanyProfileScreen() {
           )}
         </View>
 
+        {/* Unternehmenskultur */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Unternehmenskultur</Text>
+          {isEditing ? (
+            <View>
+              {/* Preset chips */}
+              <Text style={styles.inputLabel}>Branchenvorlage</Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.cultureChipScroll}
+                nestedScrollEnabled
+              >
+                {presets.map((preset) => (
+                  <TouchableOpacity
+                    key={preset.id}
+                    style={[
+                      styles.cultureChip,
+                      editPresetId === preset.id && styles.cultureChipSelected,
+                    ]}
+                    onPress={() => {
+                      setEditPresetId(preset.id);
+                      const scores: Record<string, number> = {};
+                      for (const dim of CULTURE_DIMENSIONS) {
+                        scores[dim.key] = preset.cultureScores[dim.key] ?? 50;
+                      }
+                      setEditCultureScores(scores);
+                    }}
+                  >
+                    <Text
+                      style={[
+                        styles.cultureChipText,
+                        editPresetId === preset.id && styles.cultureChipTextSelected,
+                      ]}
+                    >
+                      {preset.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+              {/* Sliders */}
+              <View style={styles.cultureSliders}>
+                {CULTURE_DIMENSIONS.map((dim) => (
+                  <CultureSlider
+                    key={dim.key}
+                    value={editCultureScores[dim.key] ?? 50}
+                    onValueChange={(v) => {
+                      setEditCultureScores((prev) => ({ ...prev, [dim.key]: Math.round(v) }));
+                      if (editPresetId) setEditPresetId(undefined);
+                    }}
+                    labelLow={dim.labelLow}
+                    labelHigh={dim.labelHigh}
+                    icon={dim.icon}
+                    isDealbreaker={editDealbreakers[dim.key] ?? false}
+                    onDealbreakerToggle={(v) =>
+                      setEditDealbreakers((prev) => ({ ...prev, [dim.key]: v }))
+                    }
+                  />
+                ))}
+              </View>
+            </View>
+          ) : profile?.cultureScores && CULTURE_DIMENSIONS.some((d) => profile.cultureScores?.[d.key] != null) ? (
+            <View>
+              {CULTURE_DIMENSIONS.map((dim) => {
+                const value = profile.cultureScores?.[dim.key];
+                if (value == null) return null;
+                const isBreaker = profile.cultureDealbreakers?.[dim.key] ?? false;
+                return (
+                  <View key={dim.key} style={styles.cultureBar}>
+                    <View style={styles.cultureBarHeader}>
+                      <Text style={styles.cultureBarLabel}>
+                        {dim.icon} {dim.labelLow}
+                      </Text>
+                      <View style={styles.cultureBarRight}>
+                        {isBreaker && (
+                          <View style={styles.dealbreakerBadge}>
+                            <Text style={styles.dealbreakerBadgeText}>Dealbreaker</Text>
+                          </View>
+                        )}
+                        <Text style={styles.cultureBarLabel}>{dim.labelHigh}</Text>
+                      </View>
+                    </View>
+                    <View style={styles.cultureBarTrack}>
+                      <View
+                        style={[styles.cultureBarFill, { width: `${value}%` }]}
+                      />
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          ) : (
+            <Text style={styles.emptyText}>Noch nicht definiert</Text>
+          )}
+        </View>
+
         {/* Lehrstellen */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -474,7 +593,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   content: {
-    paddingBottom: spacing.xxl,
+    paddingBottom: 100,
   },
   headerRow: {
     flexDirection: 'row',
@@ -753,5 +872,75 @@ const styles = StyleSheet.create({
   logoutSection: {
     paddingHorizontal: spacing.md,
     paddingTop: spacing.md,
+  },
+  // Culture section
+  cultureChipScroll: {
+    flexGrow: 0,
+    marginBottom: spacing.md,
+    marginTop: spacing.xs,
+  },
+  cultureChip: {
+    backgroundColor: colors.background,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginRight: 8,
+  },
+  cultureChipSelected: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  cultureChipText: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    fontWeight: fontWeights.medium,
+  },
+  cultureChipTextSelected: {
+    color: '#FFFFFF',
+  },
+  cultureSliders: {
+    marginTop: spacing.sm,
+  },
+  cultureBar: {
+    marginBottom: spacing.sm,
+  },
+  cultureBarHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  cultureBarLabel: {
+    fontSize: 11,
+    color: colors.textSecondary,
+  },
+  cultureBarRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  dealbreakerBadge: {
+    backgroundColor: colors.error + '15',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  dealbreakerBadgeText: {
+    fontSize: 9,
+    fontWeight: fontWeights.semiBold,
+    color: colors.error,
+  },
+  cultureBarTrack: {
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.borderLight,
+    overflow: 'hidden',
+  },
+  cultureBarFill: {
+    height: '100%',
+    borderRadius: 3,
+    backgroundColor: colors.primary,
   },
 });

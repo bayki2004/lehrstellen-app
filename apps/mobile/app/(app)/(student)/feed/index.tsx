@@ -8,7 +8,7 @@ import FilterSheet, {
   DEFAULT_FILTERS,
   type FeedFilters,
 } from '../../../../components/feed/FilterSheet';
-import { useSwipeFeed } from '../../../../hooks/queries/useFeed';
+import { useSwipeFeed, useSwipeRemaining } from '../../../../hooks/queries/useFeed';
 import { useFavoriteBerufe } from '../../../../hooks/queries/useFavoriteBerufe';
 import {
   colors,
@@ -23,6 +23,7 @@ export default function FeedScreen() {
   const router = useRouter();
   const { data: cards = [], isLoading, error, refetch } = useSwipeFeed();
   const { data: favoriteBerufe = [] } = useFavoriteBerufe();
+  const { data: swipeQuota } = useSwipeRemaining();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [feedMode, setFeedMode] = useState<'matching' | 'explore'>('matching');
   const [filterVisible, setFilterVisible] = useState(false);
@@ -49,11 +50,13 @@ export default function FeedScreen() {
     let filtered = cards.slice(currentIndex);
 
     // Apply feed-mode filter (matching vs explore)
+    // Matching: high-compatibility cards (>= 60%)
+    // Entdecken: remaining cards (< 60%) for free browsing
     if (quizCompleted) {
       if (feedMode === 'matching') {
-        filtered = filtered.filter((c) => c.compatibilityScore >= 80);
+        filtered = filtered.filter((c) => c.compatibilityScore >= 70);
       } else {
-        filtered = filtered.filter((c) => c.compatibilityScore < 80);
+        filtered = filtered.filter((c) => c.compatibilityScore < 70);
       }
     }
     // When quiz is not completed: "matching" tab will show a message (handled
@@ -176,6 +179,7 @@ export default function FeedScreen() {
             cards={visibleCards}
             onCardSwiped={() => setCurrentIndex((i) => i + 1)}
             favoriteBerufe={favoriteBerufe}
+            remainingSwipes={swipeQuota?.remaining}
           />
         )}
       </View>

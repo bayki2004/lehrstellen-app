@@ -24,6 +24,7 @@ interface AuthState {
   logout: () => Promise<void>;
   loadStoredAuth: () => Promise<void>;
   setUser: (user: AuthUser) => void;
+  setTokens: (accessToken: string, refreshToken: string) => void;
   clearError: () => void;
 }
 
@@ -56,8 +57,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isLoading: false,
       });
     } catch (error: any) {
-      const message =
-        error.response?.data?.message || 'Anmeldung fehlgeschlagen';
+      const status = error.response?.status;
+      const serverMsg = error.response?.data?.message;
+      let message: string;
+      if (status === 401) {
+        message = 'E-Mail oder Passwort isch falsch.';
+      } else if (status === 404 || !error.response) {
+        message = 'Server isch nöd erreichbar. Probier\'s spöter nomol.';
+      } else {
+        message = serverMsg || 'Anmeldung fehlgschlage.';
+      }
       set({ isLoading: false, error: message });
       throw new Error(message);
     }
@@ -80,8 +89,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isLoading: false,
       });
     } catch (error: any) {
-      const message =
-        error.response?.data?.message || 'Registrierung fehlgeschlagen';
+      const data = error.response?.data;
+      let message = data?.message || 'Registrierung fehlgeschlagen';
+      // Extract detailed validation errors if present
+      if (data?.details) {
+        const details = Object.values(data.details).flat().join(', ');
+        if (details) message = details;
+      }
       set({ isLoading: false, error: message });
       throw new Error(message);
     }
@@ -138,6 +152,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   setUser: (user: AuthUser) => {
     set({ user });
     SecureStore.setItemAsync(USER_KEY, JSON.stringify(user)).catch(() => {});
+  },
+
+  setTokens: (accessToken: string, refreshToken: string) => {
+    set({ accessToken, refreshToken });
+    SecureStore.setItemAsync(TOKEN_KEY, accessToken).catch(() => {});
+    SecureStore.setItemAsync(REFRESH_KEY, refreshToken).catch(() => {});
   },
 
   clearError: () => set({ error: null }),

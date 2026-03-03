@@ -26,9 +26,11 @@ interface SwipeDeckProps {
   onCardSwiped?: () => void;
   onEmpty?: () => void;
   favoriteBerufe?: string[];
+  remainingSwipes?: number;
 }
 
-export default function SwipeDeck({ cards, onCardSwiped, onEmpty, favoriteBerufe }: SwipeDeckProps) {
+export default function SwipeDeck({ cards, onCardSwiped, onEmpty, favoriteBerufe, remainingSwipes }: SwipeDeckProps) {
+  const limitReached = remainingSwipes !== undefined && remainingSwipes <= 0;
   const swipeMutation = useSwipe();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -45,18 +47,27 @@ export default function SwipeDeck({ cards, onCardSwiped, onEmpty, favoriteBerufe
     try {
       const card = cards[0];
       if (!card) return;
+      // Block RIGHT/SUPER when limit reached
+      if ((direction === 'RIGHT' || direction === 'SUPER') && limitReached) {
+        translateX.value = withSpring(0);
+        translateY.value = withSpring(0);
+        return;
+      }
       const apiDirection = direction === 'SUPER' ? 'RIGHT' : direction;
       const result = await swipeMutation.mutateAsync({ listingId: card.id, direction: apiDirection });
-      onCardSwiped?.();
       translateX.value = 0;
       translateY.value = 0;
       if (result?.isMatch) {
+        // Defer onCardSwiped until modal dismiss so the current card
+        // (with correct score) stays visible behind the celebration overlay
         setMatchInfo({
           companyName: card.companyName,
           title: card.title,
           compatibilityScore: card.compatibilityScore,
           matchId: result.matchId,
         });
+      } else {
+        onCardSwiped?.();
       }
     } catch {
       onCardSwiped?.();
@@ -156,6 +167,18 @@ export default function SwipeDeck({ cards, onCardSwiped, onEmpty, favoriteBerufe
     opacity: interpolate(translateY.value, [-SWIPE_THRESHOLD, 0], [1, 0], 'clamp'),
   }));
 
+  if (limitReached) {
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyEmoji}>⏳</Text>
+        <Text style={styles.emptyTitle}>Tageslimit erreicht</Text>
+        <Text style={styles.emptyText}>
+          Du hesch hüt kei Swipes meh. Morn chasch wieder swipe!
+        </Text>
+      </View>
+    );
+  }
+
   if (cards.length === 0) {
     return (
       <View style={styles.emptyContainer}>
@@ -210,7 +233,7 @@ export default function SwipeDeck({ cards, onCardSwiped, onEmpty, favoriteBerufe
             onLike={() => programmaticSwipe('RIGHT')}
           />
           <Text style={styles.swipeCounter}>
-            {cards.length} Swipes übrig heute
+            {remainingSwipes !== undefined ? `${remainingSwipes}/5 Swipes übrig hüt` : `${cards.length} Lehrstelle`}
           </Text>
         </View>
       )}
@@ -221,11 +244,15 @@ export default function SwipeDeck({ cards, onCardSwiped, onEmpty, favoriteBerufe
         companyName={matchInfo?.companyName ?? ''}
         listingTitle={matchInfo?.title ?? ''}
         compatibilityScore={matchInfo?.compatibilityScore}
-        onDismiss={() => setMatchInfo(null)}
+        onDismiss={() => {
+          setMatchInfo(null);
+          onCardSwiped?.();
+        }}
         onPrepareBewerbung={() => {
           if (matchInfo?.matchId) {
             const id = matchInfo.matchId;
             setMatchInfo(null);
+            onCardSwiped?.();
             router.push(`/(app)/(student)/bewerbungen/prepare/${id}` as any);
           }
         }}

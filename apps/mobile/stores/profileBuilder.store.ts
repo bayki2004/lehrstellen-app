@@ -26,6 +26,7 @@ interface ProfileBuilderState {
 
   // Step 3: Motivation letter
   motivationLetter: string;
+  motivationLetterUrl: string | null;
 
   // Step 4: Education
   schools: School[];
@@ -98,6 +99,7 @@ const initialState = {
   nationality: '',
   videoUri: null as string | null,
   motivationLetter: '',
+  motivationLetterUrl: null as string | null,
   schools: [] as School[],
   schnupperlehren: [] as SchnupperlehreEntry[],
   languages: [] as Language[],
@@ -267,6 +269,7 @@ export const useProfileBuilderStore = create<ProfileBuilderState>((set, get) => 
         nationality: state.nationality,
         videoUri: state.videoUri,
         motivationLetter: state.motivationLetter,
+        motivationLetterUrl: state.motivationLetterUrl,
         schools: state.schools,
         schnupperlehren: state.schnupperlehren,
         languages: state.languages,
@@ -298,6 +301,7 @@ export const useProfileBuilderStore = create<ProfileBuilderState>((set, get) => 
         nationality: data.nationality || '',
         videoUri: data.videoUri || null,
         motivationLetter: data.motivationLetter || '',
+        motivationLetterUrl: data.motivationLetterUrl || null,
         schools: data.schools || [],
         schnupperlehren: data.schnupperlehren || [],
         languages: data.languages || [],

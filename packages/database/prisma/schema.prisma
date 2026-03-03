@@ -95,8 +95,10 @@ model StudentProfile {
   dateOfBirth DateTime
   canton      String
   city        String
-  bio         String?  @db.Text
-  profilePhoto String?
+  bio                 String?  @db.Text
+  motivationLetter    String?  @db.Text  // General motivation letter text (onboarding)
+  motivationLetterUrl String?            // Uploaded PDF/image URL (Supabase storage)
+  profilePhoto        String?
 
   // OCEAN personality scores (0.0 - 1.0)
   oceanOpenness          Float @default(0.5)
@@ -115,6 +117,17 @@ model StudentProfile {
 
   quizCompletedAt DateTime?
 
+  // Culture preference scores (0-100, nullable until culture quiz completed)
+  cultureHierarchyFocus      Int?  // 0=Autonomy, 100=Obedience
+  culturePunctualityRigidity Int?  // 0=Flexible, 100=Strict
+  cultureResilienceGrit      Int?  // 0=Variety, 100=Routine/Endurance
+  cultureSocialEnvironment   Int?  // 0=Solo, 100=Team
+  cultureErrorCulture        Int?  // 0=Fast/Fail, 100=Precision/Safety
+  cultureClientFacing        Int?  // 0=Back-office, 100=Front-stage
+  cultureDigitalAffinity     Int?  // 0=Analog/Hand, 100=Digital/Screen
+  culturePrideFocus          Int?  // 0=Speed/Output, 100=Quality/Masterpiece
+  cultureQuizCompletedAt     DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -123,6 +136,7 @@ model StudentProfile {
   swipes        Swipe[]
   matches       Match[]
   applications  Application[]
+  grades        StudentGrade[]
 
   @@map("student_profiles")
 }
@@ -160,13 +174,35 @@ model CompanyProfile {
   contactPersonRole String?
   isVerified        Boolean @default(false)
 
+  // Culture scores (0-100, nullable)
+  cultureHierarchyFocus      Int?
+  culturePunctualityRigidity Int?
+  cultureResilienceGrit      Int?
+  cultureSocialEnvironment   Int?
+  cultureErrorCulture        Int?
+  cultureClientFacing        Int?
+  cultureDigitalAffinity     Int?
+  culturePrideFocus          Int?
+  culturePresetId            String?
+
+  // Dealbreaker flags (true = hard filter in matching)
+  dealbreakerHierarchyFocus      Boolean @default(false)
+  dealbreakerPunctualityRigidity Boolean @default(false)
+  dealbreakerResilienceGrit      Boolean @default(false)
+  dealbreakerSocialEnvironment   Boolean @default(false)
+  dealbreakerErrorCulture        Boolean @default(false)
+  dealbreakerClientFacing        Boolean @default(false)
+  dealbreakerDigitalAffinity     Boolean @default(false)
+  dealbreakerPrideFocus          Boolean @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  listings Listing[]
-  photos   CompanyPhoto[]
-  links    CompanyLink[]
+  user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listings      Listing[]
+  photos        CompanyPhoto[]
+  links         CompanyLink[]
+  culturePreset CompanyCulturePreset? @relation(fields: [culturePresetId], references: [id])
 
   @@map("company_profiles")
 }
@@ -200,6 +236,28 @@ model CompanyLink {
 }
 
 // ============================================
+// CULTURE PRESETS
+// ============================================
+
+model CompanyCulturePreset {
+  id                  String @id @default(cuid())
+  name                String @unique // e.g. "Schreiner/in", "Bank", "Detailhandel"
+  hierarchyFocus      Int    // 0-100
+  punctualityRigidity Int
+  resilienceGrit      Int
+  socialEnvironment   Int
+  errorCulture        Int
+  clientFacing        Int
+  digitalAffinity     Int
+  prideFocus          Int
+  createdAt           DateTime @default(now())
+
+  companies CompanyProfile[]
+
+  @@map("company_culture_presets")
+}
+
+// ============================================
 // LISTINGS
 // ============================================
 
@@ -230,7 +288,8 @@ model Listing {
   idealRiasecEnterprising     Float?
   idealRiasecConventional     Float?
 
-  cards    Json     @default("[]")
+  cards              Json     @default("[]")
+  motivationQuestions Json     @default("[]")  // [{question: string, placeholder?: string}]
 
   canton   String
   city     String
@@ -326,7 +385,7 @@ model Application {
   timeline  Json              @default("[]")
 
   // Bewerbung content (customized per job by student)
-  motivationsschreiben String?  @db.Text
+  motivationAnswers    Json     @default("[]")  // [{question: string, answer: string}]
   verfuegbarkeit       String?
   relevanteErfahrungen Json     @default("[]")
   fragenAnBetrieb      String?  @db.Text
@@ -343,4 +402,50 @@ model Application {
   @@index([studentId])
   @@index([listingId])
   @@map("applications")
+}
+
+// ============================================
+// STUDENT GRADES (Zeugnis, Multicheck, etc.)
+// ============================================
+
+model StudentGrade {
+  id        String @id @default(cuid())
+  studentId String
+
+  // Document metadata
+  documentType String // 'zeugnis' | 'multicheck' | 'basic_check' | 'stellwerk'
+  entryMethod  String // 'scan' | 'manual'
+
+  // Zeugnis-specific
+  canton     String?
+  niveau     String?  // 'Sek A', 'Sek B', 'Sek C', 'Bezirksschule'
+  semester   Int?     // 1 or 2
+  schoolYear String?  // '2025/2026'
+
+  // Multicheck/Stellwerk-specific
+  testVariant String?   // 'Multicheck ICT', 'Basic-Check', 'Stellwerk'
+  testDate    DateTime?
+
+  // Actual grades (flexible JSONB)
+  grades Json
+  // Zeugnis: {"mathematik": 5.5, "deutsch": 5.0, ...}
+  // Multicheck: {"schulisches_wissen": {"mathematik": 72}, "potenzial": {"logisches_denken": 68}}
+
+  // Verification
+  isVerified         Boolean   @default(false)
+  verifiedAt         DateTime?
+  verificationMethod String    @default("self")
+
+  // OCR metadata (scan entries only)
+  ocrConfidence          Float?
+  ocrLowConfidenceFields String[] @default([])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([documentType])
+  @@map("student_grades")
 }

@@ -11,3 +11,8 @@ export async function swipe(req: Request, res: Response) {
   const result = await swipesService.recordSwipe(req.user!.userId, listingId, direction);
   res.json(result);
 }
+
+export async function getRemaining(req: Request, res: Response) {
+  const result = await swipesService.getSwipeRemaining(req.user!.userId);
+  res.json(result);
+}

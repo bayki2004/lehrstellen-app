@@ -1,5 +1,5 @@
 import { prisma } from '@lehrstellen/database';
-import type { CompanyProfileDTO, UpdateCompanyProfileRequest } from '@lehrstellen/shared';
+import type { CompanyProfileDTO, UpdateCompanyProfileRequest, CompanyCulturePresetDTO } from '@lehrstellen/shared';
 import { ApiError } from '../../utils/ApiError';
 import fs from 'fs';
 import path from 'path';
@@ -8,6 +8,7 @@ const profileInclude = {
   _count: { select: { listings: true } },
   photos: { orderBy: { sortOrder: 'asc' as const } },
   links: { orderBy: { sortOrder: 'asc' as const } },
+  culturePreset: true,
 };
 
 const profileWithListingsInclude = {
@@ -61,6 +62,27 @@ export async function createCompanyProfile(userId: string, data: UpdateCompanyPr
       address: data.address,
       contactPersonName: data.contactPersonName!,
       contactPersonRole: data.contactPersonRole,
+      ...(data.cultureScores && {
+        cultureHierarchyFocus: data.cultureScores.hierarchyFocus,
+        culturePunctualityRigidity: data.cultureScores.punctualityRigidity,
+        cultureResilienceGrit: data.cultureScores.resilienceGrit,
+        cultureSocialEnvironment: data.cultureScores.socialEnvironment,
+        cultureErrorCulture: data.cultureScores.errorCulture,
+        cultureClientFacing: data.cultureScores.clientFacing,
+        cultureDigitalAffinity: data.cultureScores.digitalAffinity,
+        culturePrideFocus: data.cultureScores.prideFocus,
+      }),
+      ...(data.culturePresetId !== undefined && { culturePresetId: data.culturePresetId }),
+      ...(data.cultureDealbreakers && {
+        dealbreakerHierarchyFocus: data.cultureDealbreakers.hierarchyFocus,
+        dealbreakerPunctualityRigidity: data.cultureDealbreakers.punctualityRigidity,
+        dealbreakerResilienceGrit: data.cultureDealbreakers.resilienceGrit,
+        dealbreakerSocialEnvironment: data.cultureDealbreakers.socialEnvironment,
+        dealbreakerErrorCulture: data.cultureDealbreakers.errorCulture,
+        dealbreakerClientFacing: data.cultureDealbreakers.clientFacing,
+        dealbreakerDigitalAffinity: data.cultureDealbreakers.digitalAffinity,
+        dealbreakerPrideFocus: data.cultureDealbreakers.prideFocus,
+      }),
       ...(data.links?.length && {
         links: {
           create: data.links.map((link, i) => ({
@@ -112,6 +134,27 @@ export async function updateCompanyProfile(userId: string, data: UpdateCompanyPr
       ...(data.address !== undefined && { address: data.address }),
       ...(data.contactPersonName && { contactPersonName: data.contactPersonName }),
       ...(data.contactPersonRole !== undefined && { contactPersonRole: data.contactPersonRole }),
+      ...(data.cultureScores && {
+        cultureHierarchyFocus: data.cultureScores.hierarchyFocus,
+        culturePunctualityRigidity: data.cultureScores.punctualityRigidity,
+        cultureResilienceGrit: data.cultureScores.resilienceGrit,
+        cultureSocialEnvironment: data.cultureScores.socialEnvironment,
+        cultureErrorCulture: data.cultureScores.errorCulture,
+        cultureClientFacing: data.cultureScores.clientFacing,
+        cultureDigitalAffinity: data.cultureScores.digitalAffinity,
+        culturePrideFocus: data.cultureScores.prideFocus,
+      }),
+      ...(data.culturePresetId !== undefined && { culturePresetId: data.culturePresetId }),
+      ...(data.cultureDealbreakers && {
+        dealbreakerHierarchyFocus: data.cultureDealbreakers.hierarchyFocus,
+        dealbreakerPunctualityRigidity: data.cultureDealbreakers.punctualityRigidity,
+        dealbreakerResilienceGrit: data.cultureDealbreakers.resilienceGrit,
+        dealbreakerSocialEnvironment: data.cultureDealbreakers.socialEnvironment,
+        dealbreakerErrorCulture: data.cultureDealbreakers.errorCulture,
+        dealbreakerClientFacing: data.cultureDealbreakers.clientFacing,
+        dealbreakerDigitalAffinity: data.cultureDealbreakers.digitalAffinity,
+        dealbreakerPrideFocus: data.cultureDealbreakers.prideFocus,
+      }),
     },
     include: profileWithListingsInclude,
   });
@@ -192,6 +235,24 @@ export async function getCompanyIdByUserId(userId: string): Promise<string> {
   return profile.id;
 }
 
+export async function getCulturePresets(): Promise<CompanyCulturePresetDTO[]> {
+  const presets = await prisma.companyCulturePreset.findMany({ orderBy: { name: 'asc' } });
+  return presets.map((p) => ({
+    id: p.id,
+    name: p.name,
+    cultureScores: {
+      hierarchyFocus: p.hierarchyFocus,
+      punctualityRigidity: p.punctualityRigidity,
+      resilienceGrit: p.resilienceGrit,
+      socialEnvironment: p.socialEnvironment,
+      errorCulture: p.errorCulture,
+      clientFacing: p.clientFacing,
+      digitalAffinity: p.digitalAffinity,
+      prideFocus: p.prideFocus,
+    },
+  }));
+}
+
 function mapToDTO(profile: any): CompanyProfileDTO {
   return {
     id: profile.id,
@@ -208,6 +269,28 @@ function mapToDTO(profile: any): CompanyProfileDTO {
     contactPersonName: profile.contactPersonName,
     contactPersonRole: profile.contactPersonRole,
     isVerified: profile.isVerified,
+    cultureScores: {
+      hierarchyFocus: profile.cultureHierarchyFocus,
+      punctualityRigidity: profile.culturePunctualityRigidity,
+      resilienceGrit: profile.cultureResilienceGrit,
+      socialEnvironment: profile.cultureSocialEnvironment,
+      errorCulture: profile.cultureErrorCulture,
+      clientFacing: profile.cultureClientFacing,
+      digitalAffinity: profile.cultureDigitalAffinity,
+      prideFocus: profile.culturePrideFocus,
+    },
+    cultureDealbreakers: {
+      hierarchyFocus: profile.dealbreakerHierarchyFocus,
+      punctualityRigidity: profile.dealbreakerPunctualityRigidity,
+      resilienceGrit: profile.dealbreakerResilienceGrit,
+      socialEnvironment: profile.dealbreakerSocialEnvironment,
+      errorCulture: profile.dealbreakerErrorCulture,
+      clientFacing: profile.dealbreakerClientFacing,
+      digitalAffinity: profile.dealbreakerDigitalAffinity,
+      prideFocus: profile.dealbreakerPrideFocus,
+    },
+    culturePresetId: profile.culturePresetId ?? undefined,
+    culturePresetName: profile.culturePreset?.name ?? undefined,
     listingsCount: profile._count?.listings ?? 0,
     photos: (profile.photos ?? []).map((p: any) => ({
       id: p.id,

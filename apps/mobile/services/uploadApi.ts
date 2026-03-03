@@ -33,3 +33,15 @@ export async function deleteCompanyPhoto(photoId: string) {
 export async function deleteCompanyVideo() {
   return api.delete('/companies/me/video');
 }
+
+export async function uploadMotivationLetter(uri: string, fileName: string, mimeType: string) {
+  const formData = new FormData();
+  formData.append('file', {
+    uri,
+    name: fileName,
+    type: mimeType,
+  } as any);
+  return api.post('/students/me/motivation-letter', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+}

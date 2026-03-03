@@ -9,6 +9,7 @@ router.use(authenticate);
 
 router.get('/', asyncHandler(controller.getAll));
 router.get('/:id', asyncHandler(controller.getById));
+router.get('/:id/dossier', asyncHandler(controller.getDossier));
 router.post('/', asyncHandler(controller.create));
 router.put('/:id/status', asyncHandler(controller.updateStatus));
 

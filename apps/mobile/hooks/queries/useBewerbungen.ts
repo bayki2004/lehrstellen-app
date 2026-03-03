@@ -18,7 +18,7 @@ export function useBewerbungen() {
 
 export interface SubmitBewerbungPayload {
   matchId: string;
-  motivationsschreiben?: string;
+  motivationAnswers?: { question: string; answer: string }[];
   verfuegbarkeit?: string;
   relevanteErfahrungen?: string[];
   fragenAnBetrieb?: string;

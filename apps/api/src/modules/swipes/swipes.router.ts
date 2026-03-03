@@ -8,6 +8,7 @@ const router = Router();
 router.use(authenticate, requireRole('STUDENT'));
 
 router.get('/feed', asyncHandler(controller.getFeed));
+router.get('/remaining', asyncHandler(controller.getRemaining));
 router.post('/', asyncHandler(controller.swipe));
 
 export { router as swipesRouter };

@@ -202,6 +202,17 @@ function mapToDTO(match: any, userId: string): MatchDTO {
             conventional: match.student.riasecConventional,
           },
           quizCompleted: !!match.student.quizCompletedAt,
+          cultureScores: {
+            hierarchyFocus: match.student.cultureHierarchyFocus,
+            punctualityRigidity: match.student.culturePunctualityRigidity,
+            resilienceGrit: match.student.cultureResilienceGrit,
+            socialEnvironment: match.student.cultureSocialEnvironment,
+            errorCulture: match.student.cultureErrorCulture,
+            clientFacing: match.student.cultureClientFacing,
+            digitalAffinity: match.student.cultureDigitalAffinity,
+            prideFocus: match.student.culturePrideFocus,
+          },
+          cultureQuizCompleted: !!match.student.cultureQuizCompletedAt,
           desiredFields: (match.student.desiredFields ?? []).map((d: any) => d.field),
         }
       : undefined,

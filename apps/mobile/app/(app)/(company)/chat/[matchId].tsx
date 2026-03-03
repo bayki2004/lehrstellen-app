@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
 import api from '../../../../services/api';
 import { useChatStore } from '../../../../stores/chat.store';
 import { useAuthStore } from '../../../../stores/auth.store';
@@ -22,6 +22,7 @@ import type { MessageDTO, MatchDTO } from '@lehrstellen/shared';
 export default function CompanyChatScreen() {
   const { matchId } = useLocalSearchParams<{ matchId: string }>();
   const router = useRouter();
+  const navigation = useNavigation();
   const user = useAuthStore((s) => s.user);
   const accessToken = useAuthStore((s) => s.accessToken);
   const { messages, sendMessage, joinMatch, leaveMatch, connect, setMessages, isConnected } =
@@ -31,6 +32,15 @@ export default function CompanyChatScreen() {
   const flatListRef = useRef<FlatList>(null);
 
   const matchMessages = messages[matchId!] || [];
+
+  // Hide floating tab bar when inside chat detail
+  useEffect(() => {
+    const parent = navigation.getParent();
+    parent?.setOptions({ tabBarStyle: { display: 'none' } });
+    return () => {
+      parent?.setOptions({ tabBarStyle: undefined });
+    };
+  }, [navigation]);
 
   useEffect(() => {
     if (!matchId) return;
@@ -85,7 +95,7 @@ export default function CompanyChatScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Text style={styles.backText}>←</Text>

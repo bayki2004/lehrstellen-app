@@ -41,10 +41,14 @@ export default function PrepareBewerbungScreen() {
     [bewerbungen, matchId],
   );
 
-  // Form state — pre-fill motivation from global profile
-  const [motivationsschreiben, setMotivationsschreiben] = useState(
-    profileStore.motivationLetter || '',
-  );
+  // Motivation questions from the listing
+  const questions = item?.listing?.motivationQuestions ?? [];
+  const [answers, setAnswers] = useState<string[]>(() => questions.map(() => ''));
+  const updateAnswer = (idx: number, text: string) => {
+    setAnswers((prev) => prev.map((a, i) => (i === idx ? text : a)));
+  };
+
+  // Form state
   const [verfuegbarkeit, setVerfuegbarkeit] = useState('');
   const [fragenAnBetrieb, setFragenAnBetrieb] = useState('');
   const [schnupperlehreWunsch, setSchnupperlehreWunsch] = useState(false);
@@ -63,9 +67,13 @@ export default function PrepareBewerbungScreen() {
   const handleSubmit = async () => {
     if (!matchId) return;
 
-    if (!motivationsschreiben.trim()) {
-      Alert.alert('Motivationsschreiben fehlt', 'Bitte schreibe ein Motivationsschreiben.');
-      return;
+    // Validate motivation answers
+    if (questions.length > 0) {
+      const unanswered = answers.some((a) => !a.trim());
+      if (unanswered) {
+        Alert.alert('Frage offe', 'Bitte beantwort alli Frage.');
+        return;
+      }
     }
 
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -73,7 +81,10 @@ export default function PrepareBewerbungScreen() {
     try {
       await submitMutation.mutateAsync({
         matchId,
-        motivationsschreiben: motivationsschreiben.trim(),
+        motivationAnswers: questions.map((q, i) => ({
+          question: q.question,
+          answer: answers[i].trim(),
+        })),
         verfuegbarkeit: verfuegbarkeit.trim() || undefined,
         relevanteErfahrungen: selectedExperiences.length > 0 ? selectedExperiences : undefined,
         fragenAnBetrieb: fragenAnBetrieb.trim() || undefined,
@@ -162,25 +173,43 @@ export default function PrepareBewerbungScreen() {
             </View>
           </View>
 
-          {/* Motivationsschreiben */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Motivationsschreiben</Text>
-            <Text style={styles.sectionHint}>
-              Passe dein Motivationsschreiben für diese Lehrstelle an
-            </Text>
-            <TextInput
-              style={styles.textArea}
-              value={motivationsschreiben}
-              onChangeText={setMotivationsschreiben}
-              placeholder="Warum interessierst du dich für diese Lehrstelle?"
-              placeholderTextColor={colors.textTertiary}
-              multiline
-              textAlignVertical="top"
-            />
-            <Text style={styles.charCount}>
-              {motivationsschreiben.length} Zeichen
-            </Text>
-          </View>
+          {/* Motivation Questions */}
+          {questions.length > 0 ? (
+            questions.map((q, index) => (
+              <View key={index} style={styles.section}>
+                <Text style={styles.sectionTitle}>Frag {index + 1}</Text>
+                <Text style={styles.sectionHint}>{q.question}</Text>
+                <TextInput
+                  style={styles.textArea}
+                  value={answers[index] ?? ''}
+                  onChangeText={(text) => updateAnswer(index, text)}
+                  placeholder={q.placeholder || 'Dini Antwort...'}
+                  placeholderTextColor={colors.textTertiary}
+                  multiline
+                  textAlignVertical="top"
+                />
+                <Text style={styles.charCount}>
+                  {(answers[index] ?? '').length} Zeiche
+                </Text>
+              </View>
+            ))
+          ) : (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Motivation</Text>
+              <Text style={styles.sectionHint}>
+                Warum interessiersch du dich fuer disi Lehrstell?
+              </Text>
+              <TextInput
+                style={styles.textArea}
+                value={answers[0] ?? ''}
+                onChangeText={(text) => setAnswers([text])}
+                placeholder="Schriib oeppis ueber dini Motivation..."
+                placeholderTextColor={colors.textTertiary}
+                multiline
+                textAlignVertical="top"
+              />
+            </View>
+          )}
 
           {/* Verfügbarkeit */}
           <View style={styles.section}>

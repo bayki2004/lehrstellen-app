@@ -40,7 +40,7 @@ export async function getListings(filters?: {
       const rows = await prisma.$queryRawUnsafe<any[]>(`
         SELECT l.id, l.title, l.description, l.canton, l.city,
                l.duration_years, l.start_date, l.positions_available, l.created_at,
-               l.requirements, l.culture_description,
+               l.requirements, l.culture_description, l.motivation_questions,
                b.field,
                c.company_name, c.logo_url, c.canton AS company_canton, c.city AS company_city
         FROM lehrstellen l
@@ -68,6 +68,7 @@ export async function getListings(filters?: {
         requiredLanguages: ['de'],
         createdAt: r.created_at?.toISOString?.() ?? new Date().toISOString(),
         cards: generateDefaultCards(r),
+        motivationQuestions: Array.isArray(r.motivation_questions) ? r.motivation_questions : [],
       }));
     } catch (err) {
       console.error('[API DEBUG] lehrstellen query error:', err);
@@ -101,7 +102,7 @@ export async function getListingById(id: string): Promise<ListingDTO> {
     const rows = await prisma.$queryRawUnsafe<any[]>(`
       SELECT l.id, l.title, l.description, l.canton, l.city,
              l.duration_years, l.start_date, l.positions_available, l.created_at,
-             l.requirements, l.culture_description,
+             l.requirements, l.culture_description, l.motivation_questions,
              b.field,
              c.company_name, c.logo_url, c.canton AS company_canton, c.city AS company_city
       FROM lehrstellen l
@@ -130,6 +131,7 @@ export async function getListingById(id: string): Promise<ListingDTO> {
         requiredLanguages: ['de'],
         createdAt: r.created_at?.toISOString?.() ?? new Date().toISOString(),
         cards: generateDefaultCards(r),
+        motivationQuestions: Array.isArray(r.motivation_questions) ? r.motivation_questions : [],
       };
     }
   } catch (err) {
@@ -170,7 +172,8 @@ export async function createListing(userId: string, data: CreateListingRequest):
       idealRiasecSocial: data.idealRiasecSocial,
       idealRiasecEnterprising: data.idealRiasecEnterprising,
       idealRiasecConventional: data.idealRiasecConventional,
-      cards: data.cards ?? [],
+      cards: (data.cards ?? []) as any,
+      motivationQuestions: (data.motivationQuestions ?? []) as any,
     },
     include: { company: true },
   });
@@ -204,7 +207,8 @@ export async function updateListing(
       ...(data.durationYears && { durationYears: data.durationYears }),
       ...(data.spotsAvailable !== undefined && { spotsAvailable: data.spotsAvailable }),
       ...(data.startDate && { startDate: new Date(data.startDate) }),
-      ...(data.cards !== undefined && { cards: data.cards }),
+      ...(data.cards !== undefined && { cards: data.cards as any }),
+      ...(data.motivationQuestions !== undefined && { motivationQuestions: data.motivationQuestions as any }),
     },
     include: { company: true },
   });
@@ -264,5 +268,6 @@ function mapToDTO(listing: any): ListingDTO {
     requiredLanguages: listing.requiredLanguages,
     createdAt: listing.createdAt.toISOString(),
     cards: Array.isArray(listing.cards) ? listing.cards : [],
+    motivationQuestions: Array.isArray(listing.motivationQuestions) ? listing.motivationQuestions : [],
   };
 }

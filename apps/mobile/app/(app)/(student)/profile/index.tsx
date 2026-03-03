@@ -191,10 +191,24 @@ export default function StudentProfileScreen() {
         {/* Menu section (matches SwiftUI menuSection) */}
         <View style={styles.menuCard}>
           <MenuItem
+            icon="eye"
+            iconColor={colors.radarUser}
+            title="Profil azeige"
+            onPress={() => router.push('/(app)/(student)/profile/view')}
+          />
+          <View style={styles.menuDivider} />
+          <MenuItem
             icon="document-text"
             iconColor={colors.primary}
             title="Bewerbungsprofil"
             onPress={() => router.push('/(app)/(student)/profile/builder')}
+          />
+          <View style={styles.menuDivider} />
+          <MenuItem
+            icon="school"
+            iconColor={colors.success}
+            title="Noote & Testergebnis"
+            onPress={() => router.push('/(app)/(student)/grades/' as any)}
           />
           <View style={styles.menuDivider} />
           <MenuItem
@@ -261,7 +275,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm + 2,
   },
   content: {
-    paddingBottom: 64,
+    paddingBottom: 120,
   },
 
   // Profile header

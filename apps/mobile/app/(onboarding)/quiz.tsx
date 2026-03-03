@@ -100,7 +100,7 @@ export default function QuizScreen() {
         setUser({ ...user, hasCompletedQuiz: true });
       }
 
-      router.replace('/(onboarding)/fields');
+      router.replace('/(onboarding)/build-your-day');
     } catch (error: any) {
       Alert.alert(
         'Fehler',

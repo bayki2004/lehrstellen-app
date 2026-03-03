@@ -1,11 +1,11 @@
-import type { OceanScores, RiasecScores } from './api';
+import type { OceanScores, RiasecScores, CultureScores } from './api';
 
 export interface QuizQuestion {
   id: string;
   text: string;
   textDe: string;
-  category: 'OCEAN' | 'RIASEC';
-  trait: keyof OceanScores | keyof RiasecScores;
+  category: 'OCEAN' | 'RIASEC' | 'CULTURE';
+  trait: keyof OceanScores | keyof RiasecScores | keyof CultureScores;
   reversed: boolean;
 }
 
@@ -229,5 +229,156 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     category: 'RIASEC',
     trait: 'conventional',
     reversed: false,
+  },
+];
+
+/**
+ * 16 culture preference questions (2 per dimension, 1 reversed each).
+ * Answered on 1-5 Likert scale, normalized to 0-100.
+ * Separate from OCEAN/RIASEC quiz — students can complete them independently.
+ */
+export const CULTURE_QUIZ_QUESTIONS: QuizQuestion[] = [
+  // ===== Hierarchy Focus (0=Autonomy, 100=Obedience) =====
+  {
+    id: 'cu_h1',
+    text: 'I want clear instructions from my supervisor',
+    textDe: 'Ich möchte klare Anweisungen von meinem/meiner Vorgesetzten bekommen',
+    category: 'CULTURE',
+    trait: 'hierarchyFocus',
+    reversed: false,
+  },
+  {
+    id: 'cu_h2',
+    text: 'I prefer deciding on my own how to do my work',
+    textDe: 'Ich entscheide am liebsten selber, wie ich meine Arbeit erledige',
+    category: 'CULTURE',
+    trait: 'hierarchyFocus',
+    reversed: true,
+  },
+
+  // ===== Punctuality / Rigidity (0=Flexible, 100=Strict) =====
+  {
+    id: 'cu_p1',
+    text: 'I value strict schedules and punctuality',
+    textDe: 'Mir sind feste Zeiten und Pünktlichkeit sehr wichtig',
+    category: 'CULTURE',
+    trait: 'punctualityRigidity',
+    reversed: false,
+  },
+  {
+    id: 'cu_p2',
+    text: 'I work best when I can set my own pace and timing',
+    textDe: 'Ich arbeite am besten, wenn ich mir mein Tempo selber einteilen kann',
+    category: 'CULTURE',
+    trait: 'punctualityRigidity',
+    reversed: true,
+  },
+
+  // ===== Resilience / Grit (0=Variety, 100=Routine/Endurance) =====
+  {
+    id: 'cu_r1',
+    text: 'I can focus on the same task for a long time without getting bored',
+    textDe: 'Ich kann mich lange auf dieselbe Aufgabe konzentrieren, ohne dass es mir langweilig wird',
+    category: 'CULTURE',
+    trait: 'resilienceGrit',
+    reversed: false,
+  },
+  {
+    id: 'cu_r2',
+    text: 'I need variety in my tasks to stay motivated',
+    textDe: 'Ich brauche Abwechslung bei meinen Aufgaben, um motiviert zu bleiben',
+    category: 'CULTURE',
+    trait: 'resilienceGrit',
+    reversed: true,
+  },
+
+  // ===== Social Environment (0=Solo, 100=Team) =====
+  {
+    id: 'cu_s1',
+    text: 'I enjoy working closely with a team every day',
+    textDe: 'Ich arbeite gerne jeden Tag eng mit einem Team zusammen',
+    category: 'CULTURE',
+    trait: 'socialEnvironment',
+    reversed: false,
+  },
+  {
+    id: 'cu_s2',
+    text: 'I prefer quiet workspaces where I can concentrate alone',
+    textDe: 'Ich bevorzuge ruhige Arbeitsplätze, an denen ich mich alleine konzentrieren kann',
+    category: 'CULTURE',
+    trait: 'socialEnvironment',
+    reversed: true,
+  },
+
+  // ===== Error Culture (0=Fast/Fail, 100=Precision/Safety) =====
+  {
+    id: 'cu_e1',
+    text: 'I think it is important to get things right the first time',
+    textDe: 'Ich finde es wichtig, Dinge beim ersten Mal richtig zu machen',
+    category: 'CULTURE',
+    trait: 'errorCulture',
+    reversed: false,
+  },
+  {
+    id: 'cu_e2',
+    text: 'I learn best by trying things out, even if I make mistakes',
+    textDe: 'Ich lerne am besten, indem ich Dinge ausprobiere, auch wenn ich Fehler mache',
+    category: 'CULTURE',
+    trait: 'errorCulture',
+    reversed: true,
+  },
+
+  // ===== Client Facing (0=Back-office, 100=Front-stage) =====
+  {
+    id: 'cu_c1',
+    text: 'I like interacting with customers and clients regularly',
+    textDe: 'Ich habe gerne regelmässig Kontakt mit Kunden',
+    category: 'CULTURE',
+    trait: 'clientFacing',
+    reversed: false,
+  },
+  {
+    id: 'cu_c2',
+    text: 'I prefer working behind the scenes rather than dealing with customers',
+    textDe: 'Ich arbeite lieber im Hintergrund als direkt mit Kunden',
+    category: 'CULTURE',
+    trait: 'clientFacing',
+    reversed: true,
+  },
+
+  // ===== Digital Affinity (0=Analog/Hand, 100=Digital/Screen) =====
+  {
+    id: 'cu_d1',
+    text: 'I enjoy working with computers, apps, and digital tools',
+    textDe: 'Ich arbeite gerne mit Computern, Apps und digitalen Werkzeugen',
+    category: 'CULTURE',
+    trait: 'digitalAffinity',
+    reversed: false,
+  },
+  {
+    id: 'cu_d2',
+    text: 'I prefer hands-on work with physical materials over screen work',
+    textDe: 'Ich arbeite lieber mit den Händen und echten Materialien als am Bildschirm',
+    category: 'CULTURE',
+    trait: 'digitalAffinity',
+    reversed: true,
+  },
+
+  // ===== Pride Focus (0=Speed/Output, 100=Quality/Masterpiece) =====
+  {
+    id: 'cu_q1',
+    text: 'I take pride in delivering perfect quality, even if it takes longer',
+    textDe: 'Ich bin stolz darauf, perfekte Qualität zu liefern, auch wenn es länger dauert',
+    category: 'CULTURE',
+    trait: 'prideFocus',
+    reversed: false,
+  },
+  {
+    id: 'cu_q2',
+    text: 'I prefer getting things done quickly rather than making them perfect',
+    textDe: 'Ich erledige Dinge lieber schnell, als sie perfekt zu machen',
+    category: 'CULTURE',
+    trait: 'prideFocus',
+    reversed: true,
   },
 ];

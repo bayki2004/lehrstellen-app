@@ -137,7 +137,7 @@ export default function CompanyProfileScreen() {
         setUser({ ...user, hasProfile: true });
       }
 
-      router.replace('/');
+      router.push('/(onboarding)/company-culture');
     } catch (error: any) {
       Alert.alert(
         'Fehler',

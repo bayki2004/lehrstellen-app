@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingHorizontal: spacing.md,
-    paddingBottom: spacing.lg,
+    paddingBottom: 100,
   },
   chatCard: {
     flexDirection: 'row',

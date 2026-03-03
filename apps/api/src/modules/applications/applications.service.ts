@@ -1,6 +1,16 @@
 import { prisma, type ApplicationStatus } from '@lehrstellen/database';
-import type { ApplicationDTO, ApplicationTimelineEntry, ListingDTO } from '@lehrstellen/shared';
+import type {
+  ApplicationDTO,
+  ApplicationDossierDTO,
+  ApplicationTimelineEntry,
+  ListingDTO,
+  OceanScores,
+  RiasecScores,
+  CultureScores,
+  StudentGradeDTO,
+} from '@lehrstellen/shared';
 import { ApiError } from '../../utils/ApiError';
+import { computeCompatibility } from '../../services/matching.service';
 
 export type BewerbungSegment = 'offen' | 'gesendet' | 'erledigt';
 
@@ -20,7 +30,7 @@ export interface UnifiedBewerbungItem {
   timeline?: ApplicationTimelineEntry[];
   updatedAt?: string;
   // Bewerbung content fields
-  motivationsschreiben?: string;
+  motivationAnswers?: { question: string; answer: string }[];
   verfuegbarkeit?: string;
   relevanteErfahrungen?: string[];
   fragenAnBetrieb?: string;
@@ -124,7 +134,7 @@ export async function getApplications(userId: string, role: string): Promise<Uni
       timeline: (app.timeline as ApplicationTimelineEntry[]) || [],
       updatedAt: app.updatedAt.toISOString(),
       // Bewerbung content fields
-      motivationsschreiben: app.motivationsschreiben ?? undefined,
+      motivationAnswers: Array.isArray(app.motivationAnswers) ? (app.motivationAnswers as any[]) : [],
       verfuegbarkeit: app.verfuegbarkeit ?? undefined,
       relevanteErfahrungen: (app.relevanteErfahrungen as string[]) ?? [],
       fragenAnBetrieb: app.fragenAnBetrieb ?? undefined,
@@ -138,20 +148,31 @@ export async function getApplications(userId: string, role: string): Promise<Uni
   });
 }
 
-export async function getApplicationById(id: string): Promise<ApplicationDTO> {
+export async function getApplicationById(id: string) {
   const app = await prisma.application.findUnique({
     where: { id },
-    include: { listing: { include: { company: true } } },
+    include: { listing: { include: { company: true } }, student: true },
   });
 
   if (!app) throw ApiError.notFound('Application not found');
   await enrichLehrstellenCompanyData([app.listing]);
-  return mapToDTO(app);
+  const dto = mapToDTO(app);
+  return {
+    ...dto,
+    student: app.student
+      ? {
+          firstName: app.student.firstName,
+          lastName: app.student.lastName,
+          canton: app.student.canton,
+          city: app.student.city,
+        }
+      : undefined,
+  };
 }
 
 export interface CreateApplicationPayload {
   matchId: string;
-  motivationsschreiben?: string;
+  motivationAnswers?: { question: string; answer: string }[];
   verfuegbarkeit?: string;
   relevanteErfahrungen?: string[];
   fragenAnBetrieb?: string;
@@ -177,7 +198,7 @@ export async function createApplication(userId: string, payload: CreateApplicati
       studentId: student.id,
       listingId: match.listingId,
       matchId: payload.matchId,
-      motivationsschreiben: payload.motivationsschreiben,
+      motivationAnswers: payload.motivationAnswers ?? [],
       verfuegbarkeit: payload.verfuegbarkeit,
       relevanteErfahrungen: payload.relevanteErfahrungen ?? [],
       fragenAnBetrieb: payload.fragenAnBetrieb,
@@ -204,7 +225,7 @@ export async function updateApplicationStatus(
 ): Promise<ApplicationDTO> {
   const app = await prisma.application.findUnique({
     where: { id },
-    include: { match: true },
+    include: { match: true, student: true },
   });
   if (!app) throw ApiError.notFound('Application not found');
 
@@ -230,7 +251,7 @@ export async function updateApplicationStatus(
     await prisma.message.create({
       data: {
         matchId: app.matchId,
-        senderId: app.studentId,
+        senderId: app.student.userId,
         content: 'Bewerbung angenommen! Ihr könnt jetzt chatten.',
         type: 'SYSTEM',
       },
@@ -239,6 +260,135 @@ export async function updateApplicationStatus(
 
   await enrichLehrstellenCompanyData([updated.listing]);
   return mapToDTO(updated);
+}
+
+export async function getApplicationDossier(
+  applicationId: string,
+  companyUserId: string,
+): Promise<ApplicationDossierDTO> {
+  const company = await prisma.companyProfile.findUnique({ where: { userId: companyUserId } });
+  if (!company) throw ApiError.notFound('Company profile not found');
+
+  const app = await prisma.application.findUnique({
+    where: { id: applicationId },
+    include: {
+      listing: { include: { company: true } },
+      match: true,
+      student: true,
+    },
+  });
+  if (!app) throw ApiError.notFound('Application not found');
+  if (app.listing.companyId !== company.id) {
+    throw ApiError.forbidden('Not authorized to view this dossier');
+  }
+
+  await enrichLehrstellenCompanyData([app.listing]);
+
+  const student = app.student;
+  if (!student) throw ApiError.notFound('Student profile not found');
+
+  // Fetch grades
+  const grades = await prisma.studentGrade.findMany({
+    where: { studentId: student.id },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  // Compute compatibility
+  const companyCulture: CultureScores = {
+    hierarchyFocus: company.cultureHierarchyFocus,
+    punctualityRigidity: company.culturePunctualityRigidity,
+    resilienceGrit: company.cultureResilienceGrit,
+    socialEnvironment: company.cultureSocialEnvironment,
+    errorCulture: company.cultureErrorCulture,
+    clientFacing: company.cultureClientFacing,
+    digitalAffinity: company.cultureDigitalAffinity,
+    prideFocus: company.culturePrideFocus,
+  };
+
+  const companyDealbreakers = {
+    hierarchyFocus: company.dealbreakerHierarchyFocus,
+    punctualityRigidity: company.dealbreakerPunctualityRigidity,
+    resilienceGrit: company.dealbreakerResilienceGrit,
+    socialEnvironment: company.dealbreakerSocialEnvironment,
+    errorCulture: company.dealbreakerErrorCulture,
+    clientFacing: company.dealbreakerClientFacing,
+    digitalAffinity: company.dealbreakerDigitalAffinity,
+    prideFocus: company.dealbreakerPrideFocus,
+  };
+
+  const desiredFieldRows = await prisma.studentDesiredField.findMany({
+    where: { studentId: student.id },
+  });
+  const desiredFields = desiredFieldRows.map((f) => f.field);
+  const compatibility = computeCompatibility(
+    student,
+    app.listing,
+    desiredFields,
+    companyCulture,
+    companyDealbreakers,
+  );
+
+  const studentCulture: CultureScores = {
+    hierarchyFocus: student.cultureHierarchyFocus,
+    punctualityRigidity: student.culturePunctualityRigidity,
+    resilienceGrit: student.cultureResilienceGrit,
+    socialEnvironment: student.cultureSocialEnvironment,
+    errorCulture: student.cultureErrorCulture,
+    clientFacing: student.cultureClientFacing,
+    digitalAffinity: student.cultureDigitalAffinity,
+    prideFocus: student.culturePrideFocus,
+  };
+
+  return {
+    application: mapToDTO(app),
+    student: {
+      firstName: student.firstName,
+      lastName: student.lastName,
+      dateOfBirth: student.dateOfBirth?.toISOString(),
+      canton: student.canton,
+      city: student.city,
+      profilePhoto: student.profilePhoto ?? undefined,
+      bio: student.bio ?? undefined,
+      oceanScores: {
+        openness: student.oceanOpenness,
+        conscientiousness: student.oceanConscientiousness,
+        extraversion: student.oceanExtraversion,
+        agreeableness: student.oceanAgreeableness,
+        neuroticism: student.oceanNeuroticism,
+      },
+      riasecScores: {
+        realistic: student.riasecRealistic,
+        investigative: student.riasecInvestigative,
+        artistic: student.riasecArtistic,
+        social: student.riasecSocial,
+        enterprising: student.riasecEnterprising,
+        conventional: student.riasecConventional,
+      },
+      cultureScores: studentCulture,
+      desiredFields,
+      motivationLetter: student.motivationLetter ?? undefined,
+    },
+    grades: grades.map((g) => ({
+      id: g.id,
+      documentType: g.documentType as StudentGradeDTO['documentType'],
+      entryMethod: g.entryMethod as StudentGradeDTO['entryMethod'],
+      canton: g.canton ?? undefined,
+      niveau: g.niveau ?? undefined,
+      semester: g.semester ?? undefined,
+      schoolYear: g.schoolYear ?? undefined,
+      testVariant: g.testVariant ?? undefined,
+      testDate: g.testDate?.toISOString() ?? undefined,
+      grades: g.grades as StudentGradeDTO['grades'],
+      isVerified: g.isVerified,
+      verifiedAt: g.verifiedAt?.toISOString() ?? undefined,
+      createdAt: g.createdAt.toISOString(),
+    })),
+    compatibility: {
+      totalScore: compatibility.totalScore,
+      breakdown: compatibility.breakdown,
+    },
+    companyCulture,
+  };
 }
 
 function mapListingToDTO(listing: any): ListingDTO {
@@ -260,6 +410,7 @@ function mapListingToDTO(listing: any): ListingDTO {
     requiredSchoolLevel: listing.requiredSchoolLevel,
     requiredLanguages: listing.requiredLanguages,
     createdAt: listing.createdAt.toISOString(),
+    motivationQuestions: Array.isArray(listing.motivationQuestions) ? listing.motivationQuestions : [],
   };
 }
 
@@ -308,7 +459,7 @@ function mapToDTO(app: any): ApplicationDTO {
     createdAt: app.createdAt.toISOString(),
     updatedAt: app.updatedAt.toISOString(),
     listing: mapListingToDTO(app.listing),
-    motivationsschreiben: app.motivationsschreiben ?? undefined,
+    motivationAnswers: Array.isArray(app.motivationAnswers) ? (app.motivationAnswers as any[]) : [],
     verfuegbarkeit: app.verfuegbarkeit ?? undefined,
     relevanteErfahrungen: (app.relevanteErfahrungen as string[]) ?? [],
     fragenAnBetrieb: app.fragenAnBetrieb ?? undefined,

@@ -9,16 +9,26 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Button from '../../../../components/ui/Button';
 import api from '../../../../services/api';
 import { APPRENTICESHIP_FIELDS, SWISS_CANTONS, INFO_CARD_PRESETS } from '@lehrstellen/shared';
-import type { InfoCard, InfoCardType } from '@lehrstellen/shared';
+import type { InfoCard, InfoCardType, MotivationQuestion } from '@lehrstellen/shared';
 import { colors, typography, fontWeights, spacing, borderRadius } from '../../../../constants/theme';
 
 export default function CreateListingScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
+
+  // Hide floating tab bar on form screen
+  React.useEffect(() => {
+    const parent = navigation.getParent();
+    parent?.setOptions({ tabBarStyle: { display: 'none' } });
+    return () => {
+      parent?.setOptions({ tabBarStyle: undefined });
+    };
+  }, [navigation]);
   const [isLoading, setIsLoading] = useState(false);
   const [form, setForm] = useState({
     title: '',
@@ -31,6 +41,7 @@ export default function CreateListingScreen() {
     durationYears: '3',
   });
   const [infoCards, setInfoCards] = useState<InfoCard[]>([]);
+  const [motivationQuestions, setMotivationQuestions] = useState<Array<{ question: string; placeholder: string }>>([]);
 
   const handleCreate = async () => {
     if (!form.title || !form.field || !form.canton || !form.city) {
@@ -43,12 +54,16 @@ export default function CreateListingScreen() {
       const filteredCards = infoCards
         .map((c) => ({ ...c, items: c.items.filter((item) => item.trim().length > 0) }))
         .filter((c) => c.items.length > 0);
+      const filteredQuestions = motivationQuestions
+        .filter((q) => q.question.trim())
+        .map((q) => ({ question: q.question.trim(), placeholder: q.placeholder.trim() || undefined }));
       await api.post('/listings', {
         ...form,
         spotsAvailable: parseInt(form.spotsAvailable, 10) || 1,
         durationYears: parseInt(form.durationYears, 10) || 3,
         requirements: form.requirements ? form.requirements.split('\n').filter(Boolean) : [],
         cards: filteredCards,
+        motivationQuestions: filteredQuestions.length > 0 ? filteredQuestions : undefined,
       });
       Alert.alert('Erfolg', 'Lehrstelle wurde erstellt!', [
         { text: 'OK', onPress: () => router.back() },
@@ -232,6 +247,69 @@ export default function CreateListingScreen() {
           </View>
         ))}
 
+        {/* Motivation Questions */}
+        <View style={styles.cardEditorHeader}>
+          <Text style={styles.label}>Motivationsfragen</Text>
+          {motivationQuestions.length > 0 && (
+            <Text style={styles.questionCounter}>{motivationQuestions.length}/5</Text>
+          )}
+        </View>
+        <Text style={styles.questionHint}>
+          Fragen, die Bewerber bei der Bewerbung beantworten müssen
+        </Text>
+
+        {motivationQuestions.map((q, idx) => (
+          <View key={idx} style={styles.cardEditor}>
+            <View style={styles.cardEditorHeader}>
+              <View style={styles.questionBadge}>
+                <Text style={styles.questionBadgeText}>{idx + 1}</Text>
+              </View>
+              <TouchableOpacity
+                onPress={() =>
+                  setMotivationQuestions((prev) => prev.filter((_, i) => i !== idx))
+                }
+                hitSlop={8}
+              >
+                <Ionicons name="close-circle" size={22} color={colors.textTertiary} />
+              </TouchableOpacity>
+            </View>
+            <TextInput
+              style={[styles.input, { marginBottom: spacing.xs }]}
+              value={q.question}
+              onChangeText={(text) =>
+                setMotivationQuestions((prev) =>
+                  prev.map((item, i) => (i === idx ? { ...item, question: text } : item)),
+                )
+              }
+              placeholder="z.B. Warum interessieren Sie sich für diesen Beruf?"
+              placeholderTextColor={colors.textTertiary}
+            />
+            <TextInput
+              style={styles.input}
+              value={q.placeholder}
+              onChangeText={(text) =>
+                setMotivationQuestions((prev) =>
+                  prev.map((item, i) => (i === idx ? { ...item, placeholder: text } : item)),
+                )
+              }
+              placeholder="Platzhalter-Text für den Bewerber (optional)"
+              placeholderTextColor={colors.textTertiary}
+            />
+          </View>
+        ))}
+
+        {motivationQuestions.length < 5 && (
+          <TouchableOpacity
+            style={styles.addItemButton}
+            onPress={() =>
+              setMotivationQuestions((prev) => [...prev, { question: '', placeholder: '' }])
+            }
+          >
+            <Ionicons name="chatbubble-outline" size={18} color={colors.primary} />
+            <Text style={styles.addItemText}>Frage hinzufügen</Text>
+          </TouchableOpacity>
+        )}
+
         <View style={styles.row}>
           <View style={styles.halfField}>
             <Text style={styles.label}>Plätze</Text>
@@ -384,5 +462,28 @@ const styles = StyleSheet.create({
     fontSize: typography.bodySmall,
     color: colors.primary,
     fontWeight: fontWeights.medium,
+  },
+  questionCounter: {
+    fontSize: 12,
+    color: colors.textTertiary,
+    fontVariant: ['tabular-nums'],
+  },
+  questionHint: {
+    fontSize: typography.caption,
+    color: colors.textTertiary,
+    marginBottom: spacing.sm,
+  },
+  questionBadge: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.primary + '14',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  questionBadgeText: {
+    fontSize: 12,
+    fontWeight: fontWeights.bold,
+    color: colors.primary,
   },
 });

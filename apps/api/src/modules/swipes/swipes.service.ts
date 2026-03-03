@@ -1,12 +1,13 @@
 import { prisma, type SwipeDirection } from '@lehrstellen/database';
-import type { ListingWithScoreDTO, SwipeResponse } from '@lehrstellen/shared';
-import { computeCompatibility } from '../../services/matching.service';
+import type { ListingWithScoreDTO, SwipeResponse, CultureScores, CultureDealbreakers } from '@lehrstellen/shared';
+import { computeCompatibility, type CultureData } from '../../services/matching.service';
 import { ApiError } from '../../utils/ApiError';
 import { CANTON_NEIGHBORS } from '@lehrstellen/shared';
 import { generateDefaultCards } from '../../utils/infoCards';
 
 const FEED_SIZE = 50;
 const MIN_SCORE = 30;
+const DAILY_SWIPE_LIMIT = 5;
 
 /** Map a lehrstellen row (raw SQL) into a Prisma-Listing-like shape for scoring. */
 function lehrstelleToListing(r: any): any {
@@ -43,6 +44,7 @@ function lehrstelleToListing(r: any): any {
     idealRiasecConventional: pf.conventional ?? null,
     berufCode: r.beruf_code ?? null,
     cards: generateDefaultCards(r),
+    motivationQuestions: r.motivation_questions ?? [],
     // Fake company relation for DTO mapping
     company: {
       companyName: r.company_name ?? '',
@@ -50,6 +52,17 @@ function lehrstelleToListing(r: any): any {
       canton: r.company_canton ?? '',
       city: r.company_city ?? '',
     },
+    // Culture data from company
+    _companyCulture: {
+      hierarchyFocus: r.culture_hierarchy_focus ?? null,
+      punctualityRigidity: r.culture_punctuality_rigidity ?? null,
+      resilienceGrit: r.culture_resilience_grit ?? null,
+      socialEnvironment: r.culture_social_environment ?? null,
+      errorCulture: r.culture_error_culture ?? null,
+      clientFacing: r.culture_client_facing ?? null,
+      digitalAffinity: r.culture_digital_affinity ?? null,
+      prideFocus: r.culture_pride_focus ?? null,
+    } as CultureData,
   };
 }
 
@@ -73,6 +86,7 @@ function listingToDTO(listing: any, score: number, breakdown: any): ListingWithS
     requiredLanguages: listing.requiredLanguages ?? ['de'],
     createdAt: listing.createdAt?.toISOString?.() ?? new Date().toISOString(),
     cards: Array.isArray(listing.cards) ? listing.cards : [],
+    motivationQuestions: Array.isArray(listing.motivationQuestions) ? listing.motivationQuestions : [],
     compatibilityScore: score,
     scoreBreakdown: breakdown,
     berufCode: listing.berufCode ?? undefined,
@@ -95,8 +109,13 @@ async function fetchLehrstellen(cantonFilter?: string[]): Promise<any[]> {
       SELECT l.id, l.title, l.description, l.canton, l.city,
              l.duration_years, l.start_date, l.positions_available, l.created_at,
              l.company_id, l.requirements, l.culture_description, l.beruf_code,
+             l.motivation_questions,
              b.field, b.personality_fit,
-             c.company_name, c.logo_url, c.canton AS company_canton, c.city AS company_city
+             c.company_name, c.logo_url, c.canton AS company_canton, c.city AS company_city,
+             c.culture_hierarchy_focus, c.culture_punctuality_rigidity,
+             c.culture_resilience_grit, c.culture_social_environment,
+             c.culture_error_culture, c.culture_client_facing,
+             c.culture_digital_affinity, c.culture_pride_focus
       FROM lehrstellen l
       LEFT JOIN berufe b ON l.beruf_code = b.code
       LEFT JOIN companies c ON l.company_id = c.id
@@ -189,7 +208,29 @@ export async function getSwipeFeed(userId: string): Promise<ListingWithScoreDTO[
   // Score and sort (with favorite beruf boost)
   const scored = allCandidates
     .map((listing) => {
-      const result = computeCompatibility(student, listing, desiredFields);
+      // Extract culture data: from _companyCulture (lehrstellen) or company relation (Prisma)
+      const companyCulture: CultureData | undefined = listing._companyCulture ?? (listing.company ? {
+        hierarchyFocus: listing.company.cultureHierarchyFocus ?? null,
+        punctualityRigidity: listing.company.culturePunctualityRigidity ?? null,
+        resilienceGrit: listing.company.cultureResilienceGrit ?? null,
+        socialEnvironment: listing.company.cultureSocialEnvironment ?? null,
+        errorCulture: listing.company.cultureErrorCulture ?? null,
+        clientFacing: listing.company.cultureClientFacing ?? null,
+        digitalAffinity: listing.company.cultureDigitalAffinity ?? null,
+        prideFocus: listing.company.culturePrideFocus ?? null,
+      } : undefined);
+      // Extract dealbreakers (Prisma listings only — lehrstellen don't have them)
+      const companyDealbreakers: CultureDealbreakers | undefined = listing.company ? {
+        hierarchyFocus: listing.company.dealbreakerHierarchyFocus ?? false,
+        punctualityRigidity: listing.company.dealbreakerPunctualityRigidity ?? false,
+        resilienceGrit: listing.company.dealbreakerResilienceGrit ?? false,
+        socialEnvironment: listing.company.dealbreakerSocialEnvironment ?? false,
+        errorCulture: listing.company.dealbreakerErrorCulture ?? false,
+        clientFacing: listing.company.dealbreakerClientFacing ?? false,
+        digitalAffinity: listing.company.dealbreakerDigitalAffinity ?? false,
+        prideFocus: listing.company.dealbreakerPrideFocus ?? false,
+      } : undefined;
+      const result = computeCompatibility(student, listing, desiredFields, companyCulture, companyDealbreakers);
       let score = result.totalScore;
       // Boost score for favorite berufe (+15, capped at 100)
       if (listing.berufCode && favoriteBerufCodes.has(listing.berufCode)) {
@@ -223,6 +264,7 @@ async function ensureLehrstelleProxy(lehrstelleId: string): Promise<any | null> 
     `SELECT l.id, l.title, l.description, l.canton, l.city,
             l.duration_years, l.start_date, l.positions_available,
             l.company_id, l.created_at, l.requirements, l.culture_description,
+            l.motivation_questions,
             b.field, b.personality_fit,
             c.company_name, c.canton AS company_canton, c.city AS company_city
      FROM lehrstellen l
@@ -257,9 +299,36 @@ async function ensureLehrstelleProxy(lehrstelleId: string): Promise<any | null> 
       idealRiasecSocial: pf.social ?? null,
       idealRiasecEnterprising: pf.enterprising ?? null,
       idealRiasecConventional: pf.conventional ?? null,
-      cards: generateDefaultCards(r),
+      cards: generateDefaultCards(r) as any,
+      motivationQuestions: (r.motivation_questions ?? []) as any,
     },
   });
+}
+
+/** Count today's RIGHT/SUPER swipes and return remaining quota. */
+export async function getSwipeRemaining(userId: string): Promise<{ remaining: number; limit: number; resetsAt: string }> {
+  const student = await prisma.studentProfile.findUnique({ where: { userId } });
+  if (!student) throw ApiError.notFound('Student profile not found');
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const usedToday = await prisma.swipe.count({
+    where: {
+      studentId: student.id,
+      direction: { in: ['RIGHT', 'SUPER'] },
+      createdAt: { gte: todayStart },
+    },
+  });
+
+  const tomorrow = new Date(todayStart);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  return {
+    remaining: Math.max(0, DAILY_SWIPE_LIMIT - usedToday),
+    limit: DAILY_SWIPE_LIMIT,
+    resetsAt: tomorrow.toISOString(),
+  };
 }
 
 export async function recordSwipe(
@@ -273,6 +342,24 @@ export async function recordSwipe(
   });
   if (!student) {
     throw ApiError.notFound('Student profile not found');
+  }
+
+  // Enforce daily swipe limit for RIGHT/SUPER swipes
+  if (direction === 'RIGHT' || direction === 'SUPER') {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const usedToday = await prisma.swipe.count({
+      where: {
+        studentId: student.id,
+        direction: { in: ['RIGHT', 'SUPER'] },
+        createdAt: { gte: todayStart },
+      },
+    });
+
+    if (usedToday >= DAILY_SWIPE_LIMIT) {
+      throw ApiError.tooManyRequests('Tageslimit erreicht (5 Swipes pro Tag)');
+    }
   }
 
   // Try Prisma listings first, then lehrstellen proxy
@@ -305,7 +392,47 @@ export async function recordSwipe(
   // If RIGHT or SUPER, create a match (MVP auto-match)
   if (direction === 'RIGHT' || direction === 'SUPER') {
     const desiredFields = student.desiredFields.map((d) => d.field);
-    const { totalScore } = computeCompatibility(student, listing, desiredFields);
+    // Fetch company culture for the listing
+    let companyCulture: CultureData | undefined;
+    let companyDealbreakers: CultureDealbreakers | undefined;
+    if (listing.companyId) {
+      const company = await prisma.companyProfile.findUnique({
+        where: { id: listing.companyId },
+        select: {
+          cultureHierarchyFocus: true, culturePunctualityRigidity: true,
+          cultureResilienceGrit: true, cultureSocialEnvironment: true,
+          cultureErrorCulture: true, cultureClientFacing: true,
+          cultureDigitalAffinity: true, culturePrideFocus: true,
+          dealbreakerHierarchyFocus: true, dealbreakerPunctualityRigidity: true,
+          dealbreakerResilienceGrit: true, dealbreakerSocialEnvironment: true,
+          dealbreakerErrorCulture: true, dealbreakerClientFacing: true,
+          dealbreakerDigitalAffinity: true, dealbreakerPrideFocus: true,
+        },
+      });
+      if (company) {
+        companyCulture = {
+          hierarchyFocus: company.cultureHierarchyFocus,
+          punctualityRigidity: company.culturePunctualityRigidity,
+          resilienceGrit: company.cultureResilienceGrit,
+          socialEnvironment: company.cultureSocialEnvironment,
+          errorCulture: company.cultureErrorCulture,
+          clientFacing: company.cultureClientFacing,
+          digitalAffinity: company.cultureDigitalAffinity,
+          prideFocus: company.culturePrideFocus,
+        };
+        companyDealbreakers = {
+          hierarchyFocus: company.dealbreakerHierarchyFocus,
+          punctualityRigidity: company.dealbreakerPunctualityRigidity,
+          resilienceGrit: company.dealbreakerResilienceGrit,
+          socialEnvironment: company.dealbreakerSocialEnvironment,
+          errorCulture: company.dealbreakerErrorCulture,
+          clientFacing: company.dealbreakerClientFacing,
+          digitalAffinity: company.dealbreakerDigitalAffinity,
+          prideFocus: company.dealbreakerPrideFocus,
+        };
+      }
+    }
+    const { totalScore } = computeCompatibility(student, listing, desiredFields, companyCulture, companyDealbreakers);
 
     const match = await prisma.match.create({
       data: {

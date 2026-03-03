@@ -8,6 +8,7 @@ const router = Router();
 
 // Authenticated company routes (must be before /:id to avoid "me" being treated as an ID)
 router.use(authenticate);
+router.get('/culture-presets', asyncHandler(controller.getCulturePresets));
 router.get('/me', requireRole('COMPANY'), asyncHandler(controller.getProfile));
 router.post('/me', requireRole('COMPANY'), asyncHandler(controller.createProfile));
 router.put('/me', requireRole('COMPANY'), asyncHandler(controller.updateProfile));

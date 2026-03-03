@@ -16,7 +16,7 @@ import CompatibilityBadge from '../../../../components/ui/CompatibilityBadge';
 import MatchCelebration from '../../../../components/feed/MatchCelebration';
 import CommuteCard from '../../../../components/feed/CommuteCard';
 import InfoCardSection from '../../../../components/feed/InfoCardSection';
-import { useSwipeFeed, useSwipe } from '../../../../hooks/queries/useFeed';
+import { useSwipeFeed, useSwipe, useSwipeRemaining } from '../../../../hooks/queries/useFeed';
 import { useListingDetail } from '../../../../hooks/queries/useListingDetail';
 import { useCommuteCalculation } from '../../../../hooks/queries/useCommute';
 import { useProfileBuilderStore } from '../../../../stores/profileBuilder.store';
@@ -39,6 +39,8 @@ export default function ListingDetailScreen() {
   );
   const listing = feedListing ?? apiListing as any;
   const swipeMutation = useSwipe();
+  const { data: swipeQuota } = useSwipeRemaining();
+  const limitReached = swipeQuota?.remaining !== undefined && swipeQuota.remaining <= 0;
 
   const [matchInfo, setMatchInfo] = useState<{companyName: string; title: string; compatibilityScore?: number; matchId?: string} | null>(null);
 
@@ -273,7 +275,14 @@ export default function ListingDetailScreen() {
 
         {/* Section 7: Actions */}
         <View style={styles.actionSection}>
-          <Pressable onPress={handleApply} style={styles.applyButton}>
+          {limitReached && (
+            <Text style={styles.limitText}>Tageslimit erreicht (5 Swipes pro Tag)</Text>
+          )}
+          <Pressable
+            onPress={handleApply}
+            style={[styles.applyButton, limitReached && styles.buttonDisabled]}
+            disabled={limitReached}
+          >
             <Text style={styles.applyButtonText}>Bewerben</Text>
           </Pressable>
           <Pressable onPress={handleReject} style={styles.rejectButton}>
@@ -566,5 +575,14 @@ const styles = StyleSheet.create({
     fontSize: typography.h4,
     fontWeight: fontWeights.semiBold,
     color: colors.textSecondary,
+  },
+  limitText: {
+    fontSize: typography.caption,
+    color: colors.error,
+    textAlign: 'center' as const,
+    marginBottom: spacing.xs,
+  },
+  buttonDisabled: {
+    opacity: 0.4,
   },
 });

@@ -46,6 +46,10 @@ api.log
 # Claude Code
 .claude/
 
+# Uploads (user-uploaded files)
+apps/api/uploads/
+
 # Misc
 *.tgz
 .npmrc
+apps/web/.next

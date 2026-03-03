@@ -16,6 +16,7 @@ import { chatRouter } from './modules/chat/chat.router';
 import { applicationsRouter } from './modules/applications/applications.router';
 import { berufsschulenRouter } from './modules/berufsschulen/berufsschulen.router';
 import { berufeRouter } from './modules/berufe/berufe.router';
+import { gradesRouter } from './modules/grades/grades.router';
 
 const app = express();
 
@@ -47,6 +48,7 @@ app.use('/api/chat', chatRouter);
 app.use('/api/applications', applicationsRouter);
 app.use('/api/berufsschulen', berufsschulenRouter);
 app.use('/api/berufe', berufeRouter);
+app.use('/api/grades', gradesRouter);
 
 // Error handling
 app.use(errorHandler);

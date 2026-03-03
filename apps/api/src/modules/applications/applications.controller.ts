@@ -15,16 +15,24 @@ export async function getById(req: Request, res: Response) {
 }
 
 export async function create(req: Request, res: Response) {
-  const { matchId, motivationsschreiben, verfuegbarkeit, relevanteErfahrungen, fragenAnBetrieb, schnupperlehreWunsch } = req.body;
+  const { matchId, motivationAnswers, verfuegbarkeit, relevanteErfahrungen, fragenAnBetrieb, schnupperlehreWunsch } = req.body;
   const app = await applicationsService.createApplication(req.user!.userId, {
     matchId,
-    motivationsschreiben,
+    motivationAnswers,
     verfuegbarkeit,
     relevanteErfahrungen,
     fragenAnBetrieb,
     schnupperlehreWunsch,
   });
   res.status(201).json(app);
+}
+
+export async function getDossier(req: Request, res: Response) {
+  const dossier = await applicationsService.getApplicationDossier(
+    req.params.id as string,
+    req.user!.userId,
+  );
+  res.json(dossier);
 }
 
 export async function updateStatus(req: Request, res: Response) {

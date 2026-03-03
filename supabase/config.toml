@@ -72,4 +72,5 @@ sql_paths = [
   "./seed/006_lehrstellen_batch3.sql",
   "./seed/007_berufsschulen.sql",
   "./seed/008_berufe_anforderungen_lohn.sql",
+  "./seed/009_motivation_questions.sql",
 ]

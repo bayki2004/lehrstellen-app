@@ -55,6 +55,7 @@ export interface BewerbungListing {
   requiredSchoolLevel?: string;
   requiredLanguages: string[];
   createdAt: string;
+  motivationQuestions?: { question: string; placeholder?: string }[];
 }
 
 export interface UnifiedBewerbungItem {
@@ -72,7 +73,7 @@ export interface UnifiedBewerbungItem {
   timeline?: { status: string; timestamp: string; note?: string }[];
   updatedAt?: string;
   // Bewerbung content fields
-  motivationsschreiben?: string;
+  motivationAnswers?: { question: string; answer: string }[];
   verfuegbarkeit?: string;
   relevanteErfahrungen?: string[];
   fragenAnBetrieb?: string;

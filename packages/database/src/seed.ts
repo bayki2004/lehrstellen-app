@@ -1,4 +1,4 @@
-import { PrismaClient, UserRole } from '@prisma/client';
+import { PrismaClient, UserRole, SwipeDirection, ApplicationStatus } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -11,14 +11,39 @@ async function main() {
   await prisma.application.deleteMany();
   await prisma.match.deleteMany();
   await prisma.swipe.deleteMany();
+  await prisma.studentGrade.deleteMany();
   await prisma.studentDesiredField.deleteMany();
   await prisma.listing.deleteMany();
+  await prisma.companyCulturePreset.deleteMany();
   await prisma.companyProfile.deleteMany();
   await prisma.studentProfile.deleteMany();
   await prisma.refreshToken.deleteMany();
   await prisma.user.deleteMany();
 
   const passwordHash = await bcrypt.hash('Test1234!', 10);
+
+  // ============================================
+  // CULTURE PRESETS
+  // ============================================
+
+  const presetData = [
+    { name: 'Schreiner/in', hierarchyFocus: 55, punctualityRigidity: 60, resilienceGrit: 75, socialEnvironment: 45, errorCulture: 80, clientFacing: 40, digitalAffinity: 15, prideFocus: 90 },
+    { name: 'Bank / Versicherung', hierarchyFocus: 80, punctualityRigidity: 90, resilienceGrit: 65, socialEnvironment: 60, errorCulture: 95, clientFacing: 75, digitalAffinity: 85, prideFocus: 70 },
+    { name: 'Detailhandel', hierarchyFocus: 50, punctualityRigidity: 65, resilienceGrit: 60, socialEnvironment: 70, errorCulture: 50, clientFacing: 95, digitalAffinity: 40, prideFocus: 45 },
+    { name: 'IT / Software', hierarchyFocus: 25, punctualityRigidity: 35, resilienceGrit: 55, socialEnvironment: 65, errorCulture: 40, clientFacing: 35, digitalAffinity: 95, prideFocus: 75 },
+    { name: 'Spital / Pflege', hierarchyFocus: 70, punctualityRigidity: 85, resilienceGrit: 80, socialEnvironment: 85, errorCulture: 95, clientFacing: 90, digitalAffinity: 50, prideFocus: 80 },
+    { name: 'Gastgewerbe', hierarchyFocus: 60, punctualityRigidity: 75, resilienceGrit: 70, socialEnvironment: 80, errorCulture: 55, clientFacing: 95, digitalAffinity: 20, prideFocus: 65 },
+    { name: 'Maschinenbau', hierarchyFocus: 55, punctualityRigidity: 70, resilienceGrit: 80, socialEnvironment: 50, errorCulture: 90, clientFacing: 20, digitalAffinity: 60, prideFocus: 85 },
+    { name: 'Grafik / Design', hierarchyFocus: 20, punctualityRigidity: 30, resilienceGrit: 40, socialEnvironment: 50, errorCulture: 30, clientFacing: 55, digitalAffinity: 90, prideFocus: 95 },
+    { name: 'Buero / KV', hierarchyFocus: 65, punctualityRigidity: 75, resilienceGrit: 55, socialEnvironment: 60, errorCulture: 70, clientFacing: 50, digitalAffinity: 80, prideFocus: 55 },
+    { name: 'Elektro / Installationen', hierarchyFocus: 50, punctualityRigidity: 70, resilienceGrit: 75, socialEnvironment: 40, errorCulture: 90, clientFacing: 45, digitalAffinity: 45, prideFocus: 80 },
+  ];
+
+  const presets: Record<string, string> = {};
+  for (const p of presetData) {
+    const preset = await prisma.companyCulturePreset.create({ data: p });
+    presets[p.name] = preset.id;
+  }
 
   // ============================================
   // STUDENTS
@@ -34,6 +59,7 @@ async function main() {
         canton: 'ZH',
         city: 'Zurich',
         bio: 'Ich bin kreativ und liebe es, neue Dinge zu lernen. In meiner Freizeit programmiere ich kleine Spiele.',
+        motivationLetter: 'Sehr geehrte Damen und Herren,\n\nSchon seit der Primarschule begeistere ich mich fuer Computer und Technologie. In der 5. Klasse habe ich mein erstes Spiel in Scratch programmiert, und seither hat mich die Faszination fuer die Informatik nicht mehr losgelassen.\n\nIn meiner Freizeit entwickle ich kleine Webseiten mit HTML und CSS und habe begonnen, Python zu lernen. Besonders reizt mich die Idee, Applikationen zu entwickeln, die Menschen im Alltag helfen.\n\nIch bin eine zielstrebige und neugierige Person, die gerne im Team arbeitet und sich fuer neue Herausforderungen begeistert. Eine Informatiklehre wuerde mir die Moeglichkeit geben, meine Leidenschaft zum Beruf zu machen.\n\nIch freue mich auf Ihre Rueckmeldung.\n\nFreundliche Gruesse\nLena Mueller',
         oceanOpenness: 0.85,
         oceanConscientiousness: 0.7,
         oceanExtraversion: 0.6,
@@ -46,6 +72,16 @@ async function main() {
         riasecEnterprising: 0.3,
         riasecConventional: 0.2,
         quizCompletedAt: new Date(),
+        // Culture: IT-creative student — autonomous, flexible, team-oriented, digital
+        cultureHierarchyFocus: 20,
+        culturePunctualityRigidity: 30,
+        cultureResilienceGrit: 50,
+        cultureSocialEnvironment: 70,
+        cultureErrorCulture: 35,
+        cultureClientFacing: 40,
+        cultureDigitalAffinity: 95,
+        culturePrideFocus: 80,
+        cultureQuizCompletedAt: new Date(),
       },
       desiredFields: ['Informatik', 'Mediamatiker/in'],
     },
@@ -70,6 +106,16 @@ async function main() {
         riasecEnterprising: 0.3,
         riasecConventional: 0.5,
         quizCompletedAt: new Date(),
+        // Culture: hands-on machinist — moderate hierarchy, punctual, endurance, precision
+        cultureHierarchyFocus: 55,
+        culturePunctualityRigidity: 70,
+        cultureResilienceGrit: 80,
+        cultureSocialEnvironment: 45,
+        cultureErrorCulture: 85,
+        cultureClientFacing: 20,
+        cultureDigitalAffinity: 55,
+        culturePrideFocus: 85,
+        cultureQuizCompletedAt: new Date(),
       },
       desiredFields: ['Polymechaniker/in', 'Elektroinstallateur/in'],
     },
@@ -94,6 +140,16 @@ async function main() {
         riasecEnterprising: 0.2,
         riasecConventional: 0.4,
         quizCompletedAt: new Date(),
+        // Culture: healthcare student — hierarchical, punctual, team, client-facing, precision
+        cultureHierarchyFocus: 65,
+        culturePunctualityRigidity: 80,
+        cultureResilienceGrit: 75,
+        cultureSocialEnvironment: 90,
+        cultureErrorCulture: 90,
+        cultureClientFacing: 85,
+        cultureDigitalAffinity: 45,
+        culturePrideFocus: 75,
+        cultureQuizCompletedAt: new Date(),
       },
       desiredFields: ['Fachmann/Fachfrau Gesundheit', 'Medizinische/r Praxisassistent/in'],
     },
@@ -118,6 +174,16 @@ async function main() {
         riasecEnterprising: 0.6,
         riasecConventional: 0.9,
         quizCompletedAt: new Date(),
+        // Culture: office/KV student — structured, punctual, digital, moderate hierarchy
+        cultureHierarchyFocus: 60,
+        culturePunctualityRigidity: 75,
+        cultureResilienceGrit: 50,
+        cultureSocialEnvironment: 55,
+        cultureErrorCulture: 70,
+        cultureClientFacing: 50,
+        cultureDigitalAffinity: 80,
+        culturePrideFocus: 55,
+        cultureQuizCompletedAt: new Date(),
       },
       desiredFields: ['Kaufmann/Kauffrau (KV)', 'Informatik'],
     },
@@ -142,6 +208,16 @@ async function main() {
         riasecEnterprising: 0.7,
         riasecConventional: 0.1,
         quizCompletedAt: new Date(),
+        // Culture: design student — autonomous, flexible, creative quality focus
+        cultureHierarchyFocus: 15,
+        culturePunctualityRigidity: 25,
+        cultureResilienceGrit: 35,
+        cultureSocialEnvironment: 55,
+        cultureErrorCulture: 25,
+        cultureClientFacing: 60,
+        cultureDigitalAffinity: 90,
+        culturePrideFocus: 95,
+        cultureQuizCompletedAt: new Date(),
       },
       desiredFields: ['Mediamatiker/in', 'Grafiker/in'],
     },
@@ -179,6 +255,7 @@ async function main() {
   const companies = [
     {
       email: 'hr@swisstech.ch',
+      presetName: 'IT / Software',
       profile: {
         companyName: 'SwissTech Solutions AG',
         description:
@@ -192,6 +269,17 @@ async function main() {
         contactPersonName: 'Anna Brunner',
         contactPersonRole: 'HR-Leiterin',
         isVerified: true,
+        // Culture: IT / Software preset values
+        cultureHierarchyFocus: 25,
+        culturePunctualityRigidity: 35,
+        cultureResilienceGrit: 55,
+        cultureSocialEnvironment: 65,
+        cultureErrorCulture: 40,
+        cultureClientFacing: 35,
+        cultureDigitalAffinity: 95,
+        culturePrideFocus: 75,
+        // Dealbreakers: must be digital
+        dealbreakerDigitalAffinity: true,
       },
       listings: [
         {
@@ -216,6 +304,11 @@ async function main() {
           idealRiasecSocial: 0.4,
           idealRiasecEnterprising: 0.3,
           idealRiasecConventional: 0.3,
+          motivationQuestions: [
+            { question: 'Warum interessierst du dich fuer die Informatik?', placeholder: 'Erzaehl uns von deiner Motivation...' },
+            { question: 'Hast du bereits Erfahrung mit Programmieren gesammelt?', placeholder: 'z.B. Scratch, Python, eigene Projekte...' },
+            { question: 'Was erwartest du von einer Lehre bei SwissTech?', placeholder: 'Was ist dir bei einem Lehrbetrieb wichtig?' },
+          ],
         },
         {
           title: 'Mediamatiker/in EFZ',
@@ -244,6 +337,7 @@ async function main() {
     },
     {
       email: 'ausbildung@muellerag.ch',
+      presetName: 'Maschinenbau',
       profile: {
         companyName: 'Mueller Maschinenbau AG',
         description:
@@ -256,6 +350,18 @@ async function main() {
         contactPersonName: 'Peter Mueller',
         contactPersonRole: 'Lehrmeister',
         isVerified: true,
+        // Culture: Maschinenbau preset values
+        cultureHierarchyFocus: 55,
+        culturePunctualityRigidity: 70,
+        cultureResilienceGrit: 80,
+        cultureSocialEnvironment: 50,
+        cultureErrorCulture: 90,
+        cultureClientFacing: 20,
+        cultureDigitalAffinity: 60,
+        culturePrideFocus: 85,
+        // Dealbreakers: precision and endurance are critical
+        dealbreakerErrorCulture: true,
+        dealbreakerResilienceGrit: true,
       },
       listings: [
         {
@@ -308,6 +414,7 @@ async function main() {
     },
     {
       email: 'jobs@gesundheitszentrum-bern.ch',
+      presetName: 'Spital / Pflege',
       profile: {
         companyName: 'Gesundheitszentrum Bern',
         description:
@@ -320,6 +427,18 @@ async function main() {
         contactPersonName: 'Dr. Thomas Gerber',
         contactPersonRole: 'Ausbildungsverantwortlicher',
         isVerified: true,
+        // Culture: Spital / Pflege preset values
+        cultureHierarchyFocus: 70,
+        culturePunctualityRigidity: 85,
+        cultureResilienceGrit: 80,
+        cultureSocialEnvironment: 85,
+        cultureErrorCulture: 95,
+        cultureClientFacing: 90,
+        cultureDigitalAffinity: 50,
+        culturePrideFocus: 80,
+        // Dealbreakers: precision is critical in healthcare, must be client-facing
+        dealbreakerErrorCulture: true,
+        dealbreakerClientFacing: true,
       },
       listings: [
         {
@@ -403,7 +522,10 @@ async function main() {
         role: UserRole.COMPANY,
         isVerified: true,
         companyProfile: {
-          create: c.profile,
+          create: {
+            ...c.profile,
+            culturePresetId: presets[c.presetName],
+          },
         },
       },
       include: { companyProfile: true },
@@ -419,9 +541,140 @@ async function main() {
     }
   }
 
-  console.log('Seeding complete!');
-  console.log('Created 5 students and 3 companies with 7 listings.');
+  // ============================================
+  // TEST BEWERBUNG: Lena → SwissTech Informatiker/in
+  // ============================================
+
+  const lena = await prisma.studentProfile.findFirst({ where: { firstName: 'Lena' } });
+  const swissTechCompany = await prisma.companyProfile.findFirst({ where: { companyName: 'SwissTech Solutions AG' } });
+  const informatikListing = await prisma.listing.findFirst({
+    where: { title: { contains: 'Informatiker/in EFZ' } },
+  });
+
+  if (lena && swissTechCompany && informatikListing) {
+    // Swipe RIGHT
+    await prisma.swipe.create({
+      data: {
+        studentId: lena.id,
+        listingId: informatikListing.id,
+        direction: SwipeDirection.RIGHT,
+      },
+    });
+
+    // Match
+    const match = await prisma.match.create({
+      data: {
+        studentId: lena.id,
+        listingId: informatikListing.id,
+        compatibilityScore: 82,
+      },
+    });
+
+    // Application (Bewerbung)
+    await prisma.application.create({
+      data: {
+        studentId: lena.id,
+        listingId: informatikListing.id,
+        matchId: match.id,
+        status: ApplicationStatus.PENDING,
+        motivationAnswers: [
+          {
+            question: 'Warum interessierst du dich fuer die Informatik?',
+            answer: 'Schon seit der Primarschule fasziniert mich die Welt der Computer. Ich habe angefangen, kleine Spiele in Scratch zu bauen, und merkte schnell, dass ich Probleme gerne durch logisches Denken loese. Informatik verbindet Kreativitaet mit Technik — genau das begeistert mich.',
+          },
+          {
+            question: 'Hast du bereits Erfahrung mit Programmieren gesammelt?',
+            answer: 'Ja! Ich habe ueber 20 Scratch-Projekte erstellt, darunter ein Quiz-Spiel und einen kleinen Plattformer. Seit einem halben Jahr lerne ich Python mit Online-Kursen und habe eine einfache To-Do-App gebaut. Ausserdem habe ich eine eigene Webseite mit HTML und CSS erstellt.',
+          },
+          {
+            question: 'Was erwartest du von einer Lehre bei SwissTech?',
+            answer: 'Ich wuensche mir einen Lehrbetrieb, der moderne Technologien einsetzt und mir die Moeglichkeit gibt, an echten Projekten mitzuarbeiten. Bei SwissTech reizt mich besonders die Arbeit in agilen Teams und die Chance, von erfahrenen Entwicklern zu lernen.',
+          },
+        ],
+        verfuegbarkeit: 'Ab August 2026',
+        relevanteErfahrungen: [
+          'Scratch-Projekte (2+ Jahre)',
+          'Python Grundkenntnisse',
+          'HTML & CSS Webseiten',
+          'Schulprojekt: Robotik-AG',
+        ],
+        fragenAnBetrieb: 'Wie sieht ein typischer Arbeitstag fuer Lernende im ersten Jahr aus? Gibt es die Moeglichkeit, an eigenen Projekten zu arbeiten?',
+        schnupperlehreWunsch: true,
+        timeline: [
+          {
+            status: 'PENDING',
+            timestamp: new Date().toISOString(),
+            note: 'Bewerbung eingereicht',
+          },
+        ],
+      },
+    });
+
+    // Grades: Zeugnis (ZH, Sek A)
+    await prisma.studentGrade.create({
+      data: {
+        studentId: lena.id,
+        documentType: 'zeugnis',
+        entryMethod: 'manual',
+        canton: 'ZH',
+        niveau: 'Sek A',
+        semester: 1,
+        schoolYear: '2025/2026',
+        grades: {
+          mathematik: 5.5,
+          deutsch: 5.0,
+          franzoesisch: 4.5,
+          englisch: 5.5,
+          natur_und_technik: 5.5,
+          raum_zeit_gesellschaft: 5.0,
+          bildnerisches_gestalten: 5.5,
+          musik: 4.5,
+          sport: 5.0,
+        },
+        isVerified: true,
+        verifiedAt: new Date(),
+      },
+    });
+
+    // Grades: Multicheck ICT
+    await prisma.studentGrade.create({
+      data: {
+        studentId: lena.id,
+        documentType: 'multicheck',
+        entryMethod: 'manual',
+        testVariant: 'Multicheck ICT',
+        testDate: new Date('2025-11-15'),
+        grades: {
+          schulisches_wissen: {
+            mathematik: 78,
+            deutsch: 65,
+            franzoesisch: 52,
+            englisch: 72,
+          },
+          potenzial: {
+            logisches_denken: 88,
+            konzentration: 75,
+            merkfaehigkeit: 70,
+            raeumliches_denken: 82,
+          },
+        },
+        isVerified: true,
+        verifiedAt: new Date(),
+      },
+    });
+
+    console.log('Created test Bewerbung: Lena Mueller → SwissTech Informatiker/in EFZ');
+    console.log('  - Swipe, Match (82% compatibility), Application (PENDING)');
+    console.log('  - Zeugnis (ZH Sek A) + Multicheck ICT');
+  }
+
+  console.log('\nSeeding complete!');
+  console.log('Created 10 culture presets, 5 students and 3 companies with 7 listings.');
   console.log('All accounts use password: Test1234!');
+  console.log('\nTo test PDF dossier:');
+  console.log('  1. Login as hr@swisstech.ch / Test1234!');
+  console.log('  2. Go to Bewerber → click Lena Mueller');
+  console.log('  3. Click "Dossier herunterladen"');
 }
 
 main()

@@ -2,6 +2,7 @@ export const queryKeys = {
   feed: {
     all: ['feed'] as const,
     list: () => ['feed', 'list'] as const,
+    remaining: () => ['feed', 'remaining'] as const,
   },
   bewerbungen: {
     all: ['bewerbungen'] as const,
@@ -17,9 +18,14 @@ export const queryKeys = {
   },
   listings: {
     all: ['listings'] as const,
+    mine: () => ['listings', 'mine'] as const,
     list: (filters?: { query?: string; cantons?: string[] }) =>
       ['listings', 'list', filters] as const,
     detail: (id: string) => ['listings', 'detail', id] as const,
+  },
+  applications: {
+    all: ['applications'] as const,
+    dossier: (id: string) => ['applications', id, 'dossier'] as const,
   },
   schulen: {
     all: ['schulen'] as const,

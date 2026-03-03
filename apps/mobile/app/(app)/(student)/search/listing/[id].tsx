@@ -15,7 +15,7 @@ import CommuteCard from '../../../../../components/feed/CommuteCard';
 import InfoCardSection from '../../../../../components/feed/InfoCardSection';
 import MatchCelebration from '../../../../../components/feed/MatchCelebration';
 import { useListingDetail } from '../../../../../hooks/queries/useListingDetail';
-import { useSwipe } from '../../../../../hooks/queries/useFeed';
+import { useSwipe, useSwipeRemaining } from '../../../../../hooks/queries/useFeed';
 import { useCommuteCalculation } from '../../../../../hooks/queries/useCommute';
 import { useProfileBuilderStore } from '../../../../../stores/profileBuilder.store';
 import {
@@ -32,6 +32,8 @@ export default function SearchListingDetailScreen() {
   const router = useRouter();
   const { data: listing, isLoading } = useListingDetail(id);
   const swipeMutation = useSwipe();
+  const { data: swipeQuota } = useSwipeRemaining();
+  const limitReached = swipeQuota?.remaining !== undefined && swipeQuota.remaining <= 0;
 
   const [matchInfo, setMatchInfo] = useState<{
     companyName: string;
@@ -239,7 +241,14 @@ export default function SearchListingDetailScreen() {
 
         {/* Action */}
         <View style={styles.actionSection}>
-          <Pressable onPress={handleApply} style={styles.applyButton}>
+          {limitReached && (
+            <Text style={styles.limitText}>Tageslimit erreicht (5 Swipes pro Tag)</Text>
+          )}
+          <Pressable
+            onPress={handleApply}
+            style={[styles.applyButton, limitReached && styles.buttonDisabled]}
+            disabled={limitReached}
+          >
             <Text style={styles.applyButtonText}>Bewerben</Text>
           </Pressable>
         </View>
@@ -477,5 +486,14 @@ const styles = StyleSheet.create({
     fontSize: typography.h4,
     fontWeight: fontWeights.bold,
     color: colors.white,
+  },
+  limitText: {
+    fontSize: typography.caption,
+    color: colors.error,
+    textAlign: 'center' as const,
+    marginBottom: spacing.xs,
+  },
+  buttonDisabled: {
+    opacity: 0.4,
   },
 });

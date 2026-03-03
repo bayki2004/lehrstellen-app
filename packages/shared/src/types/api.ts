@@ -45,7 +45,11 @@ export interface StudentProfileDTO {
   oceanScores: OceanScores;
   riasecScores: RiasecScores;
   quizCompleted: boolean;
+  cultureScores?: CultureScores;
+  cultureQuizCompleted: boolean;
   desiredFields: string[];
+  motivationLetter?: string;
+  motivationLetterUrl?: string;
 }
 
 export interface UpdateStudentProfileRequest {
@@ -55,7 +59,10 @@ export interface UpdateStudentProfileRequest {
   canton?: string;
   city?: string;
   bio?: string;
+  motivationLetter?: string;
+  motivationLetterUrl?: string;
   desiredFields?: string[];
+  cultureScores?: Partial<CultureScores>;
 }
 
 export interface OceanScores {
@@ -73,6 +80,68 @@ export interface RiasecScores {
   social: number;
   enterprising: number;
   conventional: number;
+}
+
+// ============================================
+// CULTURE MATCHING
+// ============================================
+
+export interface CultureScores {
+  hierarchyFocus: number | null;      // 0=Autonomy, 100=Obedience
+  punctualityRigidity: number | null;  // 0=Flexible, 100=Strict
+  resilienceGrit: number | null;       // 0=Variety, 100=Routine/Endurance
+  socialEnvironment: number | null;    // 0=Solo, 100=Team
+  errorCulture: number | null;         // 0=Fast/Fail, 100=Precision/Safety
+  clientFacing: number | null;         // 0=Back-office, 100=Front-stage
+  digitalAffinity: number | null;      // 0=Analog/Hand, 100=Digital/Screen
+  prideFocus: number | null;           // 0=Speed/Output, 100=Quality/Masterpiece
+}
+
+export const CULTURE_DIMENSIONS = [
+  { key: 'hierarchyFocus' as const,      labelLow: 'Eigenständig',          labelHigh: 'Klare Hierarchie',      icon: '🏛️' },
+  { key: 'punctualityRigidity' as const, labelLow: 'Flexibel',             labelHigh: 'Pünktlich & Streng',    icon: '⏰' },
+  { key: 'resilienceGrit' as const,      labelLow: 'Abwechslung',          labelHigh: 'Ausdauer & Routine',    icon: '💪' },
+  { key: 'socialEnvironment' as const,   labelLow: 'Einzelarbeit',         labelHigh: 'Teamwork',              icon: '👥' },
+  { key: 'errorCulture' as const,        labelLow: 'Ausprobieren & Lernen', labelHigh: 'Präzision & Sicherheit', icon: '🎯' },
+  { key: 'clientFacing' as const,        labelLow: 'Back-office',          labelHigh: 'Kundenkontakt',         icon: '🤝' },
+  { key: 'digitalAffinity' as const,     labelLow: 'Handarbeit / Analog',  labelHigh: 'Digital / Bildschirm',  icon: '💻' },
+  { key: 'prideFocus' as const,          labelLow: 'Schnell & Effizient',  labelHigh: 'Qualität & Meisterwerk', icon: '⭐' },
+] as const;
+
+export interface CultureDealbreakers {
+  hierarchyFocus: boolean;
+  punctualityRigidity: boolean;
+  resilienceGrit: boolean;
+  socialEnvironment: boolean;
+  errorCulture: boolean;
+  clientFacing: boolean;
+  digitalAffinity: boolean;
+  prideFocus: boolean;
+}
+
+export const DEALBREAKER_TOLERANCE = 25;
+
+export interface CultureDimensionResult {
+  key: keyof CultureScores;
+  label: string;
+  studentScore: number;
+  companyScore: number;
+  delta: number;
+  similarity: number;
+  isDealbreaker: boolean;
+  dealbreakerViolated: boolean;
+}
+
+export interface CultureMatchResult {
+  overallScore: number;
+  dealbreakerFailed: boolean;
+  breakdown: CultureDimensionResult[];
+}
+
+export interface CompanyCulturePresetDTO {
+  id: string;
+  name: string;
+  cultureScores: CultureScores;
 }
 
 // ============================================
@@ -108,6 +177,10 @@ export interface CompanyProfileDTO {
   contactPersonName: string;
   contactPersonRole?: string;
   isVerified: boolean;
+  cultureScores?: CultureScores;
+  cultureDealbreakers?: CultureDealbreakers;
+  culturePresetId?: string;
+  culturePresetName?: string;
   listingsCount?: number;
   photos: CompanyPhotoDTO[];
   links: CompanyLinkDTO[];
@@ -127,6 +200,9 @@ export interface UpdateCompanyProfileRequest {
   contactPersonName?: string;
   contactPersonRole?: string;
   links?: { label: string; url: string }[];
+  cultureScores?: Partial<CultureScores>;
+  cultureDealbreakers?: Partial<CultureDealbreakers>;
+  culturePresetId?: string;
 }
 
 // ============================================
@@ -149,6 +225,16 @@ export const INFO_CARD_PRESETS: Record<InfoCardType, { title: string; icon: stri
   wir_bieten: { title: 'Wir bieten', icon: '🎁' },
 };
 
+export interface MotivationQuestion {
+  question: string;
+  placeholder?: string;
+}
+
+export interface MotivationAnswer {
+  question: string;
+  answer: string;
+}
+
 export interface ListingDTO {
   id: string;
   companyId: string;
@@ -168,6 +254,7 @@ export interface ListingDTO {
   requiredLanguages: string[];
   createdAt: string;
   cards?: InfoCard[];
+  motivationQuestions?: MotivationQuestion[];
 }
 
 export interface ListingWithScoreDTO extends ListingDTO {
@@ -206,6 +293,7 @@ export interface CreateListingRequest {
   idealRiasecEnterprising?: number;
   idealRiasecConventional?: number;
   cards?: InfoCard[];
+  motivationQuestions?: MotivationQuestion[];
 }
 
 // ============================================
@@ -275,7 +363,7 @@ export interface ApplicationDTO {
   updatedAt: string;
   listing: ListingDTO;
   // Bewerbung content (customized per job by student)
-  motivationsschreiben?: string;
+  motivationAnswers?: MotivationAnswer[];
   verfuegbarkeit?: string;
   relevanteErfahrungen?: string[];
   fragenAnBetrieb?: string;
@@ -291,6 +379,30 @@ export interface ApplicationTimelineEntry {
 export interface UpdateApplicationStatusRequest {
   status: string;
   note?: string;
+}
+
+export interface ApplicationDossierDTO {
+  application: ApplicationDTO;
+  student: {
+    firstName: string;
+    lastName: string;
+    dateOfBirth?: string;
+    canton: string;
+    city: string;
+    profilePhoto?: string;
+    bio?: string;
+    oceanScores: OceanScores;
+    riasecScores: RiasecScores;
+    cultureScores?: CultureScores;
+    desiredFields: string[];
+    motivationLetter?: string;
+  };
+  grades: StudentGradeDTO[];
+  compatibility: {
+    totalScore: number;
+    breakdown: ScoreBreakdown[];
+  };
+  companyCulture?: CultureScores;
 }
 
 // ============================================
@@ -311,6 +423,60 @@ export interface WsServerEvents {
   'message-read': (data: { matchId: string; readBy: string }) => void;
   'typing': (data: { matchId: string; userId: string; isTyping: boolean }) => void;
   'match-created': (data: { matchId: string; listing: ListingDTO }) => void;
+}
+
+// ============================================
+// STUDENT GRADES
+// ============================================
+
+export type DocumentType = 'zeugnis' | 'multicheck' | 'basic_check' | 'stellwerk';
+export type EntryMethod = 'scan' | 'manual';
+
+export interface ZeugnisGrades {
+  [key: string]: number | undefined;
+}
+
+export interface MulticheckGrades {
+  schulisches_wissen: {
+    mathematik?: number;
+    deutsch?: number;
+    franzoesisch?: number;
+    englisch?: number;
+  };
+  potenzial: {
+    logisches_denken?: number;
+    konzentration?: number;
+    merkfaehigkeit?: number;
+    raeumliches_denken?: number;
+  };
+}
+
+export interface StudentGradeDTO {
+  id: string;
+  documentType: DocumentType;
+  entryMethod: EntryMethod;
+  canton?: string;
+  niveau?: string;
+  semester?: number;
+  schoolYear?: string;
+  testVariant?: string;
+  testDate?: string;
+  grades: ZeugnisGrades | MulticheckGrades;
+  isVerified: boolean;
+  verifiedAt?: string;
+  createdAt: string;
+}
+
+export interface SaveGradeRequest {
+  documentType: DocumentType;
+  entryMethod: EntryMethod;
+  canton?: string;
+  niveau?: string;
+  semester?: number;
+  schoolYear?: string;
+  testVariant?: string;
+  testDate?: string;
+  grades: ZeugnisGrades | MulticheckGrades;
 }
 
 // ============================================

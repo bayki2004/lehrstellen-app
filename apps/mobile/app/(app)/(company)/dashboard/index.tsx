@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: spacing.lg,
-    paddingBottom: spacing.xxl,
+    paddingBottom: 100,
   },
   title: {
     fontSize: typography.h1,

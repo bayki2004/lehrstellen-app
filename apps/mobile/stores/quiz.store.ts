@@ -167,10 +167,8 @@ export const useQuizStore = create<QuizState>((set, get) => ({
     set({ hollandCodes: result.hollandCodes, workValues: result.workValues });
 
     try {
-      await api.post('/quiz/submit', {
+      await api.post('/quiz/submit-profile', {
         hollandCodes: result.hollandCodes,
-        workValues: result.workValues,
-        quizType: 'buildYourDay',
       });
       set({ isSubmitting: false, isComplete: true });
     } catch (error: any) {
