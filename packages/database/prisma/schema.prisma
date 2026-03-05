@@ -133,10 +133,11 @@ model StudentProfile {
 
   user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   desiredFields StudentDesiredField[]
-  swipes        Swipe[]
-  matches       Match[]
-  applications  Application[]
-  grades        StudentGrade[]
+  swipes         Swipe[]
+  matches        Match[]
+  applications   Application[]
+  grades         StudentGrade[]
+  favoriteBerufe StudentFavoriteBeruf[]
 
   @@map("student_profiles")
 }
@@ -448,4 +449,192 @@ model StudentGrade {
   @@index([studentId])
   @@index([documentType])
   @@map("student_grades")
+}
+
+// ============================================
+// SUPABASE-NATIVE TABLES (now Prisma-managed)
+// Reference data + imported apprenticeship listings
+// ============================================
+
+model Beruf {
+  code                           String   @id
+  nameDe                         String   @map("name_de")
+  nameFr                         String?  @map("name_fr")
+  nameIt                         String?  @map("name_it")
+  field                          String
+  educationType                  String   @default("EFZ") @map("education_type")
+  descriptionDe                  String?  @map("description_de")
+  descriptionFr                  String?  @map("description_fr")
+  descriptionIt                  String?  @map("description_it")
+  personalityFit                 Json     @default("{}") @map("personality_fit")
+  createdAt                      DateTime @default(now()) @map("created_at")
+  durationYears                  Int?     @map("duration_years")
+  hollandCode                    String?  @map("holland_code")
+  onetSocCode                    String?  @map("onet_soc_code")
+  bbId                           String?  @map("bb_id")
+  swissdocId                     String?  @map("swissdoc_id")
+  lenaRelevant                   Boolean  @default(true) @map("lena_relevant")
+  dataSource                     String   @default("manual") @map("data_source")
+  anforderungMathematik          Int?     @map("anforderung_mathematik")
+  anforderungSchulsprache        Int?     @map("anforderung_schulsprache")
+  anforderungNaturwissenschaften Int?     @map("anforderung_naturwissenschaften")
+  anforderungFremdsprachen       Int?     @map("anforderung_fremdsprachen")
+  lohnLehrjahre                  Json?    @map("lohn_lehrjahre")
+
+  lehrstellen          Lehrstelle[]
+  favoriteByStudents   StudentFavoriteBeruf[]
+  berufsschuleMappings BerufsschuleBerufMapping[]
+
+  @@map("berufe")
+}
+
+model ImportedCompany {
+  id                         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  authUserId                 String?   @unique @map("auth_user_id") @db.Uuid
+  companyName                String    @map("company_name")
+  industry                   String
+  canton                     String
+  city                       String
+  postalCode                 String?   @map("postal_code")
+  address                    String?
+  websiteUrl                 String?   @map("website_url")
+  description                String?
+  logoUrl                    String?   @map("logo_url")
+  videoUrl                   String?   @map("video_url")
+  companySize                String?   @map("company_size")
+  cultureTags                Json      @default("[]") @map("culture_tags")
+  cultureDescription         String?   @map("culture_description")
+  contactPerson              String?   @map("contact_person")
+  contactEmail               String    @map("contact_email")
+  contactPhone               String?   @map("contact_phone")
+  verified                   Boolean   @default(false)
+  premium                    Boolean   @default(false)
+  premiumExpiresAt           DateTime? @map("premium_expires_at")
+  createdAt                  DateTime  @default(now()) @map("created_at")
+  updatedAt                  DateTime  @default(now()) @map("updated_at")
+  dataSource                 String    @default("manual") @map("data_source")
+  lenaCompanyKey             String?   @unique @map("lena_company_key")
+  contactPersonName          String?   @map("contact_person_name")
+  contactPersonRole          String?   @map("contact_person_role")
+  cultureHierarchyFocus      Int?      @map("culture_hierarchy_focus")
+  culturePunctualityRigidity Int?      @map("culture_punctuality_rigidity")
+  cultureResilienceGrit      Int?      @map("culture_resilience_grit")
+  cultureSocialEnvironment   Int?      @map("culture_social_environment")
+  cultureErrorCulture        Int?      @map("culture_error_culture")
+  cultureClientFacing        Int?      @map("culture_client_facing")
+  cultureDigitalAffinity     Int?      @map("culture_digital_affinity")
+  culturePrideFocus          Int?      @map("culture_pride_focus")
+
+  lehrstellen Lehrstelle[]
+
+  @@map("companies")
+}
+
+model Lehrstelle {
+  id                             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  companyId                      String    @map("company_id") @db.Uuid
+  berufCode                      String    @map("beruf_code")
+  title                          String
+  description                    String
+  requirements                   Json      @default("[]")
+  idealCandidate                 Json      @default("{}") @map("ideal_candidate")
+  educationType                  String    @default("EFZ") @map("education_type")
+  startDate                      DateTime? @map("start_date")
+  durationYears                  Int       @default(3) @map("duration_years")
+  canton                         String
+  city                           String
+  postalCode                     String?   @map("postal_code")
+  videoUrl                       String?   @map("video_url")
+  photos                         Json      @default("[]")
+  cultureDescription             String?   @map("culture_description")
+  lenaReferenceId                String?   @map("lena_reference_id")
+  status                         String    @default("active")
+  positionsAvailable             Int       @default(1) @map("positions_available")
+  dailyViewsCount                Int       @default(0) @map("daily_views_count")
+  totalSwipesRight               Int       @default(0) @map("total_swipes_right")
+  totalSwipesLeft                Int       @default(0) @map("total_swipes_left")
+  createdAt                      DateTime  @default(now()) @map("created_at")
+  updatedAt                      DateTime  @default(now()) @map("updated_at")
+  berufsschuleCanton             String?   @map("berufsschule_canton")
+  workplaceAddress               String?   @map("workplace_address")
+  lat                            Float?
+  lng                            Float?
+  berufsschuleId                 String?   @map("berufsschule_id") @db.Uuid
+  berufsschuleDays               String?   @map("berufsschule_days")
+  berufCategory                  String?   @map("beruf_category")
+  dataSource                     String    @default("manual") @map("data_source")
+  idealOceanOpenness             Float?    @map("ideal_ocean_openness")
+  idealOceanConscientiousness    Float?    @map("ideal_ocean_conscientiousness")
+  idealOceanExtraversion         Float?    @map("ideal_ocean_extraversion")
+  idealOceanAgreeableness        Float?    @map("ideal_ocean_agreeableness")
+  idealOceanNeuroticism          Float?    @map("ideal_ocean_neuroticism")
+  idealRiasecRealistic           Float?    @map("ideal_riasec_realistic")
+  idealRiasecInvestigative       Float?    @map("ideal_riasec_investigative")
+  idealRiasecArtistic            Float?    @map("ideal_riasec_artistic")
+  idealRiasecSocial              Float?    @map("ideal_riasec_social")
+  idealRiasecEnterprising        Float?    @map("ideal_riasec_enterprising")
+  idealRiasecConventional        Float?    @map("ideal_riasec_conventional")
+  motivationQuestions            Json      @default("[]") @map("motivation_questions")
+
+  company      ImportedCompany @relation(fields: [companyId], references: [id])
+  beruf        Beruf           @relation(fields: [berufCode], references: [code])
+  berufsschule Berufsschule?   @relation(fields: [berufsschuleId], references: [id])
+
+  @@index([companyId])
+  @@index([berufCode])
+  @@index([canton])
+  @@index([status])
+  @@map("lehrstellen")
+}
+
+model Berufsschule {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                String
+  canton              String
+  city                String
+  address             String?
+  postalCode          String?  @map("postal_code")
+  lat                 Float?
+  lng                 Float?
+  website             String?
+  createdAt           DateTime @default(now()) @map("created_at")
+  rbsId               String?  @unique @map("rbs_id")
+  bsxId               String?  @map("bsx_id")
+  echId               String?  @map("ech_id")
+  email               String?
+  phone               String?
+  institutionalStatus String?  @map("institutional_status")
+
+  lehrstellen   Lehrstelle[]
+  berufMappings BerufsschuleBerufMapping[]
+
+  @@map("berufsschulen")
+}
+
+model BerufsschuleBerufMapping {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  berufsschuleId String   @map("berufsschule_id") @db.Uuid
+  berufCode      String   @map("beruf_code")
+  canton         String
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  berufsschule Berufsschule @relation(fields: [berufsschuleId], references: [id], onDelete: Cascade)
+  beruf        Beruf        @relation(fields: [berufCode], references: [code], onDelete: Cascade)
+
+  @@unique([berufsschuleId, berufCode])
+  @@index([berufsschuleId])
+  @@index([berufCode])
+  @@index([canton])
+  @@map("berufsschule_beruf_mapping")
+}
+
+model StudentFavoriteBeruf {
+  studentProfileId String @map("student_profile_id")
+  berufCode        String @map("beruf_code")
+
+  student StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  beruf   Beruf          @relation(fields: [berufCode], references: [code], onDelete: Cascade)
+
+  @@id([studentProfileId, berufCode])
+  @@map("student_favorite_berufe")
 }

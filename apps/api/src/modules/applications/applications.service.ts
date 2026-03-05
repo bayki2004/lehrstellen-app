@@ -11,6 +11,7 @@ import type {
 } from '@lehrstellen/shared';
 import { ApiError } from '../../utils/ApiError';
 import { computeCompatibility } from '../../services/matching.service';
+import { enrichLehrstellenCompanyData } from '../../utils/enrichLehrstellenCompany';
 
 export type BewerbungSegment = 'offen' | 'gesendet' | 'erledigt';
 
@@ -98,7 +99,7 @@ export async function getApplications(userId: string, role: string): Promise<Uni
         applicationId: match.application.id,
         applicationStatus: match.application.status,
         notes: match.application.notes ?? undefined,
-        timeline: (match.application.timeline as ApplicationTimelineEntry[]) || [],
+        timeline: (match.application.timeline as unknown as ApplicationTimelineEntry[]) || [],
         updatedAt: match.application.updatedAt.toISOString(),
       };
     });
@@ -131,7 +132,7 @@ export async function getApplications(userId: string, role: string): Promise<Uni
       applicationId: app.id,
       applicationStatus: app.status,
       notes: app.notes ?? undefined,
-      timeline: (app.timeline as ApplicationTimelineEntry[]) || [],
+      timeline: (app.timeline as unknown as ApplicationTimelineEntry[]) || [],
       updatedAt: app.updatedAt.toISOString(),
       // Bewerbung content fields
       motivationAnswers: Array.isArray(app.motivationAnswers) ? (app.motivationAnswers as any[]) : [],
@@ -412,39 +413,6 @@ function mapListingToDTO(listing: any): ListingDTO {
     createdAt: listing.createdAt.toISOString(),
     motivationQuestions: Array.isArray(listing.motivationQuestions) ? listing.motivationQuestions : [],
   };
-}
-
-/**
- * For proxy listings (created from lehrstellen), the Prisma `company` relation
- * is null because companyId points to the Supabase `companies` table.
- * This function batch-fetches company info and injects it onto the listing objects.
- */
-async function enrichLehrstellenCompanyData(listings: any[]): Promise<void> {
-  const needEnrichment = listings.filter((l) => l && !l.company);
-  if (needEnrichment.length === 0) return;
-
-  const companyIds = [...new Set(needEnrichment.map((l) => l.companyId).filter(Boolean))];
-  if (companyIds.length === 0) return;
-
-  const placeholders = companyIds.map((_, i) => `$${i + 1}::uuid`).join(',');
-  const companies = await prisma.$queryRawUnsafe<any[]>(
-    `SELECT id, company_name, logo_url, canton, city FROM companies WHERE id IN (${placeholders})`,
-    ...companyIds,
-  );
-
-  const companyMap = new Map(companies.map((c: any) => [c.id, c]));
-
-  for (const listing of needEnrichment) {
-    const c = companyMap.get(listing.companyId);
-    if (c) {
-      listing.company = {
-        companyName: c.company_name,
-        logoUrl: c.logo_url,
-        canton: c.canton,
-        city: c.city,
-      };
-    }
-  }
 }
 
 function mapToDTO(app: any): ApplicationDTO {

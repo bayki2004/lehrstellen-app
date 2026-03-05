@@ -1,26 +1,5 @@
-import { prisma } from '@lehrstellen/database';
+import { prisma, type Beruf } from '@lehrstellen/database';
 import { scrapeBerufDetail, type ScrapedBerufData } from '../../services/scraper.service';
-
-export interface BerufRow {
-  code: string;
-  name_de: string;
-  name_fr: string | null;
-  name_it: string | null;
-  field: string;
-  education_type: string;
-  description_de: string | null;
-  description_fr: string | null;
-  description_it: string | null;
-  personality_fit: any; // JSONB
-  duration_years: number | null;
-  holland_code?: string | null;
-  bb_id?: string | null;
-  anforderung_mathematik: number | null;
-  anforderung_schulsprache: number | null;
-  anforderung_naturwissenschaften: number | null;
-  anforderung_fremdsprachen: number | null;
-  lohn_lehrjahre: number[] | null;
-}
 
 export interface BerufeFilterParams {
   letter?: string;
@@ -34,7 +13,7 @@ export interface FieldCount {
   count: number;
 }
 
-export interface BerufDetailResponse extends BerufRow {
+export interface BerufDetailResponse extends Beruf {
   scraped?: ScrapedBerufData | null;
 }
 
@@ -86,36 +65,21 @@ function cosineSimilarity(a: number[], b: number[]): number {
 
 // ── Service methods ──────────────────────────────────────────────────
 
-export async function getBerufe(filters?: BerufeFilterParams): Promise<BerufRow[]> {
+export async function getBerufe(filters?: BerufeFilterParams): Promise<Beruf[]> {
   try {
-    const conditions: string[] = ['1=1'];
-    const params: any[] = [];
-    let idx = 1;
-
-    if (filters?.letter) {
-      conditions.push(`UPPER(LEFT(name_de, 1)) = $${idx}`);
-      params.push(filters.letter.toUpperCase());
-      idx++;
-    }
-    if (filters?.field) {
-      conditions.push(`field = $${idx}`);
-      params.push(filters.field);
-      idx++;
-    }
-    if (filters?.type) {
-      conditions.push(`education_type = $${idx}`);
-      params.push(filters.type.toUpperCase());
-      idx++;
-    }
-    if (filters?.q) {
-      conditions.push(`LOWER(name_de) LIKE $${idx}`);
-      params.push(`%${filters.q.toLowerCase()}%`);
-      idx++;
-    }
-
-    const query = `SELECT * FROM berufe WHERE ${conditions.join(' AND ')} ORDER BY name_de`;
-    const res = await prisma.$queryRawUnsafe<any[]>(query, ...params);
-    return res as BerufRow[];
+    return prisma.beruf.findMany({
+      where: {
+        ...(filters?.letter && filters.letter.length === 1 && {
+          nameDe: { startsWith: filters.letter, mode: 'insensitive' as const },
+        }),
+        ...(filters?.field && { field: filters.field }),
+        ...(filters?.type && { educationType: filters.type.toUpperCase() }),
+        ...(filters?.q && {
+          nameDe: { contains: filters.q, mode: 'insensitive' as const },
+        }),
+      },
+      orderBy: { nameDe: 'asc' },
+    });
   } catch (error) {
     console.error('[API] getBerufe error:', error);
     throw error;
@@ -124,13 +88,12 @@ export async function getBerufe(filters?: BerufeFilterParams): Promise<BerufRow[
 
 export async function getBerufeFields(): Promise<FieldCount[]> {
   try {
-    const res = await prisma.$queryRaw<any[]>`
-      SELECT field, COUNT(*)::int as count
-      FROM berufe
-      GROUP BY field
-      ORDER BY field
-    `;
-    return res as FieldCount[];
+    const groups = await prisma.beruf.groupBy({
+      by: ['field'],
+      _count: { code: true },
+      orderBy: { field: 'asc' },
+    });
+    return groups.map((g) => ({ field: g.field, count: g._count.code }));
   } catch (error) {
     console.error('[API] getBerufeFields error:', error);
     throw error;
@@ -138,18 +101,12 @@ export async function getBerufeFields(): Promise<FieldCount[]> {
 }
 
 export async function getBerufByCode(code: string): Promise<BerufDetailResponse | null> {
-  const rows = await prisma.$queryRaw<any[]>`
-    SELECT *
-    FROM berufe
-    WHERE code = ${code}
-  `;
-
-  const beruf = rows[0] as BerufRow;
+  const beruf = await prisma.beruf.findUnique({ where: { code } });
   if (!beruf) return null;
 
   // Use bb_id for scraping if available
   let scraped: ScrapedBerufData | null = null;
-  const scrapeId = beruf.bb_id || code;
+  const scrapeId = beruf.bbId || code;
   try {
     scraped = await scrapeBerufDetail(scrapeId);
   } catch {
@@ -183,7 +140,7 @@ export async function getBerufeMatches(userId: string): Promise<BerufMatchDTO[]>
   const matches: BerufMatchDTO[] = [];
 
   for (const beruf of berufe) {
-    const pf = beruf.personality_fit;
+    const pf = beruf.personalityFit;
     if (!pf || typeof pf !== 'object') continue;
 
     const berufVec = DIMENSION_KEYS.map((k) => (pf as Record<string, number>)[k] ?? 0);
@@ -210,13 +167,13 @@ export async function getBerufeMatches(userId: string): Promise<BerufMatchDTO[]>
     matches.push({
       beruf: {
         code: beruf.code,
-        nameDe: beruf.name_de,
+        nameDe: beruf.nameDe,
         field: beruf.field,
-        educationType: beruf.education_type,
-        durationYears: beruf.duration_years,
-        descriptionDe: beruf.description_de,
+        educationType: beruf.educationType,
+        durationYears: beruf.durationYears,
+        descriptionDe: beruf.descriptionDe,
         personalityFit: pf as Record<string, number>,
-        hollandCode: beruf.holland_code ?? null,
+        hollandCode: beruf.hollandCode ?? null,
       },
       matchPercentage: score,
       sharedDimensions: shared,
@@ -232,25 +189,21 @@ export async function getBerufeMatches(userId: string): Promise<BerufMatchDTO[]>
 // ── Lehrstellen by beruf code ────────────────────────────────────────
 
 export async function getLehrstellenByBerufCode(berufCode: string) {
-  const rows = await prisma.$queryRawUnsafe<any[]>(`
-    SELECT l.id, l.title, l.city, l.canton, l.positions_available,
-           c.company_name
-    FROM lehrstellen l
-    LEFT JOIN companies c ON l.company_id = c.id
-    WHERE l.beruf_code = $1
-      AND l.status = 'active'
-    ORDER BY l.created_at DESC
-  `, berufCode);
+  const rows = await prisma.lehrstelle.findMany({
+    where: { berufCode, status: 'active' },
+    include: { company: { select: { companyName: true } } },
+    orderBy: { createdAt: 'desc' },
+  });
 
   return {
     count: rows.length,
-    lehrstellen: rows.map((r: any) => ({
+    lehrstellen: rows.map((r) => ({
       id: r.id,
       title: r.title,
-      company_name: r.company_name ?? '',
+      company_name: r.company.companyName,
       city: r.city,
       canton: r.canton,
-      positions_available: r.positions_available ?? 1,
+      positions_available: r.positionsAvailable,
     })),
   };
 }
@@ -258,36 +211,30 @@ export async function getLehrstellenByBerufCode(berufCode: string) {
 // ── Favorite berufe CRUD ─────────────────────────────────────────────
 
 export async function getFavoriteBerufe(studentProfileId: string): Promise<string[]> {
-  const rows = await prisma.$queryRawUnsafe<any[]>(
-    `SELECT beruf_code FROM student_favorite_berufe WHERE student_profile_id = $1`,
-    studentProfileId,
-  );
-  return rows.map((r: any) => r.beruf_code);
+  const rows = await prisma.studentFavoriteBeruf.findMany({
+    where: { studentProfileId },
+    select: { berufCode: true },
+  });
+  return rows.map((r) => r.berufCode);
 }
 
 export async function toggleFavoriteBeruf(
   studentProfileId: string,
   berufCode: string,
 ): Promise<{ isFavorite: boolean }> {
-  const existing = await prisma.$queryRawUnsafe<any[]>(
-    `SELECT 1 FROM student_favorite_berufe WHERE student_profile_id = $1 AND beruf_code = $2`,
-    studentProfileId,
-    berufCode,
-  );
+  const existing = await prisma.studentFavoriteBeruf.findUnique({
+    where: { studentProfileId_berufCode: { studentProfileId, berufCode } },
+  });
 
-  if (existing.length > 0) {
-    await prisma.$executeRawUnsafe(
-      `DELETE FROM student_favorite_berufe WHERE student_profile_id = $1 AND beruf_code = $2`,
-      studentProfileId,
-      berufCode,
-    );
+  if (existing) {
+    await prisma.studentFavoriteBeruf.delete({
+      where: { studentProfileId_berufCode: { studentProfileId, berufCode } },
+    });
     return { isFavorite: false };
   }
 
-  await prisma.$executeRawUnsafe(
-    `INSERT INTO student_favorite_berufe (student_profile_id, beruf_code) VALUES ($1, $2)`,
-    studentProfileId,
-    berufCode,
-  );
+  await prisma.studentFavoriteBeruf.create({
+    data: { studentProfileId, berufCode },
+  });
   return { isFavorite: true };
 }

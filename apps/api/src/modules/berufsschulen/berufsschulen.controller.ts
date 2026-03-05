@@ -13,7 +13,7 @@ export async function getCantons(_req: Request, res: Response) {
 }
 
 export async function getById(req: Request, res: Response) {
-  const schule = await service.getBerufsschuleById(req.params.id);
+  const schule = await service.getBerufsschuleById(req.params.id as string);
   if (!schule) return res.status(404).json({ error: 'Berufsschule not found' });
   res.json({ data: schule });
 }

@@ -1,38 +1,7 @@
 import { prisma } from '@lehrstellen/database';
 import type { MatchDTO } from '@lehrstellen/shared';
 import { ApiError } from '../../utils/ApiError';
-
-/**
- * For proxy listings (created from lehrstellen), the Prisma `company` relation
- * is null. Batch-fetch company info from Supabase `companies` table.
- */
-async function enrichLehrstellenCompanyData(listings: any[]): Promise<void> {
-  const needEnrichment = listings.filter((l) => l && !l.company);
-  if (needEnrichment.length === 0) return;
-
-  const companyIds = [...new Set(needEnrichment.map((l) => l.companyId).filter(Boolean))];
-  if (companyIds.length === 0) return;
-
-  const placeholders = companyIds.map((_, i) => `$${i + 1}::uuid`).join(',');
-  const companies = await prisma.$queryRawUnsafe<any[]>(
-    `SELECT id, company_name, logo_url, canton, city FROM companies WHERE id IN (${placeholders})`,
-    ...companyIds,
-  );
-
-  const companyMap = new Map(companies.map((c: any) => [c.id, c]));
-
-  for (const listing of needEnrichment) {
-    const c = companyMap.get(listing.companyId);
-    if (c) {
-      listing.company = {
-        companyName: c.company_name,
-        logoUrl: c.logo_url,
-        canton: c.canton,
-        city: c.city,
-      };
-    }
-  }
-}
+import { enrichLehrstellenCompanyData } from '../../utils/enrichLehrstellenCompany';
 
 export async function getMatches(userId: string, role: string): Promise<MatchDTO[]> {
   if (role === 'STUDENT') {

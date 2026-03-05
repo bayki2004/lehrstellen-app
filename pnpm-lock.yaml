@@ -102,6 +102,9 @@ importers:
       '@lehrstellen/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@mapbox/sphericalmercator':
+        specifier: 1.2.0
+        version: 1.2.0
       '@react-native-community/slider':
         specifier: 5.0.1
         version: 5.0.1
@@ -1226,6 +1229,10 @@ packages:
 
   '@mapbox/sphericalmercator@1.1.0':
     resolution: {integrity: sha512-pEsfZyG4OMThlfFQbCte4gegvHUjxXCjz0KZ4Xk8NdOYTQBLflj6U8PL05RPAiuRAMAQNUUKJuL6qYZ5Y4kAWA==}
+    hasBin: true
+
+  '@mapbox/sphericalmercator@1.2.0':
+    resolution: {integrity: sha512-ZTOuuwGuMOJN+HEmG/68bSEw15HHaMWmQ5gdTsWdWsjDe56K1kGvLOK6bOSC8gWgIvEO0w6un/2Gvv1q5hJSkQ==}
     hasBin: true
 
   '@next/env@14.2.35':
@@ -6531,6 +6538,8 @@ snapshots:
       '@mapbox/sphericalmercator': 1.1.0
 
   '@mapbox/sphericalmercator@1.1.0': {}
+
+  '@mapbox/sphericalmercator@1.2.0': {}
 
   '@next/env@14.2.35': {}
 

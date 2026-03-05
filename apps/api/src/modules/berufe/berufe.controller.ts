@@ -14,7 +14,7 @@ export async function getFields(_req: Request, res: Response) {
 }
 
 export async function getByCode(req: Request, res: Response) {
-  const beruf = await service.getBerufByCode(req.params.code);
+  const beruf = await service.getBerufByCode(req.params.code as string);
   if (!beruf) return res.status(404).json({ error: 'Beruf not found' });
   res.json({ data: beruf });
 }
@@ -25,7 +25,7 @@ export async function getMatches(req: Request, res: Response) {
 }
 
 export async function getLehrstellen(req: Request, res: Response) {
-  const data = await service.getLehrstellenByBerufCode(req.params.code);
+  const data = await service.getLehrstellenByBerufCode(req.params.code as string);
   res.json({ data });
 }
 
@@ -39,6 +39,6 @@ export async function getFavorites(req: Request, res: Response) {
 export async function toggleFavorite(req: Request, res: Response) {
   const student = await prisma.studentProfile.findUnique({ where: { userId: req.user!.userId } });
   if (!student) return res.status(404).json({ error: 'Student not found' });
-  const result = await service.toggleFavoriteBeruf(student.id, req.params.code);
+  const result = await service.toggleFavoriteBeruf(student.id, req.params.code as string);
   res.json({ data: result });
 }

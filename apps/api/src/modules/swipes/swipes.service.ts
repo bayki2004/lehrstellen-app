@@ -9,25 +9,25 @@ const FEED_SIZE = 50;
 const MIN_SCORE = 30;
 const DAILY_SWIPE_LIMIT = 5;
 
-/** Map a lehrstellen row (raw SQL) into a Prisma-Listing-like shape for scoring. */
+/** Map a Prisma Lehrstelle (with company + beruf includes) into a Listing-like shape for scoring. */
 function lehrstelleToListing(r: any): any {
-  const pf = r.personality_fit ?? {};
+  const pf = (r.beruf?.personalityFit as Record<string, number>) ?? {};
   return {
     id: r.id,
-    companyId: r.company_id ?? '',
+    companyId: r.companyId ?? '',
     title: r.title,
     description: r.description ?? '',
-    field: r.field ?? '',
+    field: r.beruf?.field ?? '',
     canton: r.canton,
     city: r.city ?? '',
-    durationYears: r.duration_years ?? 3,
-    startDate: r.start_date,
-    spotsAvailable: r.positions_available ?? 1,
+    durationYears: r.durationYears ?? 3,
+    startDate: r.startDate,
+    spotsAvailable: r.positionsAvailable ?? 1,
     isActive: true,
     requiredSchoolLevel: null,
     requiredLanguages: ['de'],
-    createdAt: r.created_at ?? new Date(),
-    updatedAt: r.created_at ?? new Date(),
+    createdAt: r.createdAt ?? new Date(),
+    updatedAt: r.createdAt ?? new Date(),
     berufsfeld: '',
     // OCEAN — no listing-level data, defaults handled by computeCompatibility
     idealOceanOpenness: null,
@@ -42,27 +42,27 @@ function lehrstelleToListing(r: any): any {
     idealRiasecSocial: pf.social ?? null,
     idealRiasecEnterprising: pf.enterprising ?? null,
     idealRiasecConventional: pf.conventional ?? null,
-    berufCode: r.beruf_code ?? null,
+    berufCode: r.berufCode ?? null,
     cards: generateDefaultCards(r),
-    motivationQuestions: r.motivation_questions ?? [],
-    // Fake company relation for DTO mapping
-    company: {
-      companyName: r.company_name ?? '',
-      logoUrl: r.logo_url ?? null,
-      canton: r.company_canton ?? '',
-      city: r.company_city ?? '',
-    },
-    // Culture data from company
-    _companyCulture: {
-      hierarchyFocus: r.culture_hierarchy_focus ?? null,
-      punctualityRigidity: r.culture_punctuality_rigidity ?? null,
-      resilienceGrit: r.culture_resilience_grit ?? null,
-      socialEnvironment: r.culture_social_environment ?? null,
-      errorCulture: r.culture_error_culture ?? null,
-      clientFacing: r.culture_client_facing ?? null,
-      digitalAffinity: r.culture_digital_affinity ?? null,
-      prideFocus: r.culture_pride_focus ?? null,
-    } as CultureData,
+    motivationQuestions: Array.isArray(r.motivationQuestions) ? r.motivationQuestions : [],
+    // Company relation from Prisma include
+    company: r.company ? {
+      companyName: r.company.companyName ?? '',
+      logoUrl: r.company.logoUrl ?? null,
+      canton: r.company.canton ?? '',
+      city: r.company.city ?? '',
+    } : { companyName: '', logoUrl: null, canton: '', city: '' },
+    // Culture data from imported company
+    _companyCulture: r.company ? {
+      hierarchyFocus: r.company.cultureHierarchyFocus ?? null,
+      punctualityRigidity: r.company.culturePunctualityRigidity ?? null,
+      resilienceGrit: r.company.cultureResilienceGrit ?? null,
+      socialEnvironment: r.company.cultureSocialEnvironment ?? null,
+      errorCulture: r.company.cultureErrorCulture ?? null,
+      clientFacing: r.company.cultureClientFacing ?? null,
+      digitalAffinity: r.company.cultureDigitalAffinity ?? null,
+      prideFocus: r.company.culturePrideFocus ?? null,
+    } as CultureData : undefined,
   };
 }
 
@@ -93,38 +93,30 @@ function listingToDTO(listing: any, score: number, breakdown: any): ListingWithS
   };
 }
 
-/** Fetch lehrstellen from the Supabase-managed table. */
+/** Fetch lehrstellen via Prisma ORM with company + beruf includes. */
 async function fetchLehrstellen(cantonFilter?: string[]): Promise<any[]> {
   try {
-    let cantonClause = '';
-    const params: any[] = [];
-    if (cantonFilter && cantonFilter.length > 0) {
-      const placeholders = cantonFilter.map((c, i) => {
-        params.push(c);
-        return `$${i + 1}`;
-      });
-      cantonClause = `AND l.canton IN (${placeholders.join(',')})`;
-    }
-    const rows = await prisma.$queryRawUnsafe<any[]>(`
-      SELECT l.id, l.title, l.description, l.canton, l.city,
-             l.duration_years, l.start_date, l.positions_available, l.created_at,
-             l.company_id, l.requirements, l.culture_description, l.beruf_code,
-             l.motivation_questions,
-             b.field, b.personality_fit,
-             c.company_name, c.logo_url, c.canton AS company_canton, c.city AS company_city,
-             c.culture_hierarchy_focus, c.culture_punctuality_rigidity,
-             c.culture_resilience_grit, c.culture_social_environment,
-             c.culture_error_culture, c.culture_client_facing,
-             c.culture_digital_affinity, c.culture_pride_focus
-      FROM lehrstellen l
-      LEFT JOIN berufe b ON l.beruf_code = b.code
-      LEFT JOIN companies c ON l.company_id = c.id
-      WHERE l.status = 'active' ${cantonClause}
-      ORDER BY l.created_at DESC
-    `, ...params);
-    return rows || [];
+    return prisma.lehrstelle.findMany({
+      where: {
+        status: 'active',
+        ...(cantonFilter && cantonFilter.length > 0 && { canton: { in: cantonFilter } }),
+      },
+      include: {
+        beruf: { select: { field: true, personalityFit: true } },
+        company: {
+          select: {
+            companyName: true, logoUrl: true, canton: true, city: true,
+            cultureHierarchyFocus: true, culturePunctualityRigidity: true,
+            cultureResilienceGrit: true, cultureSocialEnvironment: true,
+            cultureErrorCulture: true, cultureClientFacing: true,
+            cultureDigitalAffinity: true, culturePrideFocus: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
   } catch (err) {
-    console.error('[API DEBUG] lehrstellen feed query error:', err);
+    console.error('[API] lehrstellen feed query failed — returning partial feed:', err);
     return [];
   }
 }
@@ -140,11 +132,11 @@ export async function getSwipeFeed(userId: string): Promise<ListingWithScoreDTO[
   }
 
   // Fetch student's favorite beruf codes for score boost
-  const favoriteRows = await prisma.$queryRawUnsafe<any[]>(
-    `SELECT beruf_code FROM student_favorite_berufe WHERE student_profile_id = $1`,
-    student.id,
-  );
-  const favoriteBerufCodes = new Set(favoriteRows.map((r: any) => r.beruf_code));
+  const favoriteRows = await prisma.studentFavoriteBeruf.findMany({
+    where: { studentProfileId: student.id },
+    select: { berufCode: true },
+  });
+  const favoriteBerufCodes = new Set(favoriteRows.map((r) => r.berufCode));
 
   // Get IDs of already-swiped listings
   const swipedListingIds = (
@@ -259,39 +251,31 @@ async function ensureLehrstelleProxy(lehrstelleId: string): Promise<any | null> 
   const existing = await prisma.listing.findUnique({ where: { id: lehrstelleId } });
   if (existing) return existing;
 
-  // Fetch from Supabase lehrstellen table
-  const rows = await prisma.$queryRawUnsafe<any[]>(
-    `SELECT l.id, l.title, l.description, l.canton, l.city,
-            l.duration_years, l.start_date, l.positions_available,
-            l.company_id, l.created_at, l.requirements, l.culture_description,
-            l.motivation_questions,
-            b.field, b.personality_fit,
-            c.company_name, c.canton AS company_canton, c.city AS company_city
-     FROM lehrstellen l
-     LEFT JOIN berufe b ON l.beruf_code = b.code
-     LEFT JOIN companies c ON l.company_id = c.id
-     WHERE l.id = $1::uuid`,
-    lehrstelleId,
-  );
-  if (!rows.length) return null;
+  // Fetch from lehrstellen table via Prisma ORM
+  const r = await prisma.lehrstelle.findUnique({
+    where: { id: lehrstelleId },
+    include: {
+      beruf: { select: { field: true, personalityFit: true } },
+      company: { select: { companyName: true, canton: true, city: true } },
+    },
+  });
+  if (!r) return null;
 
-  const r = rows[0];
-
-  const pf = r.personality_fit ?? {};
+  const pf = (r.beruf?.personalityFit as Record<string, number>) ?? {};
 
   // Create proxy listing (companyId = lehrstelle's company UUID; FK was dropped)
   return prisma.listing.create({
     data: {
       id: r.id,
-      companyId: r.company_id ?? 'lehrstellen-import',
+      companyId: r.companyId ?? 'lehrstellen-import',
       title: r.title ?? '',
       description: r.description ?? '',
-      field: r.field ?? 'Allgemein',
+      field: r.beruf?.field ?? 'Allgemein',
       canton: r.canton ?? '',
       city: r.city ?? '',
-      durationYears: r.duration_years ?? 3,
-      startDate: r.start_date ? new Date(r.start_date) : null,
-      spotsAvailable: r.positions_available ?? 1,
+      durationYears: r.durationYears ?? 3,
+      startDate: r.startDate ? new Date(r.startDate) : null,
+      spotsAvailable: r.positionsAvailable ?? 1,
       // RIASEC from berufe personality_fit for proper scoring
       idealRiasecRealistic: pf.realistic ?? null,
       idealRiasecInvestigative: pf.investigative ?? null,
@@ -300,7 +284,7 @@ async function ensureLehrstelleProxy(lehrstelleId: string): Promise<any | null> 
       idealRiasecEnterprising: pf.enterprising ?? null,
       idealRiasecConventional: pf.conventional ?? null,
       cards: generateDefaultCards(r) as any,
-      motivationQuestions: (r.motivation_questions ?? []) as any,
+      motivationQuestions: (Array.isArray(r.motivationQuestions) ? r.motivationQuestions : []) as any,
     },
   });
 }
@@ -344,24 +328,6 @@ export async function recordSwipe(
     throw ApiError.notFound('Student profile not found');
   }
 
-  // Enforce daily swipe limit for RIGHT/SUPER swipes
-  if (direction === 'RIGHT' || direction === 'SUPER') {
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-
-    const usedToday = await prisma.swipe.count({
-      where: {
-        studentId: student.id,
-        direction: { in: ['RIGHT', 'SUPER'] },
-        createdAt: { gte: todayStart },
-      },
-    });
-
-    if (usedToday >= DAILY_SWIPE_LIMIT) {
-      throw ApiError.tooManyRequests('Tageslimit erreicht (5 Swipes pro Tag)');
-    }
-  }
-
   // Try Prisma listings first, then lehrstellen proxy
   let listing = await prisma.listing.findUnique({
     where: { id: listingId },
@@ -373,81 +339,102 @@ export async function recordSwipe(
     throw ApiError.notFound('Listing not found');
   }
 
-  // Record the swipe (unique constraint handles race conditions)
-  try {
-    await prisma.swipe.create({
-      data: {
-        studentId: student.id,
-        listingId,
-        direction,
-      },
-    });
-  } catch (e: any) {
-    if (e.code === 'P2002') {
-      throw ApiError.conflict('Already swiped on this listing');
-    }
-    throw e;
-  }
+  // Use transaction for swipe limit check + swipe + match creation (prevents race conditions)
+  return prisma.$transaction(async (tx) => {
+    // Enforce daily swipe limit for RIGHT/SUPER swipes
+    if (direction === 'RIGHT' || direction === 'SUPER') {
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
 
-  // If RIGHT or SUPER, create a match (MVP auto-match)
-  if (direction === 'RIGHT' || direction === 'SUPER') {
-    const desiredFields = student.desiredFields.map((d) => d.field);
-    // Fetch company culture for the listing
-    let companyCulture: CultureData | undefined;
-    let companyDealbreakers: CultureDealbreakers | undefined;
-    if (listing.companyId) {
-      const company = await prisma.companyProfile.findUnique({
-        where: { id: listing.companyId },
-        select: {
-          cultureHierarchyFocus: true, culturePunctualityRigidity: true,
-          cultureResilienceGrit: true, cultureSocialEnvironment: true,
-          cultureErrorCulture: true, cultureClientFacing: true,
-          cultureDigitalAffinity: true, culturePrideFocus: true,
-          dealbreakerHierarchyFocus: true, dealbreakerPunctualityRigidity: true,
-          dealbreakerResilienceGrit: true, dealbreakerSocialEnvironment: true,
-          dealbreakerErrorCulture: true, dealbreakerClientFacing: true,
-          dealbreakerDigitalAffinity: true, dealbreakerPrideFocus: true,
+      const usedToday = await tx.swipe.count({
+        where: {
+          studentId: student.id,
+          direction: { in: ['RIGHT', 'SUPER'] },
+          createdAt: { gte: todayStart },
         },
       });
-      if (company) {
-        companyCulture = {
-          hierarchyFocus: company.cultureHierarchyFocus,
-          punctualityRigidity: company.culturePunctualityRigidity,
-          resilienceGrit: company.cultureResilienceGrit,
-          socialEnvironment: company.cultureSocialEnvironment,
-          errorCulture: company.cultureErrorCulture,
-          clientFacing: company.cultureClientFacing,
-          digitalAffinity: company.cultureDigitalAffinity,
-          prideFocus: company.culturePrideFocus,
-        };
-        companyDealbreakers = {
-          hierarchyFocus: company.dealbreakerHierarchyFocus,
-          punctualityRigidity: company.dealbreakerPunctualityRigidity,
-          resilienceGrit: company.dealbreakerResilienceGrit,
-          socialEnvironment: company.dealbreakerSocialEnvironment,
-          errorCulture: company.dealbreakerErrorCulture,
-          clientFacing: company.dealbreakerClientFacing,
-          digitalAffinity: company.dealbreakerDigitalAffinity,
-          prideFocus: company.dealbreakerPrideFocus,
-        };
+
+      if (usedToday >= DAILY_SWIPE_LIMIT) {
+        throw ApiError.tooManyRequests('Tageslimit erreicht (5 Swipes pro Tag)');
       }
     }
-    const { totalScore } = computeCompatibility(student, listing, desiredFields, companyCulture, companyDealbreakers);
 
-    const match = await prisma.match.create({
-      data: {
-        studentId: student.id,
-        listingId,
+    // Record the swipe (unique constraint handles duplicate swipes)
+    try {
+      await tx.swipe.create({
+        data: {
+          studentId: student.id,
+          listingId,
+          direction,
+        },
+      });
+    } catch (e: any) {
+      if (e.code === 'P2002') {
+        throw ApiError.conflict('Already swiped on this listing');
+      }
+      throw e;
+    }
+
+    // If RIGHT or SUPER, create a match (MVP auto-match)
+    if (direction === 'RIGHT' || direction === 'SUPER') {
+      const desiredFields = student.desiredFields.map((d) => d.field);
+      // Fetch company culture for the listing
+      let companyCulture: CultureData | undefined;
+      let companyDealbreakers: CultureDealbreakers | undefined;
+      if (listing!.companyId) {
+        const company = await tx.companyProfile.findUnique({
+          where: { id: listing!.companyId },
+          select: {
+            cultureHierarchyFocus: true, culturePunctualityRigidity: true,
+            cultureResilienceGrit: true, cultureSocialEnvironment: true,
+            cultureErrorCulture: true, cultureClientFacing: true,
+            cultureDigitalAffinity: true, culturePrideFocus: true,
+            dealbreakerHierarchyFocus: true, dealbreakerPunctualityRigidity: true,
+            dealbreakerResilienceGrit: true, dealbreakerSocialEnvironment: true,
+            dealbreakerErrorCulture: true, dealbreakerClientFacing: true,
+            dealbreakerDigitalAffinity: true, dealbreakerPrideFocus: true,
+          },
+        });
+        if (company) {
+          companyCulture = {
+            hierarchyFocus: company.cultureHierarchyFocus,
+            punctualityRigidity: company.culturePunctualityRigidity,
+            resilienceGrit: company.cultureResilienceGrit,
+            socialEnvironment: company.cultureSocialEnvironment,
+            errorCulture: company.cultureErrorCulture,
+            clientFacing: company.cultureClientFacing,
+            digitalAffinity: company.cultureDigitalAffinity,
+            prideFocus: company.culturePrideFocus,
+          };
+          companyDealbreakers = {
+            hierarchyFocus: company.dealbreakerHierarchyFocus,
+            punctualityRigidity: company.dealbreakerPunctualityRigidity,
+            resilienceGrit: company.dealbreakerResilienceGrit,
+            socialEnvironment: company.dealbreakerSocialEnvironment,
+            errorCulture: company.dealbreakerErrorCulture,
+            clientFacing: company.dealbreakerClientFacing,
+            digitalAffinity: company.dealbreakerDigitalAffinity,
+            prideFocus: company.dealbreakerPrideFocus,
+          };
+        }
+      }
+      const { totalScore } = computeCompatibility(student, listing!, desiredFields, companyCulture, companyDealbreakers);
+
+      const match = await tx.match.create({
+        data: {
+          studentId: student.id,
+          listingId,
+          compatibilityScore: totalScore,
+        },
+      });
+
+      return {
+        isMatch: true,
+        matchId: match.id,
         compatibilityScore: totalScore,
-      },
-    });
+      };
+    }
 
-    return {
-      isMatch: true,
-      matchId: match.id,
-      compatibilityScore: totalScore,
-    };
-  }
-
-  return { isMatch: false };
+    return { isMatch: false };
+  });
 }

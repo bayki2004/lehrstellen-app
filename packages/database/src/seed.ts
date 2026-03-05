@@ -668,13 +668,355 @@ async function main() {
     console.log('  - Zeugnis (ZH Sek A) + Multicheck ICT');
   }
 
+  // ============================================
+  // ADDITIONAL DEMO BEWERBUNGEN (Investor Pitch)
+  // ============================================
+
+  const emma = await prisma.studentProfile.findFirst({ where: { firstName: 'Emma' } });
+  const marco = await prisma.studentProfile.findFirst({ where: { firstName: 'Marco' } });
+  const sara = await prisma.studentProfile.findFirst({ where: { firstName: 'Sara' } });
+  const noah = await prisma.studentProfile.findFirst({ where: { firstName: 'Noah' } });
+  const muellerCompany = await prisma.companyProfile.findFirst({ where: { companyName: 'Mueller Maschinenbau AG' } });
+  const gesundheitsCompany = await prisma.companyProfile.findFirst({ where: { companyName: 'Gesundheitszentrum Bern' } });
+
+  const mediamatikListing = await prisma.listing.findFirst({ where: { title: { contains: 'Mediamatiker/in EFZ' } } });
+  const polyListing = await prisma.listing.findFirst({ where: { title: { contains: 'Polymechaniker/in EFZ' } } });
+  const elektroListing = await prisma.listing.findFirst({ where: { title: { contains: 'Elektroinstallateur/in EFZ' } } });
+  const fageListing = await prisma.listing.findFirst({ where: { title: { contains: 'Fachmann/Fachfrau Gesundheit' } } });
+  const mpaListing = await prisma.listing.findFirst({ where: { title: { contains: 'Praxisassistent/in' } } });
+  const kvGesundheitListing = await prisma.listing.findFirst({ where: { title: { contains: 'Kaufmann/Kauffrau EFZ' } } });
+
+  // Get User IDs for chat messages
+  const marcoUser = await prisma.user.findFirst({ where: { email: 'marco.bianchi@test.ch' } });
+  const muellerUser = await prisma.user.findFirst({ where: { email: 'ausbildung@muellerag.ch' } });
+
+  // ── 2) Emma Weber → SwissTech Mediamatiker/in (INTERVIEW_SCHEDULED) ──
+  if (emma && mediamatikListing) {
+    await prisma.swipe.create({ data: { studentId: emma.id, listingId: mediamatikListing.id, direction: SwipeDirection.RIGHT } });
+    const emmaMatch = await prisma.match.create({ data: { studentId: emma.id, listingId: mediamatikListing.id, compatibilityScore: 78 } });
+    await prisma.application.create({
+      data: {
+        studentId: emma.id,
+        listingId: mediamatikListing.id,
+        matchId: emmaMatch.id,
+        status: ApplicationStatus.INTERVIEW_SCHEDULED,
+        motivationAnswers: [
+          {
+            question: 'Warum interessierst du dich fuer Mediamatik?',
+            answer: 'Mich fasziniert die Verbindung von Kreativitaet und Technologie. Ich gestalte seit zwei Jahren eigene Designs mit Canva und Figma und fuehre einen Instagram-Account fuer den Schuelerrat mit ueber 400 Followern. Mediamatik ist fuer mich der perfekte Beruf, weil ich sowohl visuell als auch technisch arbeiten kann.',
+          },
+        ],
+        verfuegbarkeit: 'Ab August 2026',
+        relevanteErfahrungen: [
+          'Instagram-Kanal Schuelerrat (2 Jahre)',
+          'Canva & Figma Grundkenntnisse',
+          'Schulprojekt: Webseite fuer Klassenlager',
+          'Fotografie-Kurs VHS Zuerich',
+        ],
+        fragenAnBetrieb: 'Welche Design-Tools werden bei SwissTech eingesetzt? Gibt es die Moeglichkeit, eigene kreative Ideen einzubringen?',
+        schnupperlehreWunsch: false,
+        timeline: [
+          { status: 'PENDING', timestamp: new Date('2026-01-15T09:30:00').toISOString(), note: 'Bewerbung eingereicht' },
+          { status: 'VIEWED', timestamp: new Date('2026-01-17T14:20:00').toISOString(), note: 'Von HR angesehen' },
+          { status: 'SHORTLISTED', timestamp: new Date('2026-01-22T10:00:00').toISOString(), note: 'Auf Shortlist gesetzt' },
+          { status: 'INTERVIEW_SCHEDULED', timestamp: new Date('2026-02-03T08:45:00').toISOString(), note: 'Schnuppertag vereinbart: 10. Maerz 2026' },
+        ],
+      },
+    });
+    console.log('Created: Emma Weber → SwissTech Mediamatiker/in (INTERVIEW_SCHEDULED, 78%)');
+  }
+
+  // ── 3) Marco Bianchi → Mueller Polymechaniker/in (ACCEPTED + Chat) ──
+  if (marco && polyListing && marcoUser && muellerUser) {
+    await prisma.swipe.create({ data: { studentId: marco.id, listingId: polyListing.id, direction: SwipeDirection.RIGHT } });
+    const marcoMatch = await prisma.match.create({ data: { studentId: marco.id, listingId: polyListing.id, compatibilityScore: 85 } });
+    await prisma.application.create({
+      data: {
+        studentId: marco.id,
+        listingId: polyListing.id,
+        matchId: marcoMatch.id,
+        status: ApplicationStatus.ACCEPTED,
+        motivationAnswers: [
+          {
+            question: 'Warum moechtest du Polymechaniker werden?',
+            answer: 'Mein Vater arbeitet als Mechaniker und ich bin schon als Kind in der Werkstatt gestanden. Praezision und Handwerk faszinieren mich. Ich habe im Werkunterricht die besten Noten und mein Werklehrer hat mir empfohlen, eine Lehre als Polymechaniker zu machen. Bei Mueller Maschinenbau reizt mich besonders die Arbeit mit modernen CNC-Maschinen.',
+          },
+        ],
+        verfuegbarkeit: 'Ab August 2026',
+        relevanteErfahrungen: [
+          'Werkunterricht: Note 6.0',
+          'Schnupperlehre bei Bucher Industries (1 Woche)',
+          'Modellbau als Hobby (3 Jahre)',
+          'Erste-Hilfe-Kurs absolviert',
+        ],
+        fragenAnBetrieb: 'Wie viele Lernende betreuen Sie pro Lehrjahr? Gibt es die Moeglichkeit, an Berufswettbewerben teilzunehmen?',
+        schnupperlehreWunsch: false,
+        timeline: [
+          { status: 'PENDING', timestamp: new Date('2025-11-20T10:00:00').toISOString(), note: 'Bewerbung eingereicht' },
+          { status: 'VIEWED', timestamp: new Date('2025-11-22T09:15:00').toISOString(), note: 'Von Lehrmeister angesehen' },
+          { status: 'SHORTLISTED', timestamp: new Date('2025-12-02T16:30:00').toISOString(), note: 'Einladung zur Schnupperlehre' },
+          { status: 'ACCEPTED', timestamp: new Date('2026-01-15T11:00:00').toISOString(), note: 'Lehrvertrag angeboten' },
+        ],
+      },
+    });
+
+    // Chat messages: Marco ↔ Peter Mueller
+    await prisma.message.createMany({
+      data: [
+        {
+          matchId: marcoMatch.id,
+          senderId: muellerUser.id,
+          content: 'Grüezi Marco! Herzlichen Glückwunsch, wir möchten dir eine Lehrstelle als Polymechaniker bei uns anbieten. Deine Schnupperlehre hat uns sehr überzeugt. Hast du nächste Woche Zeit für ein Gespräch mit deinen Eltern, um den Lehrvertrag zu besprechen?',
+          createdAt: new Date('2026-01-15T11:05:00'),
+        },
+        {
+          matchId: marcoMatch.id,
+          senderId: marcoUser.id,
+          content: 'Vielen Dank Herr Mueller! Das freut mich mega! Ja, nächste Woche passt gut. Meine Eltern hätten am Mittwoch oder Donnerstag Nachmittag Zeit. Was würde Ihnen besser passen?',
+          createdAt: new Date('2026-01-15T17:22:00'),
+        },
+        {
+          matchId: marcoMatch.id,
+          senderId: muellerUser.id,
+          content: 'Mittwoch, 22. Januar um 16:00 Uhr passt perfekt. Kommt einfach zu uns an die Industriestrasse 45 in Winterthur. Bring bitte dein letztes Zeugnis und einen Ausweis mit. Wir freuen uns!',
+          createdAt: new Date('2026-01-16T08:30:00'),
+        },
+        {
+          matchId: marcoMatch.id,
+          senderId: marcoUser.id,
+          content: 'Super, das passt! Wir kommen am Mittwoch um 16:00 Uhr. Ich freue mich sehr auf die Lehre bei Ihnen! Bis dann.',
+          createdAt: new Date('2026-01-16T12:45:00'),
+        },
+      ],
+    });
+
+    // Grades for Marco: Zeugnis (ZH, Sek B)
+    await prisma.studentGrade.create({
+      data: {
+        studentId: marco.id,
+        documentType: 'zeugnis',
+        entryMethod: 'manual',
+        canton: 'ZH',
+        niveau: 'Sek B',
+        semester: 1,
+        schoolYear: '2025/2026',
+        grades: {
+          mathematik: 5.0,
+          deutsch: 4.5,
+          franzoesisch: 4.0,
+          englisch: 4.5,
+          natur_und_technik: 5.5,
+          raum_zeit_gesellschaft: 4.5,
+          bildnerisches_gestalten: 5.0,
+          musik: 4.0,
+          sport: 5.5,
+          werken: 6.0,
+        },
+        isVerified: true,
+        verifiedAt: new Date(),
+      },
+    });
+
+    console.log('Created: Marco Bianchi → Mueller Polymechaniker/in (ACCEPTED, 85%) + 4 chat messages');
+  }
+
+  // ── 4) Noah Schmid → Mueller Elektroinstallateur/in (REJECTED) ──
+  if (noah && elektroListing) {
+    await prisma.swipe.create({ data: { studentId: noah.id, listingId: elektroListing.id, direction: SwipeDirection.RIGHT } });
+    const noahElektroMatch = await prisma.match.create({ data: { studentId: noah.id, listingId: elektroListing.id, compatibilityScore: 42 } });
+    await prisma.application.create({
+      data: {
+        studentId: noah.id,
+        listingId: elektroListing.id,
+        matchId: noahElektroMatch.id,
+        status: ApplicationStatus.REJECTED,
+        motivationAnswers: [
+          {
+            question: 'Warum moechtest du Elektroinstallateur werden?',
+            answer: 'Ich finde Technik interessant und moechte gerne etwas Praktisches lernen. Elektroinstallationen sind wichtig fuer die Zukunft, besonders mit Smart Homes und erneuerbaren Energien.',
+          },
+        ],
+        verfuegbarkeit: 'Ab August 2026',
+        relevanteErfahrungen: [
+          'Informatik-Kurs in der Schule',
+          'Gute Mathematiknoten',
+        ],
+        fragenAnBetrieb: 'Wie viel Zeit verbringt man auf Baustellen im Vergleich zur Werkstatt?',
+        schnupperlehreWunsch: true,
+        timeline: [
+          { status: 'PENDING', timestamp: new Date('2026-01-10T14:00:00').toISOString(), note: 'Bewerbung eingereicht' },
+          { status: 'VIEWED', timestamp: new Date('2026-01-13T09:30:00').toISOString(), note: 'Von Lehrmeister angesehen' },
+          { status: 'REJECTED', timestamp: new Date('2026-01-18T16:00:00').toISOString(), note: 'Profil passt nicht zum Anforderungsprofil' },
+        ],
+      },
+    });
+    console.log('Created: Noah Schmid → Mueller Elektroinstallateur/in (REJECTED, 42%)');
+  }
+
+  // ── 5) Sara Keller → Gesundheitszentrum FaGe (SHORTLISTED) ──
+  if (sara && fageListing) {
+    await prisma.swipe.create({ data: { studentId: sara.id, listingId: fageListing.id, direction: SwipeDirection.RIGHT } });
+    const saraMatch = await prisma.match.create({ data: { studentId: sara.id, listingId: fageListing.id, compatibilityScore: 91 } });
+    await prisma.application.create({
+      data: {
+        studentId: sara.id,
+        listingId: fageListing.id,
+        matchId: saraMatch.id,
+        status: ApplicationStatus.SHORTLISTED,
+        motivationAnswers: [
+          {
+            question: 'Warum moechtest du im Gesundheitswesen arbeiten?',
+            answer: 'Seit drei Jahren besuche ich jeden Samstag meine Grossmutter im Pflegeheim und helfe den Pflegerinnen freiwillig bei der Betreuung. Diese Erfahrung hat mir gezeigt, wie wichtig und erfuellend die Arbeit mit Menschen ist. Ich moechte einen Beruf erlernen, in dem ich taeglich etwas Sinnvolles tun kann und Menschen in schwierigen Situationen unterstuetze.',
+          },
+        ],
+        verfuegbarkeit: 'Ab August 2026',
+        relevanteErfahrungen: [
+          'Freiwilligenarbeit im Pflegeheim (3 Jahre)',
+          'Babysitter-Kurs SRK absolviert',
+          'Nothelferkurs bestanden',
+          'Schnupperlehre Spital Tiefenau (1 Woche)',
+          'Samariter-Jugendgruppe Bern',
+        ],
+        fragenAnBetrieb: 'Wie sieht die Betreuung der Lernenden im Arbeitsalltag aus? Gibt es regelmaessige Reflexionsgespraeche? Kann man waehrend der Lehre auch auf verschiedenen Abteilungen arbeiten?',
+        schnupperlehreWunsch: false,
+        timeline: [
+          { status: 'PENDING', timestamp: new Date('2026-01-08T08:00:00').toISOString(), note: 'Bewerbung eingereicht' },
+          { status: 'VIEWED', timestamp: new Date('2026-01-09T10:45:00').toISOString(), note: 'Von Ausbildungsverantwortlichem angesehen' },
+          { status: 'SHORTLISTED', timestamp: new Date('2026-01-14T14:30:00').toISOString(), note: 'Vielversprechende Kandidatin — Schnuppertag planen' },
+        ],
+      },
+    });
+
+    // Grades for Sara: Zeugnis (BE, Sek)
+    await prisma.studentGrade.create({
+      data: {
+        studentId: sara.id,
+        documentType: 'zeugnis',
+        entryMethod: 'manual',
+        canton: 'BE',
+        niveau: 'Sekundarschule',
+        semester: 1,
+        schoolYear: '2025/2026',
+        grades: {
+          mathematik: 5.0,
+          deutsch: 5.5,
+          franzoesisch: 5.0,
+          englisch: 4.5,
+          natur_mensch_gesellschaft: 5.5,
+          bildnerisches_gestalten: 5.0,
+          musik: 5.0,
+          sport: 5.5,
+          hauswirtschaft: 5.5,
+        },
+        isVerified: true,
+        verifiedAt: new Date(),
+      },
+    });
+
+    // Grades for Sara: Multicheck Gesundheit + Soziales
+    await prisma.studentGrade.create({
+      data: {
+        studentId: sara.id,
+        documentType: 'multicheck',
+        entryMethod: 'manual',
+        testVariant: 'Multicheck Gesundheit + Soziales',
+        testDate: new Date('2025-10-20'),
+        grades: {
+          schulisches_wissen: {
+            mathematik: 62,
+            deutsch: 78,
+            franzoesisch: 58,
+            biologie: 85,
+          },
+          potenzial: {
+            konzentration: 82,
+            merkfaehigkeit: 76,
+            sprachgefuehl: 80,
+            einfuehlungsvermoegen: 92,
+          },
+        },
+        isVerified: true,
+        verifiedAt: new Date(),
+      },
+    });
+
+    console.log('Created: Sara Keller → Gesundheitszentrum FaGe (SHORTLISTED, 91%) + Grades');
+  }
+
+  // ── 6) Noah Schmid → Gesundheitszentrum Kaufmann/Kauffrau (VIEWED) ──
+  if (noah && kvGesundheitListing) {
+    await prisma.swipe.create({ data: { studentId: noah.id, listingId: kvGesundheitListing.id, direction: SwipeDirection.RIGHT } });
+    const noahKvMatch = await prisma.match.create({ data: { studentId: noah.id, listingId: kvGesundheitListing.id, compatibilityScore: 72 } });
+    await prisma.application.create({
+      data: {
+        studentId: noah.id,
+        listingId: kvGesundheitListing.id,
+        matchId: noahKvMatch.id,
+        status: ApplicationStatus.VIEWED,
+        motivationAnswers: [
+          {
+            question: 'Warum moechtest du eine KV-Lehre im Gesundheitswesen machen?',
+            answer: 'Organisation und Verwaltung sind meine Staerken. Ich moechte diese Faehigkeiten in einem Bereich einsetzen, der einen gesellschaftlichen Beitrag leistet. Das Gesundheitswesen bietet genau diese Kombination: strukturierte Arbeit mit einem sinnvollen Zweck. Ich bin sehr zuverlaessig und arbeite gerne mit Zahlen und Dokumenten.',
+          },
+        ],
+        verfuegbarkeit: 'Ab August 2026',
+        relevanteErfahrungen: [
+          'Tastaturschreiben: 180 Anschlaege/Minute',
+          'Excel & Word Grundkenntnisse',
+          'Schuelerrat-Kassier (2 Jahre)',
+          'Schnupperlehre Kantonsverwaltung Basel',
+        ],
+        fragenAnBetrieb: 'Welche administrativen Aufgaben uebernehmen KV-Lernende im ersten Lehrjahr? Gibt es Einblicke in verschiedene Abteilungen?',
+        schnupperlehreWunsch: true,
+        timeline: [
+          { status: 'PENDING', timestamp: new Date('2026-02-01T11:00:00').toISOString(), note: 'Bewerbung eingereicht' },
+          { status: 'VIEWED', timestamp: new Date('2026-02-04T08:30:00').toISOString(), note: 'Von Ausbildungsverantwortlichem angesehen' },
+        ],
+      },
+    });
+    console.log('Created: Noah Schmid → Gesundheitszentrum KV (VIEWED, 72%)');
+  }
+
+  // ── 7) Lena Mueller → Gesundheitszentrum Med. Praxisassistent/in (PENDING) ──
+  if (lena && mpaListing) {
+    await prisma.swipe.create({ data: { studentId: lena.id, listingId: mpaListing.id, direction: SwipeDirection.RIGHT } });
+    const lenaMpaMatch = await prisma.match.create({ data: { studentId: lena.id, listingId: mpaListing.id, compatibilityScore: 58 } });
+    await prisma.application.create({
+      data: {
+        studentId: lena.id,
+        listingId: mpaListing.id,
+        matchId: lenaMpaMatch.id,
+        status: ApplicationStatus.PENDING,
+        motivationAnswers: [
+          {
+            question: 'Warum moechtest du Medizinische Praxisassistentin werden?',
+            answer: 'Neben meiner Begeisterung fuer Informatik interessiere ich mich auch fuer Naturwissenschaften und den menschlichen Koerper. Die Kombination aus Labor, Patientenkontakt und digitaler Dokumentation reizt mich. Ich moechte erkunden, ob dieser Beruf eine Alternative zur IT-Lehre sein koennte.',
+          },
+        ],
+        verfuegbarkeit: 'Ab August 2026',
+        relevanteErfahrungen: [
+          'Naturwissenschaften: Note 5.5',
+          'Interesse an Biologie und Anatomie',
+          'Erste-Hilfe-Kurs in der Schule',
+        ],
+        fragenAnBetrieb: 'Wie viel digitale Arbeit gibt es als MPA? Wird mit modernen Praxissoftware-Systemen gearbeitet?',
+        schnupperlehreWunsch: true,
+        timeline: [
+          { status: 'PENDING', timestamp: new Date('2026-02-20T15:00:00').toISOString(), note: 'Bewerbung eingereicht' },
+        ],
+      },
+    });
+    console.log('Created: Lena Mueller → Gesundheitszentrum MPA (PENDING, 58%)');
+  }
+
   console.log('\nSeeding complete!');
   console.log('Created 10 culture presets, 5 students and 3 companies with 7 listings.');
+  console.log('Created 7 demo applications across all statuses for investor pitch.');
   console.log('All accounts use password: Test1234!');
-  console.log('\nTo test PDF dossier:');
-  console.log('  1. Login as hr@swisstech.ch / Test1234!');
-  console.log('  2. Go to Bewerber → click Lena Mueller');
-  console.log('  3. Click "Dossier herunterladen"');
+  console.log('\nDemo logins:');
+  console.log('  hr@swisstech.ch          → 2 Bewerber (PENDING, INTERVIEW_SCHEDULED)');
+  console.log('  ausbildung@muellerag.ch  → 2 Bewerber (ACCEPTED + Chat, REJECTED)');
+  console.log('  jobs@gesundheitszentrum-bern.ch → 3 Bewerber (SHORTLISTED, VIEWED, PENDING)');
 }
 
 main()

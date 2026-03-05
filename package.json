@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "turbo run dev",
     "dev:api": "turbo run dev --filter=@lehrstellen/api",
-    "dev:mobile": "turbo run dev --filter=@lehrstellen/mobile",
+    "dev:mobile": "cd apps/mobile && expo start",
     "dev:web": "turbo run dev --filter=@lehrstellen/web",
     "build": "turbo run build",
     "test": "turbo run test",
@@ -13,6 +13,7 @@
     "db:migrate": "pnpm --filter @lehrstellen/database db:migrate",
     "db:seed": "pnpm --filter @lehrstellen/database db:seed",
     "db:studio": "pnpm --filter @lehrstellen/database db:studio",
+    "setup": "bash scripts/setup-db.sh",
     "android": "expo run:android",
     "ios": "expo run:ios"
   },

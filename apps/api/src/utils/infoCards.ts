@@ -6,6 +6,7 @@ import type { InfoCard } from '@lehrstellen/shared';
  */
 export function generateDefaultCards(row: {
   requirements?: any;
+  cultureDescription?: string | null;
   culture_description?: string | null;
 }): InfoCard[] {
   const cards: InfoCard[] = [];
@@ -33,8 +34,9 @@ export function generateDefaultCards(row: {
   }
 
   // Parse culture_description → Wir bieten card
-  if (row.culture_description && typeof row.culture_description === 'string') {
-    const sentences = row.culture_description
+  const cultureDesc = row.cultureDescription ?? row.culture_description;
+  if (cultureDesc && typeof cultureDesc === 'string') {
+    const sentences = cultureDesc
       .split(/(?<=[.!])\s+/)
       .map((s) => s.trim())
       .filter((s) => s.length > 0);

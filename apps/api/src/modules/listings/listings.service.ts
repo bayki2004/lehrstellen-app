@@ -21,57 +21,45 @@ export async function getListings(filters?: {
       orderBy: { createdAt: 'desc' },
     });
 
-    // 2. Supabase lehrstellen (LENA-imported)
+    // 2. Supabase lehrstellen (LENA-imported) — now via Prisma ORM
     let lehrstellenDTOs: ListingDTO[] = [];
     try {
-      const conditions: string[] = ["l.status = 'active'"];
-      const params: any[] = [];
-      if (filters?.canton) {
-        params.push(filters.canton);
-        conditions.push(`l.canton = $${params.length}`);
-      }
-      if (filters?.field) {
-        params.push(filters.field);
-        conditions.push(`b.field = $${params.length}`);
-      }
+      const rows = await prisma.lehrstelle.findMany({
+        where: {
+          status: 'active',
+          ...(filters?.canton && { canton: filters.canton }),
+          ...(filters?.field && { beruf: { field: filters.field } }),
+        },
+        include: {
+          company: { select: { companyName: true, logoUrl: true, canton: true, city: true } },
+          beruf: { select: { field: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
 
-      const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
-
-      const rows = await prisma.$queryRawUnsafe<any[]>(`
-        SELECT l.id, l.title, l.description, l.canton, l.city,
-               l.duration_years, l.start_date, l.positions_available, l.created_at,
-               l.requirements, l.culture_description, l.motivation_questions,
-               b.field,
-               c.company_name, c.logo_url, c.canton AS company_canton, c.city AS company_city
-        FROM lehrstellen l
-        LEFT JOIN berufe b ON l.beruf_code = b.code
-        LEFT JOIN companies c ON l.company_id = c.id
-        ${whereClause}
-        ORDER BY l.created_at DESC
-      `, ...params);
-
-      lehrstellenDTOs = (rows || []).map((r: any) => ({
+      lehrstellenDTOs = rows.map((r) => ({
         id: r.id,
-        companyId: r.company_id ?? '',
-        companyName: r.company_name ?? '',
-        companyLogo: r.logo_url,
-        companyCanton: r.company_canton ?? '',
-        companyCity: r.company_city ?? '',
+        companyId: r.companyId,
+        companyName: r.company.companyName,
+        companyLogo: r.company.logoUrl ?? undefined,
+        companyCanton: r.company.canton,
+        companyCity: r.company.city,
         title: r.title,
         description: r.description ?? '',
-        field: r.field ?? '',
+        field: r.beruf.field,
         canton: r.canton,
         city: r.city ?? '',
-        durationYears: r.duration_years ?? 3,
-        startDate: r.start_date?.toISOString?.() ?? r.start_date,
-        spotsAvailable: r.positions_available ?? 1,
+        durationYears: r.durationYears,
+        startDate: r.startDate?.toISOString(),
+        spotsAvailable: r.positionsAvailable,
         requiredLanguages: ['de'],
-        createdAt: r.created_at?.toISOString?.() ?? new Date().toISOString(),
+        createdAt: r.createdAt.toISOString(),
         cards: generateDefaultCards(r),
-        motivationQuestions: Array.isArray(r.motivation_questions) ? r.motivation_questions : [],
+        motivationQuestions: Array.isArray(r.motivationQuestions) ? r.motivationQuestions as any[] : [],
       }));
     } catch (err) {
-      console.error('[API DEBUG] lehrstellen query error:', err);
+      console.error('[API] lehrstellen query failed — returning partial results:', err);
+      // Log but don't throw: Prisma listings are still valid, lehrstellen are supplementary
     }
 
     // Deduplicate: lehrstellen entries have richer company data, so prefer them
@@ -97,41 +85,35 @@ export async function getListingById(id: string): Promise<ListingDTO> {
     return mapToDTO(listing);
   }
 
-  // Fall back to lehrstellen table (LENA-imported)
+  // Fall back to lehrstellen table (LENA-imported) — now via Prisma ORM
   try {
-    const rows = await prisma.$queryRawUnsafe<any[]>(`
-      SELECT l.id, l.title, l.description, l.canton, l.city,
-             l.duration_years, l.start_date, l.positions_available, l.created_at,
-             l.requirements, l.culture_description, l.motivation_questions,
-             b.field,
-             c.company_name, c.logo_url, c.canton AS company_canton, c.city AS company_city
-      FROM lehrstellen l
-      LEFT JOIN berufe b ON l.beruf_code = b.code
-      LEFT JOIN companies c ON l.company_id = c.id
-      WHERE l.id = $1::uuid
-      LIMIT 1
-    `, id);
-    if (rows.length > 0) {
-      const r = rows[0];
+    const r = await prisma.lehrstelle.findUnique({
+      where: { id },
+      include: {
+        company: { select: { companyName: true, logoUrl: true, canton: true, city: true } },
+        beruf: { select: { field: true } },
+      },
+    });
+    if (r) {
       return {
         id: r.id,
-        companyId: r.company_id ?? '',
-        companyName: r.company_name ?? '',
-        companyLogo: r.logo_url,
-        companyCanton: r.company_canton ?? '',
-        companyCity: r.company_city ?? '',
+        companyId: r.companyId,
+        companyName: r.company.companyName,
+        companyLogo: r.company.logoUrl ?? undefined,
+        companyCanton: r.company.canton,
+        companyCity: r.company.city,
         title: r.title,
         description: r.description ?? '',
-        field: r.field ?? '',
+        field: r.beruf.field,
         canton: r.canton,
         city: r.city ?? '',
-        durationYears: r.duration_years ?? 3,
-        startDate: r.start_date?.toISOString?.() ?? r.start_date,
-        spotsAvailable: r.positions_available ?? 1,
+        durationYears: r.durationYears,
+        startDate: r.startDate?.toISOString(),
+        spotsAvailable: r.positionsAvailable,
         requiredLanguages: ['de'],
-        createdAt: r.created_at?.toISOString?.() ?? new Date().toISOString(),
+        createdAt: r.createdAt.toISOString(),
         cards: generateDefaultCards(r),
-        motivationQuestions: Array.isArray(r.motivation_questions) ? r.motivation_questions : [],
+        motivationQuestions: Array.isArray(r.motivationQuestions) ? r.motivationQuestions as any[] : [],
       };
     }
   } catch (err) {

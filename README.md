@@ -19,7 +19,7 @@ This project combines three frontends and a unified backend:
 
 - **main** — Merged from Rashad (student SwiftUI) + Kaan (company Express backend)
 - **V_3** — React Native Expo mobile app, unified Express API, dual data sources (Prisma + Supabase), deep bug fixes, filter overhaul
-- **V_4** — Current: Company Web Dashboard, mobile feature parity, culture dimensions, student grades, glassmorphism UI
+- **V_4** — Current: Company Web Dashboard, mobile feature parity, culture dimensions, stability hardening, demo seed data
 
 **Data model source of truth:** Prisma schema (`packages/database/prisma/schema.prisma`)
 
@@ -38,7 +38,11 @@ This project combines three frontends and a unified backend:
 - **Vibe Check** — New onboarding step for personality matching
 - **Glassmorphism Navigation** — Floating tab bar with blur effect and dynamic island style on both student and company mobile sections
 - **5 Swipes Per Day Limit** — Daily swipe cap with reset at midnight
-- **Bug Fixes** — Presets.map error, API response unwrapping, tab bar overlap, safe area padding, feed filters
+- **Database Consolidation** — All tables (Beruf, Lehrstelle, ImportedCompany, Berufsschule, StudentFavoriteBeruf) now managed via Prisma schema; Supabase SQL migrations seed reference data, Prisma owns the schema
+- **Stability Hardening** — Zod validation on swipe/application endpoints, atomic transactions for swipe+match creation, ErrorBoundary crash recovery in mobile app, error states in chat screens, improved API logging
+- **Investor Demo Seed Data** — 7 realistic applications across all 3 companies with full pipeline statuses (PENDING → VIEWED → SHORTLISTED → INTERVIEW_SCHEDULED → ACCEPTED/REJECTED), chat messages, grades, and authentic Swiss-German motivation answers
+- **Setup Script** — Single `bash scripts/setup-db.sh` handles full environment setup (dependencies, Supabase, migrations, Prisma, seed) with automatic cleanup of stale DB functions
+- **Bug Fixes** — Presets.map error, API response unwrapping, tab bar overlap, safe area padding, feed filters, Expo stdin passthrough for dev:mobile
 
 ### What Was New in V_3
 
@@ -99,7 +103,8 @@ This project combines three frontends and a unified backend:
 | **State Management** | Zustand (stores) + React Query / TanStack v5 (server state) |
 | **Backend API** | Express.js, TypeScript, Prisma ORM, JWT, Socket.io |
 | **Database** | PostgreSQL (Supabase), accessed via both Prisma ORM and Supabase PostgREST |
-| **Matching** | RIASEC/Holland Codes + OCEAN Big Five, cosine similarity |
+| **Validation** | Zod (API request validation) |
+| **Matching** | RIASEC/Holland Codes + OCEAN Big Five + Culture Dimensions, cosine similarity |
 | **PDF Generation** | @react-pdf/renderer (web), expo-print + expo-sharing (mobile) |
 | **Monorepo** | pnpm + Turborepo (API + mobile + web + shared packages) |
 | **Infrastructure** | Docker Compose (PostgreSQL + Redis), Supabase (local dev) |
@@ -142,7 +147,7 @@ apps/mobile/                        # React Native Expo App
 │   ├── grades/                    # GradeCard
 │   ├── profileBuilder/            # 6-step builder components
 │   ├── chat/                      # ChatInput, MessageBubble
-│   └── ui/                        # Button, Card, Input, ScoreRing, CultureSlider, etc.
+│   └── ui/                        # Button, Card, Input, ScoreRing, CultureSlider, ErrorBoundary
 ├── stores/                        # Zustand state stores
 ├── hooks/queries/                 # React Query hooks
 ├── services/                      # API client, socket, upload
@@ -189,7 +194,7 @@ apps/api/                           # Express.js Backend
     │   ├── quiz/                  # Personality quiz scoring
     │   └── chat/                  # Messaging + WebSocket
     ├── services/                  # Matching algorithm, scraper, token service
-    └── utils/                     # Info cards, ApiError
+    └── utils/                     # Info cards, ApiError, enrichLehrstellenCompany
 
 LehrMatch/                          # SwiftUI iOS App (Legacy)
 ├── App/                           # AppState, MainTabView, Router
@@ -207,7 +212,7 @@ packages/
 
 supabase/
 ├── config.toml
-├── migrations/                    # 19 SQL migrations
+├── migrations/                    # 22 SQL migrations
 ├── seed/                          # Berufe, companies, lehrstellen, berufsschulen, motivation questions
 └── functions/                     # Edge Functions
 ```
@@ -229,7 +234,13 @@ supabase/
 | `Application` | Formal application with status timeline + motivation answers |
 | `Message` | Chat message within a match |
 
-Supabase adds: `berufe`, `personality_profiles`, `bewerbungen`, `berufsschulen`, `lehrstellen_feed` (view), `culture_dimensions`, `student_grades`, `motivation_questions`
+| `Beruf` | Profession reference data (RIASEC, salary, requirements) |
+| `ImportedCompany` | Scraped/imported company data with culture dimensions |
+| `Lehrstelle` | Imported apprenticeship positions (linked to Beruf + ImportedCompany) |
+| `Berufsschule` | Vocational schools with location data |
+| `StudentFavoriteBeruf` | Student's saved favorite professions |
+
+All tables are managed via Prisma ORM. Supabase SQL migrations create the reference tables; `prisma db push` creates Prisma-only tables and verifies alignment
 
 ---
 
@@ -277,44 +288,47 @@ Supabase adds: `berufe`, `personality_profiles`, `bewerbungen`, `berufsschulen`,
 
 ---
 
-## Running the App
-
-### 1. Start Supabase (Database)
+## Quick Start
 
 ```bash
-supabase start       # Starts local Supabase (PostgreSQL, Auth, PostgREST)
-supabase db reset    # Apply migrations + seed data
+bash scripts/setup-db.sh          # Does everything: install, Supabase, migrations, Prisma, seed
 ```
 
-### 2. Start Express API (Backend)
+## Development
 
 ```bash
-cp .env.example .env              # Configure DATABASE_URL, SUPABASE_URL, etc.
-pnpm install                      # Install all dependencies
-cd packages/database && pnpm prisma migrate deploy && pnpm prisma db seed
-pnpm dev:api                      # -> http://localhost:3002/api/health
+pnpm dev:api                      # Terminal 1 → http://localhost:3002
+pnpm dev:mobile                   # Terminal 2 → Expo (press 'i' for iOS, 'a' for Android)
+pnpm dev:web                      # Terminal 3 → http://localhost:3000
 ```
 
-### 3. Start Mobile App (React Native Expo)
-
-```bash
-pnpm dev:mobile                   # Starts Expo dev server
-# Press 'i' for iOS simulator or 'a' for Android emulator
+The web dashboard requires `apps/web/.env.local`:
+```
+NEXT_PUBLIC_API_URL=http://localhost:3002/api
+NEXT_PUBLIC_SOCKET_URL=http://localhost:3002
 ```
 
-### 4. Start Company Web Dashboard (Next.js)
+## Test Accounts (password: `Test1234!`)
 
-```bash
-# Create apps/web/.env.local with:
-# NEXT_PUBLIC_API_URL=http://localhost:3002/api
-# NEXT_PUBLIC_SOCKET_URL=http://localhost:3002
+| Role | Email |
+|------|-------|
+| Student | lena.mueller@test.ch, marco.bianchi@test.ch, sara.keller@test.ch, noah.schmid@test.ch, emma.weber@test.ch |
+| Company | hr@swisstech.ch, ausbildung@muellerag.ch, jobs@gesundheitszentrum-bern.ch |
 
-pnpm dev:web                      # -> http://localhost:3000
-```
+## Setup Details
 
-Login with a company account. The dashboard requires the Express API to be running.
+`bash scripts/setup-db.sh` handles the full first-time setup and can be re-run anytime for a clean slate:
 
-### 5. SwiftUI App (Legacy, optional)
+1. `pnpm install` — installs all dependencies (installs pnpm via corepack if needed)
+2. Creates `.env` and `apps/web/.env.local` if missing
+3. Starts Supabase if not running
+4. `supabase db reset` — applies all SQL migrations + seeds reference data (berufe, companies, lehrstellen, berufsschulen)
+5. Drops all public schema functions (prevents stale function dependencies from blocking table changes)
+6. `prisma generate` + `prisma db push` — generates client, creates/syncs all Prisma-managed tables
+7. Drops the `listings.companyId` FK constraint (enables proxy listings for Supabase lehrstellen)
+8. Runs `seed.ts` — creates 5 test students, 3 test companies, sample listings, 7 demo applications across all pipeline stages, and chat messages
+
+### SwiftUI App (Legacy, optional)
 
 1. Open `LehrMatch.xcodeproj` in Xcode 16+
 2. Select an iPhone simulator (iOS 17+)
@@ -324,14 +338,17 @@ Login with a company account. The dashboard requires the Express API to be runni
 
 ## Matching Algorithm
 
-**Compatibility scoring** (from Kaan's matching service):
+**5-factor compatibility scoring:**
 
 | Factor | Weight | Method |
 |--------|--------|--------|
-| Personality (OCEAN) | 35% | Cosine similarity between student and listing ideal |
-| Interest (RIASEC) | 35% | Cosine similarity, field-based fallback |
-| Field Match | 20% | Exact match on desired field |
+| Personality (OCEAN) | 25% | Cosine similarity between student and listing ideal |
+| Interest (RIASEC) | 25% | Cosine similarity, field-based fallback |
+| Culture Fit | 25% | 8-dimension culture match with dealbreaker logic |
+| Field Match | 15% | Exact match on desired apprenticeship field |
 | Location | 10% | Same canton bonus |
+
+Culture dimensions: Innovation, Teamwork, Work-Life-Balance, Hierarchie, Nachhaltigkeit, Diversität, Weiterbildung, Eigenverantwortung. Dealbreaker threshold: >60 point gap on any dimension caps the culture score.
 
 Minimum score: 30% to appear in feed. Top 50 returned per request.
 
@@ -363,6 +380,12 @@ Minimum score: 30% to appear in feed. Top 50 returned per request.
 - [x] Motivation questions for listings
 - [x] PDF dossier download (mobile + web)
 - [x] 5 swipes per day limit
+- [x] Database consolidation (all tables via Prisma)
+- [x] API input validation (Zod)
+- [x] Atomic swipe transactions
+- [x] Mobile ErrorBoundary crash recovery
+- [x] Investor demo seed data (7 applications, full pipeline)
+- [x] One-command setup script (`scripts/setup-db.sh`)
 - [ ] Push notifications for application status changes
 - [ ] Lehrstellen import from external sources (LENA)
 - [ ] Profile photo/video upload in Expo app

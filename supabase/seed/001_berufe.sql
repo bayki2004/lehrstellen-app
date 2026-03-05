@@ -261,7 +261,8 @@ INSERT INTO berufe (code, name_de, field, education_type, description_de, person
 ('TXPE1', 'Textilpraktiker/in EBA', 'Textilien/Mode', 'EBA', NULL, '{}', 2, '7727'),
 ('UHAE1', 'Uhrenarbeiter/in EBA', 'Metall/Maschinen/Uhren', 'EBA', NULL, '{}', 2, '7728'),
 ('UHPE1', 'Unterhaltspraktiker/in EBA', 'Gebäudetechnik', 'EBA', NULL, '{}', 2, '7729'),
-('ZRAE1', 'Zweirad-Assistent/in EBA', 'Fahrzeuge', 'EBA', NULL, '{}', 2, '7730')
+('ZRAE1', 'Zweirad-Assistent/in EBA', 'Fahrzeuge', 'EBA', NULL, '{}', 2, '7730'),
+('88612', 'Informatiker/in EFZ Plattformentwicklung', 'Informatik', 'EFZ', 'Informatikerinnen und Informatiker EFZ Plattformentwicklung betreuen Server, Datenbanken und Cloud-Infrastruktur.', '{"realistic": 0.4, "investigative": 0.8, "artistic": 0.2, "social": 0.3, "enterprising": 0.3, "conventional": 0.6}', 4, '7672')
 
 ON CONFLICT (code) DO UPDATE SET
   name_de = EXCLUDED.name_de,

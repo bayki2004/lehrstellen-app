@@ -28,6 +28,7 @@ export default function ChatScreen() {
     useChatStore();
   const [match, setMatch] = useState<MatchDTO | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
   const matchMessages = messages[matchId!] || [];
@@ -37,14 +38,16 @@ export default function ChatScreen() {
 
     const load = async () => {
       try {
+        setLoadError(false);
         const [matchRes, messagesRes] = await Promise.all([
           api.get<MatchDTO>(`/matches/${matchId}`),
-          api.get<MessageDTO[]>(`/matches/${matchId}/messages`),
+          api.get<MessageDTO[]>(`/chat/${matchId}/messages`),
         ]);
         setMatch(matchRes.data);
         setMessages(matchId, messagesRes.data);
-      } catch {
-        // silent
+      } catch (err) {
+        console.error('[Chat] Failed to load:', err);
+        setLoadError(true);
       } finally {
         setIsLoading(false);
       }
@@ -72,6 +75,32 @@ export default function ChatScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.center}>
           <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.center}>
+          <Text style={styles.errorText}>Chat chonnt nid glade werde.</Text>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={() => {
+              setIsLoading(true);
+              setLoadError(false);
+              Promise.all([
+                api.get<MatchDTO>(`/matches/${matchId}`),
+                api.get<MessageDTO[]>(`/chat/${matchId}/messages`),
+              ]).then(([matchRes, messagesRes]) => {
+                setMatch(matchRes.data);
+                setMessages(matchId!, messagesRes.data);
+              }).catch(() => setLoadError(true)).finally(() => setIsLoading(false));
+            }}
+          >
+            <Text style={styles.retryText}>Nomal probiere</Text>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     );
@@ -185,5 +214,22 @@ const styles = StyleSheet.create({
     fontSize: typography.body,
     color: colors.textTertiary,
     textAlign: 'center',
+  },
+  errorText: {
+    fontSize: typography.body,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: spacing.md,
+  },
+  retryButton: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.lg,
+  },
+  retryText: {
+    fontSize: typography.body,
+    fontWeight: fontWeights.semiBold,
+    color: '#fff',
   },
 });
